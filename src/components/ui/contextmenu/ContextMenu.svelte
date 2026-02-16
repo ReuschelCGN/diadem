@@ -5,7 +5,7 @@
 	import * as m from "@/lib/paraglide/messages";
 
 	import { getContextMenuEvent, getIsContextMenuOpen, setIsContextMenuOpen } from "@/lib/ui/contextmenu.svelte.js";
-	import { onClickOutside } from "runed";
+	import { onClickOutside, watch } from "runed";
 	import { Menu, openMenu } from "@/lib/ui/menus.svelte.js";
 	import { setCurrentScoutCenter, setCurrentScoutCoords } from "@/lib/features/scout.svelte.js";
 	import { Coords } from "@/lib/utils/coordinates";
@@ -33,6 +33,14 @@
 
 	onClickOutside(() => div, () => setIsContextMenuOpen(false));
 
+	watch(
+		() => getContextMenuEvent(),
+		() => {
+			const event = getContextMenuEvent()
+			if (event) mapsUrl = getMapsUrl(Coords.infer(event.lngLat), m.external_map_context_menu());
+		}
+	)
+
 	$effect(() => {
 		if (!div) return;
 		if (!getContextMenuEvent()) return;
@@ -40,8 +48,6 @@
 
 		const event = getContextMenuEvent();
 		if (!event) return;
-
-		mapsUrl = getMapsUrl(event.lngLat.lat, event.lngLat.lng);
 
 		const { innerWidth, innerHeight } = window;
 		const offsetWidth = div.getBoundingClientRect().width;

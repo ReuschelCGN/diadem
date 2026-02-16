@@ -373,5 +373,9 @@
     "searching_for_addresses": "Looking for addresses",
     "nav_tools": "Tools",
     "nav_coveragemap": "Coverage Map",
-    "back_to_map": "Back to map"
+    "back_to_map": "Back to map",
+    "external_map_context_menu": "Selected location",
+    "google_maps": "Google Maps",
+    "apple_maps": "Apple Maps",
+    "settings_external_map_provider": "Open navigation links"
 }

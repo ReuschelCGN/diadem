@@ -13,6 +13,9 @@
 		hasClipboardWrite
 	} from '@/lib/utils/device';
 	import { getMapsUrl } from '@/lib/utils/mapUrl';
+	import { Coords } from "@/lib/utils/coordinates";
+	import { getShareTitle } from "@/lib/features/shareTexts";
+	import { getCurrentSelectedData } from "@/lib/mapObjects/currentSelectedState.svelte";
 
 	let {
 		lat,
@@ -45,7 +48,7 @@
 		size="default"
 		variant="outline"
 		tag="a"
-		href={getMapsUrl(lat, lon)}
+		href={getMapsUrl(new Coords(lat, lon), getShareTitle(getCurrentSelectedData()))}
 		target="_blank"
 	>
 		<Navigation size="18" />

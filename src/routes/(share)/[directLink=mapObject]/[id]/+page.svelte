@@ -2,7 +2,7 @@
 	import Metadata from "@/components/utils/Metadata.svelte";
 	import { mPokemon } from "@/lib/services/ingameLocale";
 	import * as m from "@/lib/paraglide/messages";
-	import { getShareText } from "@/lib/features/shareTexts";
+	import { getShareText, getShareTitle } from "@/lib/features/shareTexts";
 	import { getIconForMap, getIconPokemon, getIconTappable } from "@/lib/services/uicons.svelte.js";
 	import { browser } from "$app/environment";
 	import type { PageProps } from "./$types";
@@ -15,36 +15,7 @@
 
 	let { data }: PageProps = $props();
 
-	let title: string = $derived.by(() => {
-		if (!data) return "";
-		const mapData = data as MapData;
-
-		if (mapData.type === MapObjectType.POKEMON) {
-			return mPokemon(mapData);
-		} else if (mapData.type === MapObjectType.STATION) {
-			let title = "";
-			if (mapData.battle_pokemon_id) {
-				title = m.pogo_max_battle();
-			} else {
-				title = m.pogo_station();
-			}
-			if (mapData.id) title += ": " + getStationTitle(mapData);
-			return title;
-		} else if (mapData.type === MapObjectType.GYM || mapData.type === MapObjectType.POKESTOP) {
-			let title = m[`pogo_${mapData.type}`]().toString();
-			if (mapData.name) title += `: ${mapData.name}`;
-			return title;
-		} else if (mapData.type === MapObjectType.NEST) {
-			return m.pokemon_nest({ pokemon: mPokemon(data) })
-		} else if (mapData.type === MapObjectType.SPAWNPOINT) {
-			return m.pogo_spawnpoint()
-		} else if (mapData.type === MapObjectType.ROUTE) {
-			// TODO: route share title
-		} else if (mapData.type === MapObjectType.TAPPABLE) {
-			return getTappableName(mapData) + ` (${m.pogo_tappable()})`
-		}
-		return "";
-	});
+	let title: string = $derived(getShareTitle(data as MapData));
 
 	let thumbnail: string = $derived.by(() => {
 		if (!data || browser) return "";

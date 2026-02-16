@@ -32,6 +32,8 @@ import type { NestData } from "@/lib/types/mapObjectData/nest";
 import type { RouteData } from "@/lib/types/mapObjectData/route";
 import type { TappableData } from "@/lib/types/mapObjectData/tappable";
 import { formatDecimal } from "@/lib/utils/numberFormat";
+import { getTappableName } from "@/lib/utils/tappableUtils";
+import { getStationTitle } from "@/lib/utils/stationUtils";
 
 export function getShareText(data: MapData): string {
 	if (!data.id) return "";
@@ -55,6 +57,36 @@ export function getShareText(data: MapData): string {
 			return getTappableShareText(data);
 	}
 	// TODO: share texts for other map objects
+	return "";
+}
+
+export function getShareTitle(data: MapData | null | undefined) {
+	if (!data) return "";
+
+	if (data.type === MapObjectType.POKEMON) {
+		return mPokemon(data);
+	} else if (data.type === MapObjectType.STATION) {
+		let title = "";
+		if (data.battle_pokemon_id) {
+			title = m.pogo_max_battle();
+		} else {
+			title = m.pogo_station();
+		}
+		if (data.id) title += ": " + getStationTitle(data);
+		return title;
+	} else if (data.type === MapObjectType.GYM || data.type === MapObjectType.POKESTOP) {
+		let title = m[`pogo_${data.type}`]().toString();
+		if (data.name) title += `: ${data.name}`;
+		return title;
+	} else if (data.type === MapObjectType.NEST) {
+		return m.pokemon_nest({ pokemon: mPokemon(data) });
+	} else if (data.type === MapObjectType.SPAWNPOINT) {
+		return m.pogo_spawnpoint();
+	} else if (data.type === MapObjectType.ROUTE) {
+		// TODO: route share title
+	} else if (data.type === MapObjectType.TAPPABLE) {
+		return getTappableName(data) + ` (${m.pogo_tappable()})`;
+	}
 	return "";
 }
 

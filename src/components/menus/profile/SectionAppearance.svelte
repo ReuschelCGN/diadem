@@ -1,7 +1,7 @@
 <script lang="ts">
 	import * as m from "@/lib/paraglide/messages";
 	import { Cloud, Moon, Paintbrush, Sun } from "lucide-svelte";
-	import { getUserSettings } from "@/lib/services/userSettings.svelte";
+	import { ExternalMapProvider, getUserSettings } from "@/lib/services/userSettings.svelte";
 	import { isMenuSidebar } from "@/lib/utils/device";
 	import { onMapStyleChange, onSettingsChange } from "@/lib/services/settings";
 	import { getConfig } from "@/lib/services/config/config";
@@ -36,6 +36,17 @@
 			value: "pt"
 		}
 	];
+
+	const mapProviders = [
+		{
+			label: m.google_maps(),
+			value: ExternalMapProvider.GOOGLE
+		},
+		{
+			label: m.apple_maps(),
+			value: ExternalMapProvider.APPLE
+		}
+	]
 </script>
 
 <MenuCard
@@ -122,5 +133,12 @@
 				}}
 		/>
 	</MenuGeneric>
+
+	<Select
+		title={m.settings_external_map_provider()}
+		value={getUserSettings().externalMapProvider}
+		onselect={(mapProvider) => onSettingsChange("externalMapProvider", mapProvider)}
+		options={mapProviders}
+	/>
 
 </MenuCard>

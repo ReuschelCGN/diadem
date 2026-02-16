@@ -24,6 +24,11 @@ export type UiconSetUS = {
 	url: string;
 };
 
+export enum ExternalMapProvider {
+	GOOGLE = "google",
+	APPLE = "apple",
+}
+
 export type UserSettings = {
 	mapPosition: {
 		center: {
@@ -49,6 +54,7 @@ export type UserSettings = {
 	loadMapObjectsPadding: number;
 	showDebugMenu: boolean;
 	mapIconSize: number;
+	externalMapProvider: ExternalMapProvider;
 	filters: {
 		pokemon: FilterPokemon;
 		pokestop: FilterPokestop;
@@ -92,6 +98,7 @@ export function getDefaultUserSettings(): UserSettings {
 		loadMapObjectsPadding: 20,
 		showDebugMenu: false,
 		mapIconSize: 1,
+		externalMapProvider: ExternalMapProvider.GOOGLE,
 		filters: {
 			pokemon: { category: "pokemon", ...defaultFilter() },
 			pokestop: getDefaultPokestopFilter(),
