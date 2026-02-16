@@ -1,15 +1,16 @@
 <script lang="ts">
-	import { Slider } from 'bits-ui';
-	import NumberInput from '@/components/ui/input/NumberInput.svelte';
-	import Input from '@/components/ui/input/Input.svelte';
-	import SliderCommon from '@/components/ui/input/slider/SliderCommon.svelte';
+	import { Slider } from "bits-ui";
+	import NumberInput from "@/components/ui/input/NumberInput.svelte";
+	import Input from "@/components/ui/input/Input.svelte";
+	import SliderCommon from "@/components/ui/input/slider/SliderCommon.svelte";
 
 	let {
 		min,
 		max,
 		step = 1,
 		title,
-		onchange = () => {},
+		onchange = () => {
+		},
 		valueMin = $bindable(),
 		valueMax = $bindable(),
 		labels = undefined
@@ -30,22 +31,36 @@
 		<span class="font-semibold text-base">
 			{title}
 		</span>
-		{#if !labels}
+		{#if labels}
 			<div class="ml-auto border rounded-md py-1 divide-x divide-border flex">
 				<div class="px-3 w-14 text-center">
-					{#if labels}
-						{labels[valueMin] ?? valueMin}
-					{:else}
-						{valueMin}
-					{/if}
+					{labels[valueMin] ?? valueMin}
 				</div>
 				<div class="px-3 w-14 text-center">
-					{#if labels}
-						{labels[valueMax] ?? valueMax}
-					{:else}
-						{valueMax}
-					{/if}
+					{labels[valueMax] ?? valueMax}
 				</div>
+			</div>
+		{:else}
+			<div class="ml-auto flex gap-1">
+
+			<Input
+				class="w-20 text-center"
+				type="number"
+				value={valueMin}
+				onchange={(e) => {
+					valueMin = Number(e.target?.value ?? min)
+					onchange([valueMin, valueMax])
+				}}
+			/>
+			<Input
+				class="w-20 text-center"
+				type="number"
+				value={valueMax}
+				onchange={(e) => {
+					valueMax = Number(e.target?.value ?? max)
+					onchange([valueMin, valueMax])
+				}}
+			/>
 			</div>
 		{/if}
 	</div>
