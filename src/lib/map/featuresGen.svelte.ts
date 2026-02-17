@@ -564,7 +564,7 @@ export function updateFeatures(mapObjects: MapObjectsStateType) {
 					id: obj.mapId,
 					imageSize: modifiers.scale,
 					selectedScale: selectedScale,
-					imageOffset: [modifiers.offsetX, modifiers.offsetX],
+					imageOffset: [modifiers.offsetX, modifiers.offsetY],
 					expires
 				})
 			);

@@ -17,7 +17,7 @@ export type S2CellFeature = Feature<Polygon, S2CellProperties>;
 const DEGREE = Math.PI / 180;
 
 export function getCoveringS2Cells(bounds: Bounds, level: number): s2.CellUnion {
-	const regionCoverer = new s2.RegionCoverer({ minLevel: level, maxLevel: level });
+	const regionCoverer = new s2.RegionCoverer({ minLevel: level, maxLevel: level, maxCells: LIMIT_S2_CELLS });
 
 	const region = new s2.Rect(
 		new r1.Interval(bounds.minLat * DEGREE, bounds.maxLat * DEGREE),
@@ -51,6 +51,9 @@ export function cellToFeature(
 }
 
 export function getS2CellMapObjects(bounds: Bounds, filter: FilterS2Cell) {
+	const map = getMap()
+	if (map && filter.level > (map.getZoom() + 4)) return []
+
 	const cells = getCoveringS2Cells(bounds, filter.level);
 
 	if (cells.length > LIMIT_S2_CELLS) return [];

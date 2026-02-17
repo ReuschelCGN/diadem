@@ -17,21 +17,21 @@
 </script>
 
 <div class="py-2 -mr-4">
-	<div class="flex items-center justify-between px-4">
-		<p class="font-semibold">
-			{m.wayfarer_cells()}
-		</p>
-		<Switch
-			class=""
-			checked={getUserSettings().filters.s2cell.wayfarerMode ?? false}
-			onCheckedChange={debounce(checked => {
-				getUserSettings().filters.s2cell.wayfarerMode = checked
-				updateUserSettings()
-				updateMapObject(MapObjectType.S2_CELL)
-			})}
-		/>
-	</div>
-	<div class="px-3 mt-2">
+<!--	<div class="flex items-center justify-between px-4 mb-2">-->
+<!--		<p class="font-semibold">-->
+<!--			{m.wayfarer_cells()}-->
+<!--		</p>-->
+<!--		<Switch-->
+<!--			class=""-->
+<!--			checked={getUserSettings().filters.s2cell.wayfarerMode ?? false}-->
+<!--			onCheckedChange={debounce(checked => {-->
+<!--				getUserSettings().filters.s2cell.wayfarerMode = checked-->
+<!--				updateUserSettings()-->
+<!--				updateMapObject(MapObjectType.S2_CELL)-->
+<!--			})}-->
+<!--		/>-->
+<!--	</div>-->
+	<div class="px-3 -mt-2">
 		<Slider
 			min={0}
 			max={20}
