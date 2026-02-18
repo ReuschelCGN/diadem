@@ -4,10 +4,10 @@ config/*
 !config/*example*
 config.toml
 .vite/*
-src/components/custom/*
-static/custom/*
-src/routes/(custom)/*
-src/custom.css
+#src/components/custom/*
+#static/custom/*
+#src/routes/(custom)/*
+#src/custom.css
 
 # Output
 .output
