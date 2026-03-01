@@ -8,16 +8,29 @@
 	import { slide, fade, fly } from "svelte/transition";
 	import Card from "@/components/ui/Card.svelte";
 	import {flip} from "svelte/animate";
+	import { getConfig } from "@/lib/services/config/config";
+	import { getMapPath } from "@/lib/utils/getMapPath";
+	import { SvelteURL } from "svelte/reactivity";
+	import { onMount } from "svelte";
 </script>
 
-<div
-	class="fixed top-2 z-20 w-full px-2"
-	transition:fly={{ duration: 90, y: -14 }}
->
-	<div class="w-full pl-4 pr-2 py-2 flex items-center justify-between bg-card rounded-lg border border-border">
-		<h1 class="font-semibold">
-			{m.nav_coveragemap()}
-		</h1>
+<div class="w-full pl-4 pr-2 py-2 flex items-center justify-between bg-card rounded-lg border border-border">
+	<h1 class="font-semibold">
+		{m.nav_coveragemap()}
+	</h1>
+
+	{#if getConfig().general.customHome && !location.pathname.startsWith(getMapPath(getConfig()))}
+		<Button
+			size="sm"
+			variant="outline"
+			tag="a"
+			href="/"
+			onclick={closeCoverageMap}
+		>
+			<ArrowLeft class="size-4" />
+			<span>{m.error_back_to_website()}</span>
+		</Button>
+	{:else}
 		<Button
 			size="sm"
 			variant="outline"
@@ -26,5 +39,6 @@
 			<ArrowLeft class="size-4" />
 			<span>{m.back_to_map()}</span>
 		</Button>
-	</div>
+	{/if}
 </div>
+

@@ -35,15 +35,16 @@
 	import MobileMenu from "@/components/menus/mobile/MobileMenu.svelte";
 	import { getIsCoverageMapActive, showCoverageMapTitle } from "@/lib/features/coverageMap.svelte";
 	import CoverageMapTitle from "@/components/menus/coverageMap/CoverageMapTitle.svelte";
+	import { fly } from "svelte/transition";
+	import { isOnMap } from "@/lib/utils/getMapPath";
 
 	$effect(() => {
 		// When opening a popup on mobile while in a menu, close the menu
 		if (getCurrentSelectedData() && !isMenuSidebar()) {
-			closeMenu()
+			closeMenu();
 		}
 	});
 
-	let showCustomHome = $derived(getConfig().general.customHome && page.params.map !== "map");
 	const errorHref = getConfig().general.customHome ? "/" : "";
 </script>
 
@@ -51,7 +52,7 @@
 	<Metadata />
 </svelte:head>
 
-{#if showCustomHome}
+{#if !isOnMap()}
 	<Home />
 {:else if !isWebglSupported()}
 	<ErrorPage
@@ -132,7 +133,12 @@
 		</div>
 
 		{#if showCoverageMapTitle()}
-			<CoverageMapTitle />
+			<div
+				class="fixed top-2 z-20 w-full px-2"
+				transition:fly={{ duration: 90, y: -14 }}
+			>
+				<CoverageMapTitle />
+			</div>
 		{/if}
 	{/if}
 

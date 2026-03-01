@@ -9,6 +9,9 @@ import { featureCollection } from "@turf/turf";
 import { getKojiGeofences, type KojiFeature } from "@/lib/features/koji";
 import { hasLoadedFeature, LoadedFeature } from "@/lib/services/initialLoad.svelte";
 import type { Feature as GeojsonFeature, FeatureCollection, Point, Polygon } from "geojson";
+import { pushState } from "$app/navigation";
+import { getMapPath } from "@/lib/utils/getMapPath";
+import { getConfig } from "@/lib/services/config/config";
 
 export type CoverageMapAreaProperties = {
 	fillColor: string;
@@ -25,7 +28,11 @@ export function getIsCoverageMapActive() {
 	return isCoverageMapActive;
 }
 
-export function openCoverageMap() {
+export function openCoverageMap(onRoot: boolean = false) {
+	let link = getMapPath(getConfig(), "/coverage")
+	if (onRoot) link = "/coverage"
+
+	pushState(link, {})
 	isCoverageMapActive = true;
 	setJustChangedMenus()
 	openMenu(Menu.COVERAGE_MAP);

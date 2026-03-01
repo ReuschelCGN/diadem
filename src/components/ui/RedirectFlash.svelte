@@ -5,10 +5,22 @@
 	import * as m from "@/lib/paraglide/messages";
 	import { tick } from "svelte";
 	import { goto } from "$app/navigation";
+	import ErrorPage from "@/components/ui/ErrorPage.svelte";
+	import Button from "@/components/ui/input/Button.svelte";
 
-	let { goal, href = getMapPath(getConfig()) }: { goal: string, href?: string } = $props()
+	let {
+		goal,
+		href = getMapPath(getConfig()),
+		redirect = true,
+		onclick = undefined
+	}: {
+		goal: string,
+		href?: string,
+		redirect?: boolean
+		onclick?: () => void
+	} = $props();
 
-	if (browser) {
+	if (browser && redirect) {
 		tick().then(() => {
 			goto(href);
 		});
@@ -16,7 +28,20 @@
 </script>
 
 {#if browser}
-	<a class="p-4 mx-auto underline" {href}>
-		{m.redirect_notice({ goal })}
-	</a>
+	<ErrorPage
+		error={m.redirect_title({ goal })}
+		href=""
+		linkLabel=""
+	>
+		{#snippet extraButtons()}
+			<Button
+				variant="outline"
+				tag="a"
+				{href}
+				{onclick}
+			>
+				{m.redirect_button()}
+			</Button>
+		{/snippet}
+	</ErrorPage>
 {/if}

@@ -108,7 +108,7 @@
 			Icon={Earth}
 			title="Coverage Map"
 			description="Overview all scanned areas"
-			onclick={openCoverageMap}
+			onclick={() => openCoverageMap()}
 		>
 			<MapLibre
 				class="absolute! top-0 right-0 h-full w-1/2"

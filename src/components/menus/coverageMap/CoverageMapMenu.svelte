@@ -7,9 +7,10 @@
 	import { getFeatureJump } from "@/lib/utils/geo";
 	import { flyTo, jumpTo } from "@/lib/map/utils";
 	import { closeSearchModal } from "@/lib/ui/modal.svelte";
-	import { coverageMapActiveSnapPoint } from "@/lib/features/coverageMap.svelte";
+	import { closeCoverageMap, coverageMapActiveSnapPoint } from "@/lib/features/coverageMap.svelte";
 	import { SvelteSet } from "svelte/reactivity";
 	import {slide, fly} from "svelte/transition";
+	import { onDestroy } from "svelte";
 
 	let expandedAreas: Set<number> = new SvelteSet()
 </script>

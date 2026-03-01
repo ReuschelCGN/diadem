@@ -379,5 +379,7 @@
     "apple_maps": "Apple Maps",
     "settings_external_map_provider": "Open navigation links",
     "wayfarer_cells": "Wayfarer Cells",
-    "cell_level": "S2 Cell Level"
+    "cell_level": "S2 Cell Level",
+    "redirect_title": "Bringing you to {goal}",
+    "redirect_button": "Click here if that didn't work"
 }
