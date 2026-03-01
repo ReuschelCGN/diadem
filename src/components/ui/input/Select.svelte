@@ -5,6 +5,7 @@
 	import Card from "@/components/ui/Card.svelte";
 	import ContextMenuItem from "@/components/ui/contextmenu/ContextMenuItem.svelte";
 	import Modal from "@/components/ui/modal/Modal.svelte";
+	import type { Snippet } from "svelte";
 
 	let {
 		onselect,
@@ -12,14 +13,16 @@
 		title,
 		description = "",
 		options,
-		class: class_ = ""
+		class: class_ = "",
+		children = undefined
 	}: {
 		onselect: (value: string) => void,
 		value: string,
 		title: string,
 		description?: string,
 		options: { value: string, label: string }[],
-		class?: string
+		class?: string,
+		children?: Snippet
 	} = $props();
 </script>
 
@@ -40,18 +43,22 @@
 	{/each}
 {/snippet}
 
-<Button
-	variant="ghost"
-	size=""
-	class="{class_} relative group w-full flex justify-between! items-center text-left rounded-md"
-	onclick={() => openSelectModal(selectOptions)}
->
-	<MenuTitle {title} {description} />
-
-	<span
-		class="border-border dark:group-hover:border-card dark:group-active:border-card ring-offset-background rounded-md border px-6 py-2 text-sm"
+{#if children}
+	{@render children()}
+{:else}
+	<Button
+		variant="ghost"
+		size=""
+		class="{class_} relative group w-full flex justify-between! items-center text-left rounded-md"
+		onclick={() => openSelectModal(selectOptions)}
 	>
-		{options.find(o => o.value === value)?.label}
-	</span>
+		<MenuTitle {title} {description} />
 
-</Button>
+		<span
+			class="border-border dark:group-hover:border-card dark:group-active:border-card ring-offset-background rounded-md border px-6 py-2 text-sm"
+		>
+			{options.find(o => o.value === value)?.label}
+		</span>
+
+	</Button>
+{/if}
