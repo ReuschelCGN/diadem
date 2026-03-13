@@ -7,7 +7,7 @@
 	import { updateAllMapObjects } from "@/lib/mapObjects/updateMapObject";
 	import * as m from "@/lib/paraglide/messages";
 	import { clearUpdateMapObjectsInterval, resetUpdateMapObjectsInterval } from "@/lib/map/mapObjectsInterval";
-	import { getMap, setMap } from "@/lib/map/map.svelte";
+	import { getMap, handleRotatePitchDisable, setMap } from "@/lib/map/map.svelte";
 	import { clearPressTimer, onContextMenu } from "@/lib/ui/contextmenu.svelte.js";
 	import { clearSessionImageUrls } from "@/lib/map/featuresManage.svelte";
 	import { loadMapObjectInterval } from "@/lib/map/loadMapObjects";
@@ -85,6 +85,8 @@
 			map.on("movestart", onMapMoveStart);
 			map.on("move", onMapMove);
 			map.on("styledataloading", onMapStyleDataLoading);
+
+			handleRotatePitchDisable()
 
 			// tick so feature handler registers first
 			tick().then(() => map?.on("click", clickMapHandler));

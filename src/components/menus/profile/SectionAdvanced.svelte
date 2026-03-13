@@ -6,6 +6,7 @@
 	import NumberInput from '@/components/ui/input/NumberInput.svelte';
 	import * as m from '@/lib/paraglide/messages';
 	import { onSettingsChange } from '@/lib/services/settings';
+	import { handleRotatePitchDisable, resetMap } from "@/lib/map/map.svelte";
 </script>
 
 <MenuCard
@@ -17,6 +18,22 @@
 		description={m.settings_show_debug_description()}
 		onclick={() => onSettingsChange("showDebugMenu", !getUserSettings().showDebugMenu)}
 		value={getUserSettings().showDebugMenu}
+	/>
+
+	<Toggle
+		title={m.settings_rotate_pitch_title()}
+		description={m.settings_rotate_pitch_description()}
+		onclick={() => {
+			const newValue = !getUserSettings().enableRotatePitch
+
+			if (!newValue) {
+				resetMap()
+			}
+
+			onSettingsChange("enableRotatePitch", newValue)
+			handleRotatePitchDisable()
+		}}
+		value={getUserSettings().enableRotatePitch}
 	/>
 
 	<Toggle

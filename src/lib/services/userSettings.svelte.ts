@@ -53,6 +53,7 @@ export type UserSettings = {
 	loadMapObjectsWhileMoving: boolean;
 	loadMapObjectsPadding: number;
 	showDebugMenu: boolean;
+	enableRotatePitch: boolean;
 	mapIconSize: number;
 	externalMapProvider: ExternalMapProvider;
 	expandedMapObjects: MapObjectType[];
@@ -98,6 +99,7 @@ export function getDefaultUserSettings(): UserSettings {
 		loadMapObjectsWhileMoving: false,
 		loadMapObjectsPadding: 20,
 		showDebugMenu: false,
+		enableRotatePitch: true,
 		mapIconSize: 1,
 		externalMapProvider: ExternalMapProvider.GOOGLE,
 		expandedMapObjects: [],
