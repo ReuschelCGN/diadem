@@ -7,7 +7,7 @@ export abstract class BaseDataProvider<T> {
 	protected interval: NodeJS.Timeout;
 
 	constructor(refreshSeconds: number) {
-		this.interval = setInterval(this.query, refreshSeconds * 1000);
+		this.interval = setInterval(() => this.query(), refreshSeconds * 1000);
 		this.interval?.unref?.();
 	}
 
