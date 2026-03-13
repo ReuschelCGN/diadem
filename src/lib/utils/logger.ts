@@ -12,7 +12,7 @@ export interface Logger {
 
 let serverLoggerFactory: ((name: string) => Logger) | null = null;
 
-export function setServerLoggerFactory(factory: (name: string) => Logger,) {
+export function setServerLoggerFactory(factory: (name: string) => Logger) {
 	serverLoggerFactory = factory;
 }
 

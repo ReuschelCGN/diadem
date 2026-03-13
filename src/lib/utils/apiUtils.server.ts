@@ -1,4 +1,3 @@
-
 const defaultCacheAge = 86400 * 120 // 120 days
 
 export function cacheHttpHeaders(age: number = defaultCacheAge) {

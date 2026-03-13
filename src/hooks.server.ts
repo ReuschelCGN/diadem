@@ -1,4 +1,4 @@
-import type { Handle } from "@sveltejs/kit";
+import type { Handle, ServerInit } from "@sveltejs/kit";
 import {
 	deleteSessionTokenCookie,
 	invalidateSession,
@@ -13,33 +13,18 @@ import type { User } from "@/lib/server/db/internal/schema";
 import { DISCORD_REFRESH_INTERVAL, PERMISSION_UPDATE_INTERVAL } from "@/lib/constants";
 import { getDiscordAuth } from "@/lib/server/auth/discord";
 import type { Perms } from "@/lib/utils/features";
-import { getServerLogger } from "@/lib/server/logging";
-import { setServerLoggerFactory } from "@/lib/utils/logger";
-import { getServerConfig } from "@/lib/services/config/config.server";
 import { paraglideMiddleware } from "@/lib/paraglide/server";
 import { sequence } from "@sveltejs/kit/hooks";
+import { setServerLoggerFactory } from "@/lib/utils/logger";
+import { getServerLogger } from "@/lib/server/logging";
 
 const paraglideHandle: Handle = ({ event, resolve }) =>
-	paraglideMiddleware(
-		event.request,
-		({ request: localizedRequest, locale }) => {
-			event.request = localizedRequest;
-			return resolve(event, {
-				transformPageChunk: ({ html }) => html.replace("%lang%", locale),
-			});
-		},
-	);
-
-setServerLoggerFactory((name) => {
-	const winstonLogger = getServerLogger(name);
-	return {
-		debug: (message, ...args) => winstonLogger.debug(message, ...args),
-		info: (message, ...args) => winstonLogger.info(message, ...args),
-		warning: (message, ...args) => winstonLogger.warning(message, ...args),
-		error: (message, ...args) => winstonLogger.error(message, ...args),
-		crit: (message, ...args) => winstonLogger.crit(message, ...args),
-	};
-});
+	paraglideMiddleware(event.request, ({ request: localizedRequest, locale }) => {
+		event.request = localizedRequest;
+		return resolve(event, {
+			transformPageChunk: ({ html }) => html.replace("%lang%", locale)
+		});
+	});
 
 const permissionCache: TTLCache<string, undefined> = new TTLCache({
 	ttl: PERMISSION_UPDATE_INTERVAL * 1000
@@ -100,6 +85,22 @@ const handleAuth: Handle = async ({ event, resolve }) => {
 	event.locals.session = session;
 	if (user) event.locals.perms = user.permissions as Perms;
 	return resolve(event);
+};
+
+export const init: ServerInit = async () => {
+	setServerLoggerFactory((name) => {
+		const winstonLogger = getServerLogger(name);
+		return {
+			debug: (message, ...args) => winstonLogger.debug(message, ...args),
+			info: (message, ...args) => winstonLogger.info(message, ...args),
+			warning: (message, ...args) => winstonLogger.warning(message, ...args),
+			error: (message, ...args) => winstonLogger.error(message, ...args),
+			crit: (message, ...args) => winstonLogger.crit(message, ...args)
+		};
+	});
+
+	const { initDiadem } = await import("@/lib/server/init");
+	await initDiadem();
 };
 
 export const handle: Handle = sequence(paraglideHandle, handleAuth);

@@ -1,7 +1,7 @@
 import type { MasterFile, MasterPokemon, MasterWeather } from '@/lib/types/masterfile';
 import { getMasterStats, getPokemonStats } from "@/lib/features/masterStats.svelte";
 
-const url = "https://raw.githubusercontent.com/WatWowMap/Masterfile-Generator/refs/heads/master/master-latest-react-map.json"
+const url = "/api/pogodata"
 let masterFile: MasterFile
 
 export async function loadMasterFile() {

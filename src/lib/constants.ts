@@ -72,3 +72,8 @@ export const LIMIT_SPAWNPOINT = 50000;
 export const LIMIT_ROUTE = 10000;
 export const LIMIT_TAPPABLE = 10000;
 export const LIMIT_S2_CELLS = 5000;
+
+export const REFRESH_MASTERFILE = 60 * 60
+export const REFRESH_REMOTE_LOCALE = 3 * 60 * 60
+export const REFRESH_UICON_INDEX = 12 * 60 * 60
+export const REFRESH_MASTER_STATS = 60 * 60

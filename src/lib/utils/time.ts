@@ -7,8 +7,12 @@ export function time(date1: Date, date2: Date) {
 }
 
 export function getMmSsFromSeconds(seconds: number) {
-	const mm = (seconds / 60).toFixed(0).padStart(2, "0")
-	const ss = (seconds % 60).toFixed(0).padStart(2, "0")
+	const mm = (seconds / 60).toFixed(0).padStart(2, "0");
+	const ss = (seconds % 60).toFixed(0).padStart(2, "0");
 
-	return mm + ":" + ss
+	return mm + ":" + ss;
+}
+
+export async function sleep(ms: number) {
+	await new Promise((resolve) => setTimeout(resolve, ms));
 }
