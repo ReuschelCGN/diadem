@@ -1,14 +1,21 @@
-import { CloudOff, CloudSun, Cloudy, Snowflake, Sun, Umbrella, Waves, Wind } from "lucide-svelte";
-import type { LucideIcon } from "@/lib/types/lucide";
+import Sunny from "@/components/icons/weather/Sunny.svelte";
+import Rainy from "@/components/icons/weather/Rainy.svelte";
+import type { Component } from "svelte";
+import PartlyCloudy from "@/components/icons/weather/PartlyCloudy.svelte";
+import Cloudy from "@/components/icons/weather/Cloudy.svelte";
+import Windy from "@/components/icons/weather/Windy.svelte";
+import Snowy from "@/components/icons/weather/Snowy.svelte";
+import Fog from "@/components/icons/weather/Fog.svelte";
+import { CloudOff } from "lucide-svelte";
 
-const weatherIcons: { [key: number]: LucideIcon } = {
-	1: Sun,
-	2: Umbrella,
-	3: CloudSun,
+const weatherIcons: { [key: number]: Component } = {
+	1: Sunny,
+	2: Rainy,
+	3: PartlyCloudy,
 	4: Cloudy,
-	5: Wind,
-	6: Snowflake,
-	7: Waves
+	5: Windy,
+	6: Snowy,
+	7: Fog
 };
 
 export function getWeatherIcon(weatherId: number | undefined | null) {

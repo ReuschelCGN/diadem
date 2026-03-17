@@ -1,18 +1,18 @@
 <script lang="ts">
-	import type { Snippet } from 'svelte';
+	import type { Component, Snippet } from "svelte";
 	import type { LucideIcon } from '@/lib/types/lucide';
 
 	let {
 		Icon,
 		children,
 	}: {
-		Icon: LucideIcon,
+		Icon: LucideIcon | Component,
 		children: Snippet,
 	} = $props()
 </script>
 
 <div class="flex items-center">
-	<Icon size="16" class="shrink-0" />
+	<Icon class="shrink-0 size-4" />
 
 	<div class="ml-1.5">
 		{@render children()}
