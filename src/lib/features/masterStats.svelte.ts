@@ -2,6 +2,7 @@ import type {
 	ActiveInvasionCharacterStats,
 	ActiveRaidStats,
 	ContestStatsEntry,
+	EggStats,
 	MasterStats,
 	MaxBattleStatsEntry,
 	NestStatsEntry,
@@ -121,7 +122,7 @@ export function getActiveRaids(): ActiveRaidStats[] {
 }
 
 export function getActiveCharacters(): ActiveInvasionCharacterStats[] {
-	return masterStats?.activeCharacters ?? [];
+	return Object.values(masterStats?.activeCharacters) ?? [];
 }
 
 export function getActiveContests(): ContestStatsEntry[] {
@@ -134,4 +135,8 @@ export function getActiveMaxBattles(): MaxBattleStatsEntry[] {
 
 export function getActiveNests(): NestStatsEntry[] {
 	return masterStats?.activeNests ?? [];
+}
+
+export function getActiveEggs(): EggStats[] {
+	return masterStats?.activeEggs ?? [];
 }

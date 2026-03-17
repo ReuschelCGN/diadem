@@ -1,8 +1,13 @@
 import { query } from "@/lib/server/db/external/internalQuery";
 import type { ContestFocus, QuestReward } from "@/lib/types/mapObjectData/pokestop";
 import { getQuestKey, parseQuestReward, RewardType } from "@/lib/utils/pokestopUtils";
-import { getMasterPokemon } from "@/lib/services/masterfile";
+import { getMasterFile, getMasterPokemon } from "@/lib/services/masterfile";
 import { getNormalizedForm } from "@/lib/utils/pokemonUtils";
+import { masterfileProvider } from "@/lib/server/provider/masterfileProvider";
+import { getLogger } from "@/lib/utils/logger";
+
+const log = getLogger("masterstats");
+const scrapedDuckUrl = "https://raw.githubusercontent.com/bigfoott/ScrapedDuck/data/";
 
 type AllShinyStatsRow = {
 	pokemon_id: number;
@@ -69,6 +74,9 @@ export type ActiveRaidStats = {
 export type ActiveInvasionCharacterStats = {
 	character: number;
 	count: number;
+	first: InvasionPokemonStats[];
+	second: InvasionPokemonStats[];
+	third: InvasionPokemonStats[];
 };
 
 export type PokemonStatEntry = {
@@ -121,6 +129,24 @@ export type NestStatsEntry = {
 	count: number;
 };
 
+export type EggStats = {
+	pokemon_id: number;
+	form: number;
+	km: number;
+	rarity: number;
+	shiny: boolean;
+	isAdventureSync: boolean;
+	isRegional: boolean;
+	isGift: boolean;
+};
+
+export type InvasionPokemonStats = {
+	pokemon_id: number;
+	form: number;
+	encounter: boolean;
+	shiny: boolean;
+};
+
 export type MasterStats = {
 	totalPokemon: TotalPokemonStats;
 	pokemon: {
@@ -130,16 +156,109 @@ export type MasterStats = {
 	quests: QuestStats;
 	activeRaids: ActiveRaidStats[];
 	activeCharacters: ActiveInvasionCharacterStats[];
-	activeContests: ContestStatsEntry[];
+	activeContests: { [key: string]: ContestStatsEntry };
 	activeMaxBattles: MaxBattleStatsEntry[];
 	activeNests: NestStatsEntry[];
+	activeEggs: EggStats[];
 	generatedAt: number;
 };
 
+function extractPokemonIdFromLeekduckImage(imageUrl: string): {
+	pokemonId: number;
+	formId: number;
+} {
+	try {
+		const filename = imageUrl.split("/").pop()?.replace(".icon.png", "") ?? "";
+		const match = filename.match(/^pm(\d+)(?:\.f([A-Z_]+))?$/);
+
+		if (!match) throw new Error("Image didn't match pattern");
+
+		const formName = match[2] ?? null;
+		const pokemonId = Number(match[1]);
+		let formId = 0;
+
+		const masterPokemon = getMasterPokemon(pokemonId);
+		if (formName && masterPokemon?.forms) {
+			const formNameUpper = formName.toUpperCase();
+			for (const [formIdStr, form] of Object.entries(masterPokemon.forms)) {
+				if (form.name?.toUpperCase() === formNameUpper) {
+					formId = Number(formIdStr);
+					break;
+				}
+			}
+		}
+
+		return {
+			pokemonId,
+			formId
+		};
+	} catch (e) {
+		log.error("Error while parsing leekduck image: %s", e);
+		return { pokemonId: 0, formId: 0 };
+	}
+}
+
+function getInvasionCharacterId(name: string, type: string): number | null {
+	const nameLower = name.toLowerCase();
+
+	if (nameLower.includes("giovanni")) return 44;
+	if (nameLower.includes("cliff")) return 41;
+	if (nameLower.includes("arlo")) return 42;
+	if (nameLower.includes("sierra")) return 43;
+
+	if (nameLower.includes("decoy")) {
+		if (nameLower.includes("female")) return 46;
+		if (nameLower.includes("male")) return 45;
+	}
+
+	if (
+		nameLower === "female grunt" ||
+		(nameLower.includes("female grunt") && !nameLower.includes("type"))
+	)
+		return 5;
+
+	if (
+		nameLower === "male grunt" ||
+		(nameLower.includes("male grunt") && !nameLower.includes("type"))
+	)
+		return 4;
+
+	const typeToBaseId: { [key: string]: { female: number; male: number } } = {
+		bug: { female: 6, male: 7 },
+		dark: { female: 10, male: 11 },
+		dragon: { female: 12, male: 13 },
+		fairy: { female: 14, male: 15 },
+		fighting: { female: 16, male: 17 },
+		fire: { female: 18, male: 19 },
+		flying: { female: 20, male: 21 },
+		grass: { female: 22, male: 23 },
+		ground: { female: 24, male: 25 },
+		ice: { female: 26, male: 27 },
+		steel: { female: 28, male: 29 },
+		metal: { female: 28, male: 29 },
+		normal: { female: 30, male: 31 },
+		poison: { female: 32, male: 33 },
+		psychic: { female: 34, male: 35 },
+		rock: { female: 36, male: 37 },
+		water: { female: 38, male: 39 },
+		ghost: { female: 47, male: 48 },
+		electric: { female: 49, male: 50 }
+	};
+
+	const typeLower = type.toLowerCase();
+	const typeEntry = typeToBaseId[typeLower];
+	if (!typeEntry) {
+		return null;
+	}
+
+	if (nameLower.includes("female")) return typeEntry.female;
+	if (nameLower.includes("male")) return typeEntry.male;
+
+	return null;
+}
+
 export async function queryMasterStats(): Promise<MasterStats> {
 	// TODO: timeframe
-	// TODO: there needs to be something like a cronjob to properly update stats in the background
-	// this takes a while, and is cached. but only ever invoked when a user requests for it
 
 	const [
 		allShinyStats,
@@ -149,7 +268,9 @@ export async function queryMasterStats(): Promise<MasterStats> {
 		allCharacterStats,
 		allContestStats,
 		allMaxBattlesStats,
-		allNestsStats
+		allNestsStats,
+		eggsData,
+		invasionLineupsData
 	] = await Promise.all([
 		query<AllShinyStatsRow[]>(
 			"SELECT pokemon_id, form_id AS form, SUM(count) as shinies, SUM(total) as total, COUNT(*) as days " +
@@ -212,8 +333,22 @@ export async function queryMasterStats(): Promise<MasterStats> {
 				"WHERE pokemon_id IS NOT NULL " +
 				"AND updated > UNIX_TIMESTAMP() - 86400 " +
 				"GROUP BY 1, 2"
-		)
+		),
+		fetch(`${scrapedDuckUrl}eggs.min.json`)
+			.then((res) => res.json())
+			.catch((e) => {
+				log.error("Failed to fetch eggs data: %s", e);
+				return [];
+			}),
+		fetch(`${scrapedDuckUrl}rocketLineups.min.json`)
+			.then((res) => res.json())
+			.catch((e) => {
+				log.error("Failed to fetch invasion lineups data: %s", e);
+				return [];
+			})
 	]);
+
+	await masterfileProvider.get();
 
 	const pokemon: { [key: string]: PokemonStatEntry } = {};
 	let pokemonTotal = 0;
@@ -223,7 +358,6 @@ export async function queryMasterStats(): Promise<MasterStats> {
 	let questsTotal = 0;
 
 	let activeRaids: ActiveRaidStats[] = [];
-	let activeCharacters: ActiveInvasionCharacterStats[] = [];
 
 	const activeContests: ContestStatsEntry[] = [];
 	const activeMaxBattles: MaxBattleStatsEntry[] = [];
@@ -231,7 +365,7 @@ export async function queryMasterStats(): Promise<MasterStats> {
 
 	if (allShinyStats.result) {
 		for (const row of allShinyStats.result) {
-			const form = getNormalizedForm(row.pokemon_id, row.form)
+			const form = getNormalizedForm(row.pokemon_id, row.form);
 
 			const key = `${row.pokemon_id}-${form}`;
 			if (!pokemon[key]) {
@@ -239,12 +373,12 @@ export async function queryMasterStats(): Promise<MasterStats> {
 			}
 
 			const stats = row[""][0];
-			const shinies = Number(stats?.shinies ?? 0)
-			const total = Number(stats?.total ?? 0)
+			const shinies = Number(stats?.shinies ?? 0);
+			const total = Number(stats?.total ?? 0);
 
 			if (pokemon[key].shiny) {
-				pokemon[key].shiny.shinies += shinies
-				pokemon[key].shiny.total += total
+				pokemon[key].shiny.shinies += shinies;
+				pokemon[key].shiny.total += total;
 			} else {
 				pokemon[key].shiny = {
 					shinies,
@@ -271,9 +405,9 @@ export async function queryMasterStats(): Promise<MasterStats> {
 				pokemonTotalDays = stats?.days ?? 0;
 			}
 
-			const count = Number(stats?.count ?? 0)
+			const count = Number(stats?.count ?? 0);
 			if (pokemon[key].spawns) {
-				pokemon[key].spawns.count += count
+				pokemon[key].spawns.count += count;
 			} else {
 				pokemon[key].spawns = {
 					count,
@@ -289,7 +423,10 @@ export async function queryMasterStats(): Promise<MasterStats> {
 			if (!questReward) continue;
 
 			if (questReward.type === RewardType.POKEMON) {
-				questReward.info.form = getNormalizedForm(questReward.info.pokemon_id, questReward.info.form)
+				questReward.info.form = getNormalizedForm(
+					questReward.info.pokemon_id,
+					questReward.info.form
+				);
 			}
 
 			const key = getQuestKey(row.quest_rewards, row.quest_title, row.quest_target);
@@ -307,13 +444,9 @@ export async function queryMasterStats(): Promise<MasterStats> {
 
 	if (allRaidStats.result) {
 		for (const row of allRaidStats.result) {
-			row.form = getNormalizedForm(row.pokemon_id, row.form)
-			activeRaids.push(row)
+			row.form = getNormalizedForm(row.pokemon_id, row.form);
+			activeRaids.push(row);
 		}
-	}
-
-	if (allCharacterStats.result) {
-		activeCharacters = allCharacterStats.result;
 	}
 
 	if (allContestStats.result) {
@@ -322,7 +455,7 @@ export async function queryMasterStats(): Promise<MasterStats> {
 
 			const focus = JSON.parse(row.focus) as ContestFocus;
 			if (focus.type === "pokemon" && focus.pokemon_form) {
-				focus.pokemon_form = getNormalizedForm(focus.pokemon_id, focus.pokemon_form)
+				focus.pokemon_form = getNormalizedForm(focus.pokemon_id, focus.pokemon_form);
 			}
 
 			activeContests.push({
@@ -357,6 +490,76 @@ export async function queryMasterStats(): Promise<MasterStats> {
 		}
 	}
 
+	const activeEggs: EggStats[] = [];
+	if (Array.isArray(eggsData)) {
+		for (const egg of eggsData) {
+			const { pokemonId, formId } = extractPokemonIdFromLeekduckImage(egg?.image ?? "");
+			if (!pokemonId) continue;
+
+			const kmMatch = egg?.eggType?.match(/(\d+)/);
+			const km = kmMatch ? kmMatch[1] : "0";
+
+			activeEggs.push({
+				pokemon_id: pokemonId,
+				form: getNormalizedForm(pokemonId, formId),
+				km: Number(km),
+				rarity: egg?.rarity ?? 0,
+				shiny: egg?.canBeShiny ?? false,
+				isAdventureSync: egg?.isAdventureSync ?? false,
+				isRegional: egg?.isRegional ?? false,
+				isGift: egg?.isGiftExchange ?? false
+			});
+		}
+	}
+
+	const activeCharacters: ActiveInvasionCharacterStats[] = [];
+
+	if (allCharacterStats.result) {
+		for (const row of allCharacterStats.result) {
+			activeCharacters.push({
+				character: row.character,
+				count: row.count,
+				first: [],
+				second: [],
+				third: []
+			});
+		}
+	}
+
+	if (Array.isArray(invasionLineupsData)) {
+		for (const lineup of invasionLineupsData) {
+			const characterId = getInvasionCharacterId(lineup.name, lineup.type);
+			if (!characterId) {
+				log.info("Could not match grunt to character id: %s", lineup.name);
+				continue;
+			}
+			log.debug("Matched character name %s to id %d", lineup.name, characterId);
+
+			const characterEntry = activeCharacters.find((c) => c.character === characterId);
+			if (!characterEntry) {
+				continue;
+			}
+
+			const processPokemon = (pokemon: any[]): InvasionPokemonStats[] => {
+				return pokemon
+					.map((p) => {
+						const { pokemonId, formId } = extractPokemonIdFromLeekduckImage(p.image);
+						return {
+							pokemon_id: pokemonId,
+							form: getNormalizedForm(pokemonId, formId),
+							encounter: p?.isEncounter ?? false,
+							shiny: p?.canBeShiny ?? false
+						};
+					})
+					.filter((p) => p.pokemon_id);
+			};
+
+			characterEntry.first = processPokemon(lineup.firstPokemon);
+			characterEntry.second = processPokemon(lineup.secondPokemon);
+			characterEntry.third = processPokemon(lineup.thirdPokemon);
+		}
+	}
+
 	return {
 		totalPokemon: {
 			count: pokemonTotal,
@@ -372,6 +575,7 @@ export async function queryMasterStats(): Promise<MasterStats> {
 		activeContests,
 		activeMaxBattles,
 		activeNests,
+		activeEggs: activeEggs,
 		generatedAt: Date.now()
 	};
 }
