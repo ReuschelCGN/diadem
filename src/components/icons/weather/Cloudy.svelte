@@ -5,7 +5,7 @@
 <svg
 	xmlns="http://www.w3.org/2000/svg"
 	viewBox="0 0 64 64"
-	class="{class_} aspect-square scale-125 stroke-foreground stroke-4 fill-transparent"
+	class="{class_} aspect-square stroke-foreground stroke-5 fill-transparent"
 	style:stroke-linecap="round"
 	style:stroke-linejoin="round"
 >
