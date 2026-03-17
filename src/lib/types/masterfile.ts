@@ -9,7 +9,10 @@ export type MasterPokemon = {
 	ultraBeast: boolean;
 	defaultFormId?: number;
 	types: [number] | [number, number];
-	family: number
+	family: number;
+	baseAtk: number;
+	baseDef: number;
+	baseSta: number;
 };
 
 export type MasterWeather = {

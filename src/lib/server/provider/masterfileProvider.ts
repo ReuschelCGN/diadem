@@ -16,7 +16,12 @@ type RawMasterFile = {
 			legendary?: boolean;
 			mythical?: boolean;
 			ultraBeast?: boolean;
-			family?: number
+			family?: number;
+			stats?: {
+				attack: number;
+				defense: number;
+				stamina: number;
+			}
 		};
 	};
 	items: { [key: string]: { name: string } };
@@ -38,7 +43,10 @@ function makePokemon(data: Partial<RawMasterFile["pokemon"][string]>, basePokemo
 		ultraBeast: !!data.ultraBeast,
 		defaultFormId: data.defaultFormId,
 		types: data.types ? Object.keys(data.types || {}).map(Number) : (basePokemon?.types || []),
-		family: data.family ?? basePokemon?.family ?? 0
+		family: data.family ?? basePokemon?.family ?? 0,
+		baseAtk: data?.stats?.attack ?? basePokemon?.baseAtk ?? 0,
+		baseDef: data?.stats?.defense ?? basePokemon?.baseDef ?? 0,
+		baseSta: data?.stats?.stamina ?? basePokemon?.baseSta ?? 0,
 	} as MasterPokemon;
 
 	if (data.forms) {
