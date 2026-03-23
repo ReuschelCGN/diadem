@@ -53,7 +53,7 @@ export const GET: RequestHandler = async ({ params, fetch }) => {
 
 	const [staticmap, icon] = await Promise.all([
 		fetchStaticMapBase64(fetch, {
-			zoom: 17,
+			zoom: 15,
 			coords: Coords.infer(data),
 			width: 500,
 			height: 336,
