@@ -6,7 +6,7 @@ import { getLogger } from "@/lib/utils/logger";
 import { querySingleMapObject } from "@/lib/server/api/querySingleMapObject";
 import { getIconForMap, getIconPokemon, initAllIconSets } from "@/lib/services/uicons.svelte";
 import { loadRemoteLocale } from "@/lib/services/ingameLocale";
-import { type MapData, MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
+import { allMapObjectTypes, type MapData, MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 import { makeMapObject } from "@/lib/mapObjects/makeMapObject";
 import MapObject from "@/components/thumbnail/MapObject.svelte";
 import { fetchStaticMapBase64, imageUrlToBase64 } from "@/lib/server/thumbnails/thumbnailUtils";
@@ -18,6 +18,8 @@ import { error } from "@sveltejs/kit";
 const log = getLogger("thumbnail");
 
 export const GET: RequestHandler = async ({ params, fetch }) => {
+	if (!allMapObjectTypes.includes(params.directLink)) error(400);
+
 	const results = await Promise.all([
 		querySingleMapObject(params.directLink, params.id, fetch), // bypassing permissions :S
 		initAllIconSets(fetch),
@@ -29,18 +31,18 @@ export const GET: RequestHandler = async ({ params, fetch }) => {
 	};
 	const data = makeMapObject(tempData, params.directLink) as MapData;
 
-	if (!data.id) {
-		error(404)
-	}
+	if (!data.id) error(404);
 
 	log.info("Generating thumbnail for %s", params.directLink);
 
-	let iconset = getDefaultIconSet(data.type).id;
-	let iconUrl = getIconForMap(data, iconset);
-
-	if (!iconUrl) {
-		error(500)
+	let iconType = data.type;
+	if (data.type === MapObjectType.NEST) {
+		iconType = MapObjectType.POKEMON;
 	}
+
+	let iconset = getDefaultIconSet(iconType).id;
+	let iconUrl = getIconForMap(data, iconset);
+	let staticMapIcon = iconUrl
 
 	let fullImage = false;
 	if ((data.type === MapObjectType.POKESTOP || data.type === MapObjectType.GYM) && data.url) {
@@ -51,15 +53,18 @@ export const GET: RequestHandler = async ({ params, fetch }) => {
 		iconUrl = getIconPokemon(getStationPokemon(data), iconset);
 	}
 
+	const isSpawnpoint = data.type === MapObjectType.SPAWNPOINT;
+
 	const [staticmap, icon] = await Promise.all([
 		fetchStaticMapBase64(fetch, {
 			zoom: 15,
 			coords: Coords.infer(data),
 			width: 500,
 			height: 336,
-			data
+			data,
+			iconUrl: staticMapIcon
 		}),
-		imageUrlToBase64(fetch, iconUrl)
+		isSpawnpoint ? Promise.resolve(null) : imageUrlToBase64(fetch, iconUrl)
 	]);
 
 	log.debug("Got static map and icon for thumbnail");

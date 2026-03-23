@@ -1,16 +1,15 @@
 import { UICONS } from "uicons.js";
 import { getUserSettings } from "@/lib/services/userSettings.svelte.js";
 import { getConfig } from "@/lib/services/config/config";
-import type { PokemonData } from "@/lib/types/mapObjectData/pokemon";
 import type { UiconSet } from "@/lib/services/config/configTypes";
-import type { Incident, PokestopData, QuestReward } from "@/lib/types/mapObjectData/pokestop";
+import type { PokestopData } from "@/lib/types/mapObjectData/pokestop";
 import type { StationData } from "@/lib/types/mapObjectData/station";
 import type { GymData } from "@/lib/types/mapObjectData/gym";
 
 import { currentTimestamp } from "@/lib/utils/currentTimestamp";
 import { RewardType, shouldDisplayIncidient, shouldDisplayLure } from "@/lib/utils/pokestopUtils";
 import { GYM_SLOTS, isFortOutdated } from "@/lib/utils/gymUtils";
-import { allMapObjectTypes, type MapData, MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
+import { type MapData, MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 import type { TappableData } from "@/lib/types/mapObjectData/tappable";
 
 export const DEFAULT_UICONS = "DEFAULT";
@@ -65,8 +64,10 @@ export function getIconForMap(data: Partial<MapData>, iconSet?: string): string 
 		return getIconStation(data, iconSet);
 	} else if (data.type === MapObjectType.TAPPABLE) {
 		return getIconTappable(data, iconSet);
+	} else if (data.type === MapObjectType.NEST) {
+		return getIconPokemon(data, iconSet)
 	}
-	console.error("Unknown icon type: " + data.type);
+
 	return "";
 }
 
@@ -158,7 +159,10 @@ export function getIconInvasion(character: number | null, confirmed: number | bo
 	return iconSets[DEFAULT_UICONS].invasion(character, Boolean(confirmed));
 }
 
-export function getIconReward(type: RewardType, info: { item_id?: number, pokemon_id?: number, form?: number, amount?: number }) {
+export function getIconReward(
+	type: RewardType,
+	info: { item_id?: number; pokemon_id?: number; form?: number; amount?: number }
+) {
 	let rewardType = "";
 	let id: number | undefined = undefined;
 	switch (type) {
@@ -248,9 +252,9 @@ export function getIconTappable(
 	iconSet: string = getUserSettings().uiconSet.tappable.id
 ) {
 	if (data.item_id) {
-		return getIconItem(data.item_id, data.count ?? 1)
+		return getIconItem(data.item_id, data.count ?? 1);
 	} else if (data.pokemon_id) {
-		return getIconPokemon(data)
+		return getIconPokemon(data);
 	}
 	return iconSets[iconSet].tappable(data.tappable_type);
 }

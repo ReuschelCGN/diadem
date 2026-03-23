@@ -44,7 +44,7 @@ export const FIELDS_NEST = [
 	"m2",
 	"active",
 	"pokemon_id",
-	"pokemon_form",
+	"pokemon_form AS form",
 	"pokemon_avg",
 	"pokemon_ratio",
 	"pokemon_count",
@@ -300,7 +300,7 @@ async function queryNests(bounds: Bounds, filter: FilterNest | undefined) {
 		if (nest.name === defaultName) {
 			nest.name = null;
 		}
-		nest.pokemon_form = getNormalizedForm(nest.pokemon_id, nest.pokemon_form)
+		nest.form = getNormalizedForm(nest.pokemon_id, nest.form)
 	}
 	return { error, result }
 }

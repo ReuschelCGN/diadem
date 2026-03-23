@@ -14,7 +14,7 @@ export type NestData = {
   m2: number | null;
   active: number | null;
   pokemon_id: number | null;
-  pokemon_form: number | null;
+  form: number | null;
   pokemon_avg: number | null;
   pokemon_ratio: number | null;
   pokemon_count: number | null;

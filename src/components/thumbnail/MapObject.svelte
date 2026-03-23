@@ -7,8 +7,10 @@
 	import { getStationTitle } from "@/lib/utils/stationUtils";
 	import type { StationData } from "@/lib/types/mapObjectData/station";
 	import type { NestData } from "@/lib/types/mapObjectData/nest";
+	import type { SpawnpointData } from "@/lib/types/mapObjectData/spawnpoint";
 	import type { TappableData } from "@/lib/types/mapObjectData/tappable";
 	import { getTappableName } from "@/lib/utils/tappableUtils";
+	import { SPAWNPOINT_OUTDATED_SECONDS } from "@/lib/constants";
 
 	let {
 		staticmap,
@@ -58,8 +60,9 @@
 				<img
 					src={icon}
 					alt="icon"
-					class="w-16 h-16 rounded-full border-zinc-200"
+					class="w-16 h-16 border-zinc-200"
 					class:border={fullImage}
+					class:rounded-full={fullImage}
 					style:object-fit="cover"
 				>
 			{/if}

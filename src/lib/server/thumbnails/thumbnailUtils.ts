@@ -7,6 +7,7 @@ import { resize } from "@/lib/services/assets";
 import { getDefaultIconSet } from "@/lib/services/userSettings.svelte";
 import { type MapData, MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 import type { UiconSetModifierType } from "@/lib/services/config/configTypes";
+import type { NestData } from "@/lib/types/mapObjectData/nest";
 import sharp from "sharp";
 
 const log = getLogger("thumbnail");
@@ -47,7 +48,7 @@ async function fetchWrapper(responsePromise: Promise<Response>, resize: boolean 
 
 export async function fetchStaticMapBase64(
 	thisFetch: typeof fetch,
-	options: { zoom: number; coords: Coords; width: number; height: number, data: MapData }
+	options: { zoom: number; coords: Coords; width: number; height: number, data: MapData, iconUrl?: string }
 ): Promise<string | null> {
 	const config = getServerConfig();
 	const staticMap = config.staticMap;
@@ -70,9 +71,8 @@ export async function fetchStaticMapBase64(
 
 	const markerModifier = 64 * 2.5
 	const markerSize = scale * markerModifier;
-	const iconUrl = getIconForMap(options.data, getDefaultIconSet(options.data.type).id);
 
-	const payload = {
+	const payload: Record<string, unknown> = {
 		style,
 		zoom: options.zoom,
 		latitude: options.coords.lat,
@@ -80,9 +80,12 @@ export async function fetchStaticMapBase64(
 		width: options.width,
 		height: options.height,
 		scale: 1,
-		markers: [
+	};
+
+	if (options.iconUrl) {
+		payload.markers = [
 			{
-				url: staticMap.diademUrl + resize(iconUrl, { width: 64 }),
+				url: staticMap.diademUrl + resize(options.iconUrl, { width: 64 }),
 				width: markerSize,
 				height: markerSize,
 				y_offset: offsetY * markerModifier,
@@ -91,7 +94,36 @@ export async function fetchStaticMapBase64(
 				longitude: options.coords.lon
 			}
 		]
-	};
+	}
+
+	if (options.data.type === MapObjectType.NEST) {
+		const nestData = options.data as NestData;
+		if (nestData.polygon?.length) {
+			let rings: { x: number; y: number }[][];
+			if (Array.isArray(nestData.polygon[0][0])) {
+				rings = (nestData.polygon as { x: number; y: number }[][][]).flat();
+			} else {
+				rings = nestData.polygon as { x: number; y: number }[][];
+			}
+			payload.polygons = rings.map((ring) => ({
+				fill_color: "rgba(152,248,163,0.6)",
+				stroke_color: "rgba(152,248,163,0.9)",
+				stroke_width: 1,
+				path: ring.map((p) => [p.y, p.x])
+			}));
+		}
+	} else if (options.data.type === MapObjectType.SPAWNPOINT) {
+		payload.circles = [
+			{
+				fill_color: "rgba(116,223,253,0.6)",
+				stroke_color: "rgba(57,140,168,0.8)",
+				stroke_width: 1,
+				radius: 35,
+				latitude: options.coords.lat,
+				longitude: options.coords.lon
+			}
+		];
+	}
 
 	return await fetchWrapper(
 		thisFetch(staticMap.url + "/staticmap", {

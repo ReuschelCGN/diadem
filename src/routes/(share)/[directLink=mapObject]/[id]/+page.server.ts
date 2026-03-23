@@ -13,11 +13,11 @@ const log = getLogger("directlink");
 export const ssr = true;
 
 export const load: PageServerLoad = async ({ params, fetch }) => {
-	const start = performance.now();
-
 	if (!allMapObjectTypes.includes(params.directLink)) {
-		error(400)
+		error(400);
 	}
+
+	const start = performance.now();
 
 	const results = await Promise.all([
 		querySingleMapObject(params.directLink, params.id, fetch),
