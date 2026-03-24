@@ -7,13 +7,15 @@ import { getMap } from "@/lib/map/map.svelte";
 import { openToast } from "@/lib/ui/toasts.svelte";
 import * as m from "@/lib/paraglide/messages";
 
-let directLinkObject: MapData | undefined = $state(undefined);
+export type DirectLinkData = { type: MapObjectType; noPermission?: boolean; id?: undefined };
+
+let directLinkObject: DirectLinkData | undefined = $state(undefined);
 
 export function getDirectLinkObject() {
 	return directLinkObject;
 }
 
-export function setDirectLinkObject(data: MapData) {
+export function setDirectLinkObject(data: DirectLinkData) {
 	directLinkObject = data;
 }
 

@@ -106,6 +106,8 @@
 			if (directLinkData) {
 				if (directLinkData.id) {
 					openMapObject(directLinkData)
+				} else if ('noPermission' in directLinkData && directLinkData.noPermission) {
+					openToast(m.direct_link_no_permission({ type: m["pogo_" + directLinkData.type]() }), 5000);
 				} else {
 					openToast(m.direct_link_not_found({ type: m["pogo_" + directLinkData.type]() }), 5000);
 				}

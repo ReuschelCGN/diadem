@@ -1,18 +1,12 @@
 <script lang="ts">
-	import { isPopupExpanded, togglePopupExpanded } from '@/lib/ui/expandedPopups.js';
-	import { Eye, EyeClosed, Navigation, Share2 } from 'lucide-svelte';
-	import Button from '@/components/ui/input/Button.svelte';
-	import * as m from '@/lib/paraglide/messages';
+	import { isPopupExpanded, togglePopupExpanded } from "@/lib/ui/expandedPopups.js";
+	import { Eye, EyeClosed, Navigation, Share2 } from "lucide-svelte";
+	import Button from "@/components/ui/input/Button.svelte";
+	import * as m from "@/lib/paraglide/messages";
 
-	import { getCurrentPath } from '@/lib/mapObjects/interact';
-	import {
-		backupShareUrl,
-		canBackupShare,
-		canNativeShare,
-		copyToClipboard,
-		hasClipboardWrite
-	} from '@/lib/utils/device';
-	import { getMapsUrl } from '@/lib/utils/mapUrl';
+	import { getCurrentPath } from "@/lib/mapObjects/interact";
+	import { backupShareUrl, canBackupShare } from "@/lib/utils/device";
+	import { getMapsUrl } from "@/lib/utils/mapUrl";
 	import { Coords } from "@/lib/utils/coordinates";
 	import { getShareTitle } from "@/lib/features/shareTexts";
 	import { getCurrentSelectedData } from "@/lib/mapObjects/currentSelectedState.svelte";

@@ -45,7 +45,7 @@
 	"popup_no_iv_scanned": "No IV scanned",
 	"pogo_pokestop": "Pokéstop",
 	"pogo_gym": "Gym",
-	"direct_link_not_found": "{type} disappeared",
+	"direct_link_not_found": "Didn't find {type}",
 	"context_menu_copy_coordinates": "Copy coordinates",
 	"context_menu_navigate_here": "Navigate here",
 	"context_menu_scout_location": "Scout location",
@@ -404,5 +404,6 @@
 	"reward_event_badge": "Event Badge",
 	"reward_egg": "Egg",
 	"unknown_nest": "Unknown Nest",
-	"toast_copied_default": "Copied to clipboard"
+	"toast_copied_default": "Copied to clipboard",
+	"direct_link_no_permission": "No permission to view this {type}"
 }

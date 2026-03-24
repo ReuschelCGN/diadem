@@ -35,6 +35,7 @@ import { formatDecimal } from "@/lib/utils/numberFormat";
 import { getTappableName } from "@/lib/utils/tappableUtils";
 import { getStationTitle } from "@/lib/utils/stationUtils";
 
+// unused; was replaced by thumbnails
 export function getShareText(data: MapData): string {
 	if (!data.id) return "";
 
@@ -72,11 +73,11 @@ export function getShareTitle(data: MapData | null | undefined) {
 		} else {
 			title = m.pogo_station();
 		}
-		if (data.id) title += ": " + getStationTitle(data);
+		if (data.id) title += " | " + getStationTitle(data);
 		return title;
 	} else if (data.type === MapObjectType.GYM || data.type === MapObjectType.POKESTOP) {
 		let title = m[`pogo_${data.type}`]().toString();
-		if (data.name) title += `: ${data.name}`;
+		if (data.name) title += ` | ${data.name}`;
 		return title;
 	} else if (data.type === MapObjectType.NEST) {
 		return m.pokemon_nest({ pokemon: mPokemon(data) });

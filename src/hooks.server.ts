@@ -20,12 +20,22 @@ import { getServerLogger } from "@/lib/server/logging";
 import { getClientConfig, getServerConfig } from "@/lib/services/config/config.server";
 import { setConfig } from "@/lib/services/config/config";
 import { getDisallowedPaths } from "@/lib/utils/disallowedPaths";
+import { locales, serverAsyncLocalStorage, setLocale } from "@/lib/paraglide/runtime";
 
 const paraglideHandle: Handle = ({ event, resolve }) =>
 	paraglideMiddleware(event.request, ({ request: localizedRequest, locale }) => {
 		event.request = localizedRequest;
+
+		// set locale for ssr metadata
+		const langParam = event.url.searchParams.get("lang");
+		if (langParam && (locales as readonly string[]).includes(langParam)) {
+			const store = serverAsyncLocalStorage?.getStore();
+			if (store) store.locale = langParam as (typeof locales)[number];
+		}
+		const effectiveLocale = langParam ?? locale;
+
 		return resolve(event, {
-			transformPageChunk: ({ html }) => html.replace("%lang%", locale)
+			transformPageChunk: ({ html }) => html.replace("%lang%", effectiveLocale)
 		});
 	});
 
