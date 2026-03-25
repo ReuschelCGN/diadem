@@ -17,6 +17,15 @@ export function getStationTitle(data: StationData) {
 	return data.name ?? m.pogo_station();
 }
 
+export function isMaxBattleActive(data: Partial<StationData>) {
+	return Boolean(
+		!data.is_inactive &&
+		data.is_battle_available &&
+		(data.start_time ?? 0) < currentTimestamp() &&
+		(data.end_time ?? 0) > currentTimestamp()
+	)
+}
+
 export function getStationPokemon(data: StationData): Partial<PokemonData> {
 	return {
 		pokemon_id: data.battle_pokemon_id,
@@ -62,10 +71,7 @@ export function shouldDisplayStation(station: StationData) {
 			return true;
 		}
 
-		if (filterset.isActive) {
-			const isActive = (!station.is_inactive) && (station.start_time ?? 0) < currentTimestamp() && (station.end_time ?? 0) > currentTimestamp();
-			if (!isActive) continue;
-		}
+		if (filterset.isActive && !isMaxBattleActive(station)) continue
 
 		if (filterset.hasGmax && (station.total_stationed_gmax ?? 0) === 0) continue;
 
@@ -80,6 +86,8 @@ export function shouldDisplayStation(station: StationData) {
 		) {
 			return true;
 		}
+
+		if (filterset.isActive || filterset.hasGmax) return true
 	}
 
 	return false;

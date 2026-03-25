@@ -11,6 +11,7 @@ import { RewardType, shouldDisplayIncidient, shouldDisplayLure } from "@/lib/uti
 import { GYM_SLOTS, isFortOutdated } from "@/lib/utils/gymUtils";
 import { type MapData, MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 import type { TappableData } from "@/lib/types/mapObjectData/tappable";
+import { isMaxBattleActive } from "@/lib/utils/stationUtils";
 
 export const DEFAULT_UICONS = "DEFAULT";
 
@@ -155,7 +156,7 @@ export function getIconStation(
 	if (typeof data === "boolean") {
 		return iconSets[iconSet].station(data ?? false)
 	}
-	return iconSets[iconSet].station((data.start_time ?? 0) < currentTimestamp());
+	return iconSets[iconSet].station(isMaxBattleActive(data));
 }
 
 export function getIconInvasion(character: number | null, confirmed: number | boolean | null) {
