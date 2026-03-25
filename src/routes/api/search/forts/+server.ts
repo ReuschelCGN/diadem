@@ -5,7 +5,8 @@ import { query } from "@/lib/server/db/external/internalQuery";
 import type { RawFortSearchEntry } from "@/lib/services/search.svelte";
 import { hasFeatureAnywhereServer } from "@/lib/server/auth/checkIfAuthed";
 import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
-import { checkFeatureInBounds } from "@/lib/services/user/checkPerm";
+import { checkFeatureInBounds, type PermittedBounds } from "@/lib/services/user/checkPerm";
+import { buildSpatialFilter } from "@/lib/server/api/spatialFilter";
 
 const log = getLogger("fortsearch");
 
@@ -16,23 +17,22 @@ export async function POST({ request, locals }) {
 
 	const bounds = (await request.json()) as Bounds;
 
-	const whereBounds = "WHERE lat BETWEEN ? AND ? AND lon BETWEEN ? AND ?";
-
-	const pokestopBounds = checkFeatureInBounds(locals.perms, MapObjectType.POKESTOP, bounds);
-
-	const gymBounds = checkFeatureInBounds(locals.perms, MapObjectType.GYM, bounds);
+	const pokestopPermitted = checkFeatureInBounds(locals.perms, MapObjectType.POKESTOP, bounds);
+	const gymPermitted = checkFeatureInBounds(locals.perms, MapObjectType.GYM, bounds);
 
 	const queries = []
-	let values: number[] = []
+	let values: any[] = []
 
-	if (hasPokestops && pokestopBounds) {
-		queries.push("(SELECT 'p' AS type, name, id, url FROM pokestop " + whereBounds + " AND name IS NOT NULL AND deleted = 0)")
-		values = values.concat([pokestopBounds.minLat, pokestopBounds.maxLat, pokestopBounds.minLon, pokestopBounds.maxLon])
+	if (hasPokestops && pokestopPermitted) {
+		const spatial = buildSpatialFilter(pokestopPermitted.polygon ?? null, pokestopPermitted.bounds);
+		queries.push("(SELECT 'p' AS type, name, id, url FROM pokestop WHERE " + spatial.sql + " AND name IS NOT NULL AND deleted = 0)")
+		values = values.concat(spatial.values)
 	}
 
-	if (hasGyms && gymBounds) {
-		queries.push("(SELECT 'g' AS type, name, id, url FROM gym " + whereBounds + " AND name IS NOT NULL AND deleted = 0)")
-		values = values.concat([gymBounds.minLat, gymBounds.maxLat, gymBounds.minLon, gymBounds.maxLon])
+	if (hasGyms && gymPermitted) {
+		const spatial = buildSpatialFilter(gymPermitted.polygon ?? null, gymPermitted.bounds);
+		queries.push("(SELECT 'g' AS type, name, id, url FROM gym WHERE " + spatial.sql + " AND name IS NOT NULL AND deleted = 0)")
+		values = values.concat(spatial.values)
 	}
 
 	if (queries.length === 0) error(401)

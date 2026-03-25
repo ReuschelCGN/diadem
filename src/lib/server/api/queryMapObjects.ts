@@ -33,6 +33,9 @@ import type { TappableData } from "@/lib/types/mapObjectData/tappable";
 import { getServerConfig } from "@/lib/services/config/config.server";
 import { getMasterPokemon } from "@/lib/services/masterfile";
 import { getNormalizedForm } from "@/lib/utils/pokemonUtils";
+import type { Feature, MultiPolygon, Polygon } from "geojson";
+import { pointsWithinPolygon, point, featureCollection } from "@turf/turf";
+import { buildSpatialFilter } from "@/lib/server/api/spatialFilter";
 
 export const FIELDS_NEST = [
 	"nest_id as id",
@@ -111,7 +114,8 @@ export type SqlExaminedResult = {
 export async function queryMapObjects<Data extends MapData>(
 	type: MapObjectType,
 	bounds: Bounds,
-	filter: AnyFilter | undefined
+	filter: AnyFilter | undefined,
+	polygon: Feature<Polygon | MultiPolygon> | null = null
 ): Promise<WrappedMapObjectResponse<Data>> {
 	let dbResponse: { result: Data[]; error: number | undefined } | undefined = undefined;
 	let examinedResponse: { result: SqlExaminedResult; error: number | undefined } | undefined =
@@ -119,24 +123,25 @@ export async function queryMapObjects<Data extends MapData>(
 	const enabled = filter === undefined || filter.enabled;
 
 	if (type === MapObjectType.POKEMON && enabled) {
-		return await queryPokemon(bounds, filter as FilterPokemon | undefined);
+		return await queryPokemon(bounds, filter as FilterPokemon | undefined, polygon);
 	} else if (type === MapObjectType.GYM && enabled) {
-		[dbResponse, examinedResponse] = await queryGyms(bounds, filter as FilterGym | undefined);
+		[dbResponse, examinedResponse] = await queryGyms(bounds, filter as FilterGym | undefined, polygon);
 	} else if (type === MapObjectType.POKESTOP && enabled) {
 		[dbResponse, examinedResponse] = await queryPokestops(
 			bounds,
-			filter as FilterPokestop | undefined
+			filter as FilterPokestop | undefined,
+			polygon
 		);
 	} else if (type === MapObjectType.STATION && enabled) {
-		dbResponse = await queryStations(bounds, filter as FilterStation | undefined);
+		dbResponse = await queryStations(bounds, filter as FilterStation | undefined, polygon);
 	} else if (type === MapObjectType.NEST && enabled) {
-		dbResponse = await queryNests(bounds, filter as FilterNest | undefined);
+		dbResponse = await queryNests(bounds, filter as FilterNest | undefined, polygon);
 	} else if (type === MapObjectType.SPAWNPOINT && enabled) {
-		dbResponse = await querySpawnpoints(bounds, filter as FilterSpawnpoint | undefined);
+		dbResponse = await querySpawnpoints(bounds, filter as FilterSpawnpoint | undefined, polygon);
 	} else if (type === MapObjectType.ROUTE && enabled) {
-		dbResponse = await queryRoutes(bounds, filter as FilterRoute | undefined);
+		dbResponse = await queryRoutes(bounds, filter as FilterRoute | undefined, polygon);
 	} else if (type === MapObjectType.TAPPABLE && enabled) {
-		dbResponse = await queryTappables(bounds, filter as FilterTappable | undefined);
+		dbResponse = await queryTappables(bounds, filter as FilterTappable | undefined, polygon);
 	} else {
 		return { result: { examined: 0, data: [] }, error: 404 };
 	}
@@ -155,7 +160,8 @@ export async function queryMapObjects<Data extends MapData>(
 
 async function queryPokemon(
 	bounds: Bounds,
-	filter: FilterPokemon | undefined
+	filter: FilterPokemon | undefined,
+	polygon: Feature<Polygon | MultiPolygon> | null
 ): Promise<WrappedMapObjectResponse<PokemonData>> {
 	let golbatQueries: GolbatPokemonQuery[];
 	const enabledFilters = filter?.filters?.filter((f) => f.enabled) ?? [];
@@ -236,15 +242,27 @@ async function queryPokemon(
 	const result = await getMultiplePokemon(body);
 
 	if (result) {
-		for (const pokemon of result.pokemon) {
+		let filteredPokemon = result.pokemon;
+		if (polygon) {
+			const turfPoints = featureCollection(
+				result.pokemon.map((p, i) => point([p.lon, p.lat], { index: i }))
+			);
+			const within = pointsWithinPolygon(turfPoints, polygon);
+			const withinIndices = new Set(within.features.map((f) => f.properties?.index as number));
+			filteredPokemon = result.pokemon.filter((_, i) => withinIndices.has(i));
+		}
+		const removedCount = result.pokemon.length - filteredPokemon.length;
+
+		for (const pokemon of filteredPokemon) {
 			pokemon.shiny = false;
 			pokemon.username = null;
-			pokemon.form = getNormalizedForm(pokemon.pokemon_id, pokemon.form)
+			pokemon.form = getNormalizedForm(pokemon.pokemon_id, pokemon.form);
 		}
+
 		return {
 			result: {
-				examined: result.examined,
-				data: result.pokemon
+				examined: result.examined - removedCount,
+				data: filteredPokemon
 			},
 			error: undefined
 		};
@@ -256,15 +274,15 @@ async function queryPokemon(
 	};
 }
 
-async function queryStations(bounds: Bounds, filter: FilterStation | undefined) {
+async function queryStations(bounds: Bounds, filter: FilterStation | undefined, polygon: Feature<Polygon | MultiPolygon> | null) {
+	const spatial = buildSpatialFilter(polygon, bounds);
 	const { error, result } = await query<StationData[]>(
 		"SELECT * FROM station " +
-			"WHERE lat BETWEEN ? AND ? " +
-			"AND lon BETWEEN ? AND ? " +
+			"WHERE " + spatial.sql + " " +
 			"AND end_time > UNIX_TIMESTAMP() " +
 			"LIMIT " +
 			LIMIT_STATION,
-		[bounds.minLat, bounds.maxLat, bounds.minLon, bounds.maxLon]
+		spatial.values
 	);
 
 	for (const station of result) {
@@ -273,15 +291,22 @@ async function queryStations(bounds: Bounds, filter: FilterStation | undefined) 
 	return { error, result };
 }
 
-async function queryNests(bounds: Bounds, filter: FilterNest | undefined) {
+async function queryNests(bounds: Bounds, filter: FilterNest | undefined, polygon: Feature<Polygon | MultiPolygon> | null) {
+	const spatialFilter = polygon
+		? "MBRIntersects(polygon, ST_Envelope(LineString(Point(?, ?), Point(?, ?)))) AND ST_Intersects(ST_GeomFromGeoJSON(?), polygon)"
+		: "MBRIntersects(polygon, ST_Envelope(LineString(Point(?, ?), Point(?, ?))))";
+	const spatialValues: any[] = [bounds.minLon, bounds.minLat, bounds.maxLon, bounds.maxLat];
+	if (polygon) {
+		spatialValues.push(JSON.stringify(polygon.geometry));
+	}
 	const { error, result } = await query<NestData[]>(
 		"SELECT " + FIELDS_NEST +
 		" FROM nests " +
-		" WHERE MBRIntersects(polygon, ST_Envelope(LineString(Point(?, ?), Point(?, ?)))) " +
+		" WHERE " + spatialFilter +
 		" AND active = 1 " +
 		" AND pokemon_id IS NOT NULL " +
 		" LIMIT " + LIMIT_NEST,
-		[bounds.minLon, bounds.minLat, bounds.maxLon, bounds.maxLat]
+		spatialValues
 	);
 	// const { error, result } = await query<NestData[]>(
 	// 	"SELECT  " +
@@ -305,42 +330,42 @@ async function queryNests(bounds: Bounds, filter: FilterNest | undefined) {
 	return { error, result }
 }
 
-async function querySpawnpoints(bounds: Bounds, filter: FilterSpawnpoint | undefined) {
+async function querySpawnpoints(bounds: Bounds, filter: FilterSpawnpoint | undefined, polygon: Feature<Polygon | MultiPolygon> | null) {
+	const spatial = buildSpatialFilter(polygon, bounds);
 	return await query<SpawnpointData[]>(
 		"SELECT * " +
 			"FROM spawnpoint " +
-			"WHERE lat BETWEEN ? AND ? " +
-			"AND lon BETWEEN ? AND ? " +
+			"WHERE " + spatial.sql + " " +
 			"LIMIT " +
 			LIMIT_SPAWNPOINT,
-		[bounds.minLat, bounds.maxLat, bounds.minLon, bounds.maxLon]
+		spatial.values
 	);
 }
 
-async function queryRoutes(bounds: Bounds, filter: FilterRoute | undefined) {
+async function queryRoutes(bounds: Bounds, filter: FilterRoute | undefined, polygon: Feature<Polygon | MultiPolygon> | null) {
+	const spatial = buildSpatialFilter(polygon, bounds);
 	const { error, result } = await query<RouteData[]>(
 		"SELECT  " +
 			FIELDS_ROUTE +
 			" FROM route " +
-			"WHERE lat BETWEEN ? AND ? " +
-			"AND lon BETWEEN ? AND ? " +
+			"WHERE " + spatial.sql + " " +
 			"LIMIT " +
 			LIMIT_ROUTE,
-		[bounds.minLat, bounds.maxLat, bounds.minLon, bounds.maxLon]
+		spatial.values
 	);
 	return { error, result };
 }
 
-async function queryTappables(bounds: Bounds, filter: FilterTappable | undefined) {
+async function queryTappables(bounds: Bounds, filter: FilterTappable | undefined, polygon: Feature<Polygon | MultiPolygon> | null) {
+	const spatial = buildSpatialFilter(polygon, bounds);
 	return await query<TappableData[]>(
 		"SELECT " +
 			FIELDS_TAPPABLE +
 			" FROM tappable " +
-			"WHERE lat BETWEEN ? AND ? " +
-			"AND lon BETWEEN ? AND ? " +
+			"WHERE " + spatial.sql + " " +
 			// "AND expire_timestamp > UNIX_TIMESTAMP() " +
 			"LIMIT " +
 			LIMIT_TAPPABLE,
-		[bounds.minLat, bounds.maxLat, bounds.minLon, bounds.maxLon]
+		spatial.values
 	);
 }

@@ -19,6 +19,8 @@ import {
 import type { PokestopData } from "@/lib/types/mapObjectData/pokestop";
 import { currentTimestamp } from "@/lib/utils/currentTimestamp";
 import { getNormalizedForm } from "@/lib/utils/pokemonUtils";
+import type { Feature, MultiPolygon, Polygon } from "geojson";
+import { buildSpatialFilter } from "@/lib/server/api/spatialFilter";
 
 export function processRawPokestop(pokestop: PokestopData) {
 	if (pokestop.showcase_focus && (pokestop.showcase_expiry ?? 0) > currentTimestamp()) {
@@ -45,18 +47,16 @@ export function processRawPokestop(pokestop: PokestopData) {
 	}
 }
 
-export async function queryPokestops(bounds: Bounds, filter: FilterPokestop | undefined) {
-	const boundsFilter = "WHERE lat BETWEEN ? AND ? AND lon BETWEEN ? AND ? AND deleted = 0 ";
-	const boundsValues = [bounds.minLat, bounds.maxLat, bounds.minLon, bounds.maxLon];
+export async function queryPokestops(bounds: Bounds, filter: FilterPokestop | undefined, polygon: Feature<Polygon | MultiPolygon> | null = null) {
+	const spatial = buildSpatialFilter(polygon, bounds, "Point(pokestop.lon, pokestop.lat)");
 
 	let sqlQuery =
-		"" +
 		"SELECT * FROM pokestop " +
 		"LEFT JOIN incident ON incident.pokestop_id = pokestop.id " +
-		boundsFilter;
+		"WHERE " + spatial.sql + " AND deleted = 0 ";
 
 	const conditions: string[] = [];
-	const values: any[] = [...boundsValues];
+	const values: any[] = [...spatial.values];
 
 	if (filter && !filter.pokestopPlain.enabled) {
 		if (filter.contest.enabled) {

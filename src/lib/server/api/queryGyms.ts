@@ -4,12 +4,13 @@ import { LIMIT_GYM } from "@/lib/constants";
 import { query } from "@/lib/server/db/external/internalQuery";
 import type { GymData } from "@/lib/types/mapObjectData/gym";
 import { getNormalizedForm } from "@/lib/utils/pokemonUtils";
+import type { Feature, MultiPolygon, Polygon } from "geojson";
+import { buildSpatialFilter } from "@/lib/server/api/spatialFilter";
 
-export async function queryGyms(bounds: Bounds, filter: FilterGym | undefined) {
-	const boundsFilter = "WHERE lat BETWEEN ? AND ? AND lon BETWEEN ? AND ? AND deleted = 0 ";
-	const boundsValues = [bounds.minLat, bounds.maxLat, bounds.minLon, bounds.maxLon];
+export async function queryGyms(bounds: Bounds, filter: FilterGym | undefined, polygon: Feature<Polygon | MultiPolygon> | null = null) {
+	const spatial = buildSpatialFilter(polygon, bounds);
 
-	let sqlQuery = "" + "SELECT * FROM gym " + boundsFilter;
+	let sqlQuery = "SELECT * FROM gym WHERE " + spatial.sql + " AND deleted = 0 ";
 
 	if (filter && !filter.gymPlain.enabled && filter.raid.enabled) {
 		sqlQuery += "AND raid_end_timestamp > UNIX_TIMESTAMP() ";
@@ -17,7 +18,7 @@ export async function queryGyms(bounds: Bounds, filter: FilterGym | undefined) {
 
 	sqlQuery += `LIMIT ${LIMIT_GYM}`;
 
-	const { error, result } = await query<GymData[]>(sqlQuery, boundsValues);
+	const { error, result } = await query<GymData[]>(sqlQuery, spatial.values);
 
 	for (const gym of result) {
 		gym.raid_pokemon_form = getNormalizedForm(gym.raid_pokemon_id, gym.raid_pokemon_form)

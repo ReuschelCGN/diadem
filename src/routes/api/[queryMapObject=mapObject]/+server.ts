@@ -16,13 +16,13 @@ export async function POST({ request, locals, params }) {
 
 	const data: MapObjectRequestData = await request.json();
 	const type = params.queryMapObject as MapObjectType;
-	const bounds = checkFeatureInBounds(locals.perms, params.queryMapObject, data);
+	const permitted = checkFeatureInBounds(locals.perms, params.queryMapObject, data);
 
-	if (!bounds) {
+	if (!permitted) {
 		return json({ data: [] });
 	}
 
-	const queried = await queryMapObjects(type, bounds, data.filter);
+	const queried = await queryMapObjects(type, permitted.bounds, data.filter, permitted.polygon);
 
 	log.info(
 		"[%s] count: %d / permcheck: %fms + query: %fms / error: %s",

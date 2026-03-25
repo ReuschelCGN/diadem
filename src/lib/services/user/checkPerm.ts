@@ -9,7 +9,7 @@ import {
 	polygon,
 	union
 } from "@turf/turf";
-import type { Feature, Polygon } from "geojson";
+import type { Feature, MultiPolygon, Polygon } from "geojson";
 import { Features, type FeaturesKey, type Perms } from "@/lib/utils/features";
 import { getLogger } from "@/lib/utils/logger";
 
@@ -32,12 +32,18 @@ export function hasFeatureAnywhere(perms: Perms, feature: FeaturesKey) {
 	return false;
 }
 
+export type PermittedBounds = {
+	bounds: Bounds;
+	polygon: Feature<Polygon | MultiPolygon> | null;
+};
+
 export function checkFeatureInBounds(
 	perms: Perms,
 	feature: FeaturesKey,
 	bounds: Bounds
-): Bounds | null {
-	if (isFeatureInFeatureList(perms.everywhere, feature)) return bounds;
+): PermittedBounds | null {
+	if (isFeatureInFeatureList(perms.everywhere, feature))
+		return { bounds, polygon: null };
 
 	const start = performance.now();
 
@@ -66,18 +72,18 @@ export function checkFeatureInBounds(
 	}
 
 	// Find intersection of viewport with each permitted area and collect results
-	let combinedIntersection: Feature<Polygon> | null = null;
+	let combinedIntersection: Feature<Polygon | MultiPolygon> | null = null;
 	for (const permittedPolygon of permittedPolygons) {
 		const areaIntersection = intersect(
 			featureCollection([viewportPolygon, permittedPolygon])
 		);
 		if (areaIntersection) {
 			if (!combinedIntersection) {
-				combinedIntersection = areaIntersection as Feature<Polygon>;
+				combinedIntersection = areaIntersection as Feature<Polygon | MultiPolygon>;
 			} else {
 				combinedIntersection = union(
-					featureCollection([combinedIntersection, areaIntersection as Feature<Polygon>])
-				) as Feature<Polygon> | null;
+					featureCollection([combinedIntersection, areaIntersection as Feature<Polygon | MultiPolygon>])
+				) as Feature<Polygon | MultiPolygon> | null;
 			}
 		}
 	}
@@ -98,10 +104,13 @@ export function checkFeatureInBounds(
 	const result = bbox(combinedIntersection);
 
 	return {
-		minLon: result[0],
-		minLat: result[1],
-		maxLon: result[2],
-		maxLat: result[3]
+		bounds: {
+			minLon: result[0],
+			minLat: result[1],
+			maxLon: result[2],
+			maxLat: result[3]
+		},
+		polygon: combinedIntersection
 	};
 }
 
