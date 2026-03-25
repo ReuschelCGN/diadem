@@ -65,6 +65,7 @@ export async function updateMapObject(
 	signal?: AbortSignal
 ) {
 	if (!hasFeatureAnywhere(getUserDetails().permissions, type)) return;
+	if (type === MapObjectType.ROUTE) return
 
 	let filter: AnyFilter | undefined = undefined;
 
