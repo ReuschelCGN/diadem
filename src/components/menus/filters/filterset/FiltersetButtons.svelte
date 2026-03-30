@@ -1,21 +1,21 @@
 <script lang="ts">
-	import Button from '@/components/ui/input/Button.svelte';
-	import { Pencil, Share, Share2, Trash } from 'lucide-svelte';
-	import { fly } from 'svelte/transition';
+	import Button from "@/components/ui/input/Button.svelte";
+	import { Pencil, Share, Share2, Trash } from "lucide-svelte";
+	import { fly } from "svelte/transition";
 	import {
 		filtersetPageClose, filtersetPageEdit,
 		filtersetPageSave,
 		getCurrentFiltersetPage
-	} from '@/lib/features/filters/filtersetPages.svelte';
+	} from "@/lib/features/filters/filtersetPages.svelte";
 	import {
 		deleteCurrentSelectedFilterset,
 		existsCurrentSelectedFilterset, getCurrentSelectedFilterset, getCurrentSelectedFiltersetEncoded,
 		getCurrentSelectedFiltersetInEdit, getCurrentSelectedFiltersetIsEmpty
-	} from '@/lib/features/filters/filtersetPageData.svelte';
-	import { backupShareUrl, canBackupShare, canNativeShare, hasClipboardWrite } from '@/lib/utils/device';
-	import * as m from '@/lib/paraglide/messages';
-	import { isOpenModal, type ModalType } from '@/lib/ui/modal.svelte';
-	import { closeModal } from '@/lib/ui/modal.svelte.js';
+	} from "@/lib/features/filters/filtersetPageData.svelte";
+	import { backupShareUrl, canBackupShare, canNativeShare, hasClipboardWrite } from "@/lib/utils/device";
+	import * as m from "@/lib/paraglide/messages";
+	import { isOpenModal, type ModalType } from "@/lib/ui/modal.svelte";
+	import { closeModal } from "@/lib/ui/modal.svelte.js";
 
 	import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 
@@ -25,23 +25,23 @@
 	}: {
 		modalType: ModalType,
 		mapObject: MapObjectType
-	} = $props()
+	} = $props();
 
 	function ondelete() {
 		if (existsCurrentSelectedFilterset()) {
-			deleteCurrentSelectedFilterset(mapObject)
+			deleteCurrentSelectedFilterset(mapObject);
 		}
-		closeModal(modalType)
+		closeModal(modalType);
 	}
 
 	function getShareUrl() {
-		const filterset = getCurrentSelectedFilterset()
+		const filterset = getCurrentSelectedFilterset();
 		if (filterset) {
-			let subCat = ""
-			if (filterset.subCategory) subCat = `/${filterset.subCategory}`
-			return `${window.location.origin}/filter/${filterset.majorCategory}${subCat}/${getCurrentSelectedFiltersetEncoded()}`
+			let subCat = "";
+			if (filterset.subCategory) subCat = `/${filterset.subCategory}`;
+			return `${window.location.origin}/filter/${filterset.majorCategory}${subCat}/${getCurrentSelectedFiltersetEncoded()}`;
 		} else {
-			return window.location.origin
+			return window.location.origin;
 		}
 	}
 </script>

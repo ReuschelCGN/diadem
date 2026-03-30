@@ -73,6 +73,9 @@ importers:
       drizzle-orm:
         specifier: ^0.40.0
         version: 0.40.1(@cloudflare/workers-types@4.20250517.0)(gel@2.1.0)(kysely@0.27.6)(mysql2@3.14.1)
+      emojilib:
+        specifier: ^4.0.2
+        version: 4.0.2
       lucide-svelte:
         specifier: ^0.542.0
         version: 0.542.0(svelte@5.53.11)
@@ -2478,6 +2481,9 @@ packages:
   emoji-regex-xs@2.0.1:
     resolution: {integrity: sha512-1QFuh8l7LqUcKe24LsPUNzjrzJQ7pgRwp1QMcZ5MX6mFplk2zQ08NVCM84++1cveaUUYtcCYHmeFEuNg16sU4g==}
     engines: {node: '>=10.0.0'}
+
+  emojilib@4.0.2:
+    resolution: {integrity: sha512-8sP3sfAi861cNaFFp7RmyKi4S26K34ZKy4si75ojUW627AIVBHhMSu2SFJo3YRoK66YWnbysIbOk/d48uEqtKQ==}
 
   enabled@2.0.0:
     resolution: {integrity: sha512-AKrN98kuwOzMIdAizXGI86UFBoo26CL21UM763y1h/GMSJ4/OHU9k2YlsmBpyScFo/wbLzWQJBMCW4+IO3/+OQ==}
@@ -6019,6 +6025,8 @@ snapshots:
   earcut@3.0.2: {}
 
   emoji-regex-xs@2.0.1: {}
+
+  emojilib@4.0.2: {}
 
   enabled@2.0.0: {}
 

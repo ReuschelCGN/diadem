@@ -21,9 +21,17 @@ let isFilterPageBack = $state(false)
 let isFilterPageReset = $state(false)
 let hasSelectedSuggestedFilter = false
 
-let attributePageDetails: { snippet?: FiltersetSnippet<AnyFilterset>, label?: string } = $state({
+let attributePageDetails: {
+	snippet?: FiltersetSnippet<AnyFilterset>;
+	label?: string;
+	previousDetails: {
+		snippet?: FiltersetSnippet<AnyFilterset>;
+		label?: string;
+	}[];
+} = $state({
 	snippet: undefined,
-	label: undefined
+	label: undefined,
+	previousDetails: []
 });
 
 function pageBack(page: FiltersetPage) {
@@ -46,66 +54,92 @@ function resetPages() {
 const pageStates = new FiniteStateMachine<FiltersetPage, PageEvents>("base", {
 	base: {
 		reset: resetPages,
-		edit: () => pageForward('overview'),
+		edit: () => pageForward("overview"),
 		// @ts-ignore
 		close: (modalType: ModalType) => {
 			if (getCurrentSelectedFiltersetInEdit()) {
-				closeModal(modalType)
+				closeModal(modalType);
 			} else {
-				return pageBack("new")
+				return pageBack("new");
 			}
 		},
 		// @ts-ignore
 		save: (modalType: ModalType, mapObject: MapObjectType) => {
-			saveSelectedFilterset(mapObject)
-			closeModal(modalType)
+			saveSelectedFilterset(mapObject);
+			closeModal(modalType);
 		}
 	},
 	new: {
 		_enter: () => {
-			hasSelectedSuggestedFilter = false
+			hasSelectedSuggestedFilter = false;
 		},
 		reset: resetPages,
 		newFilter: () => {
-			const majorCategory = getCurrentSelectedFilterset()?.majorCategory
-			const subCategory = getCurrentSelectedFilterset()?.subCategory
+			const majorCategory = getCurrentSelectedFilterset()?.majorCategory;
+			const subCategory = getCurrentSelectedFilterset()?.subCategory;
 			// @ts-ignore
-			if (majorCategory) setCurrentSelectedFilterset(majorCategory, subCategory, getNewFilterset(), false);
-			updateDetailsCurrentSelectedFilterset()
-			return pageForward("overview")
+			if (majorCategory)
+				setCurrentSelectedFilterset(majorCategory, subCategory, getNewFilterset(), false);
+			updateDetailsCurrentSelectedFilterset();
+			return pageForward("overview");
 		},
 		select: () => {
-			hasSelectedSuggestedFilter = true
-			return pageForward("base")
+			hasSelectedSuggestedFilter = true;
+			return pageForward("base");
 		}
 	},
 	overview: {
 		reset: resetPages,
 		close: () => {
 			if (getCurrentSelectedFiltersetInEdit() || hasSelectedSuggestedFilter) {
-				return pageBack("base")
+				return pageBack("base");
 			} else {
-				return pageBack("new")
+				return pageBack("new");
 			}
 		},
 		editAttribute: () => pageForward("attribute"),
 		// @ts-ignore
 		save: (modalType: ModalType, mapObject: MapObjectType) => {
 			if (!hasSelectedSuggestedFilter) {
-				saveSelectedFilterset(mapObject)
-				closeModal(modalType)
+				saveSelectedFilterset(mapObject);
+				closeModal(modalType);
 			} else {
-				return pageBack("base")
+				return pageBack("base");
 			}
 		}
 	},
 	attribute: {
 		reset: resetPages,
-		close: () => pageBack("overview"),
+		close: () => {
+			if (attributePageDetails.previousDetails.length) {
+				console.log("depth 1")
+				const last = attributePageDetails.previousDetails.pop()
+				attributePageDetails.label = last?.label
+				attributePageDetails.snippet = last?.snippet
+				return pageBack("attribute")
+			}
+
+			return pageBack("overview");
+		},
 		save: () => {
-			saveCurrentSelectedAttribute()
-			updateDetailsCurrentSelectedFilterset()
-			return pageBack("overview")
+			if (attributePageDetails.previousDetails.length) {
+				const last = attributePageDetails.previousDetails.pop();
+				attributePageDetails.label = last?.label;
+				attributePageDetails.snippet = last?.snippet;
+				return pageBack("attribute");
+			}
+
+			saveCurrentSelectedAttribute();
+			updateDetailsCurrentSelectedFilterset();
+
+			return pageBack("overview");
+		},
+		editAttribute: () => {
+			attributePageDetails.previousDetails.push({
+				label: attributePageDetails.label,
+				snippet: attributePageDetails.snippet
+			})
+			return pageForward("attribute")
 		}
 	}
 });
@@ -130,6 +164,10 @@ export function filtersetPageSave(modalType: ModalType, mapObject: MapObjectType
 	pageStates.send("save", modalType, mapObject)
 }
 
+export function filtersetPageSaveSimple() {
+	pageStates.send("save")
+}
+
 export function filtersetPageEdit() {
 	pageStates.send("edit")
 }
@@ -145,7 +183,8 @@ export function getCurrentFiltersetPage() {
 export function setCurrentAttributePage<T extends AnyFilterset>(snippet: FiltersetSnippet<T>, label: string) {
 	attributePageDetails = {
 		snippet: snippet as FiltersetSnippet<AnyFilterset>,
-		label
+		label,
+		previousDetails: attributePageDetails.previousDetails
 	};
 }
 

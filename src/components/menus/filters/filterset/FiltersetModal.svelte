@@ -1,28 +1,19 @@
 <script lang="ts">
-	import Modal from '@/components/ui/modal/Modal.svelte';
-	import MenuTitle from '@/components/menus/MenuTitle.svelte';
-	import PageNewFilterset from '@/components/menus/filters/filterset/PageNewFilterset.svelte';
-	import PageOverview from '@/components/menus/filters/filterset/PageOverview.svelte';
-	import PageAttribute from '@/components/menus/filters/filterset/PageAttribute.svelte';
+	import Modal from "@/components/ui/modal/Modal.svelte";
+	import PageNewFilterset from "@/components/menus/filters/filterset/PageNewFilterset.svelte";
+	import PageOverview from "@/components/menus/filters/filterset/PageOverview.svelte";
+	import PageAttribute from "@/components/menus/filters/filterset/PageAttribute.svelte";
+	import { getCurrentAttributePage, getCurrentFiltersetPage } from "@/lib/features/filters/filtersetPages.svelte.js";
+	import FiltersetButtons from "@/components/menus/filters/filterset/FiltersetButtons.svelte";
+	import { type ModalType } from "@/lib/ui/modal.svelte";
+	import { type Snippet } from "svelte";
 	import {
-		type FiltersetPage,
-		filtersetPageClose,
-		filtersetPageSave,
-		getCurrentAttributePage,
-		getCurrentFiltersetPage
-	} from '@/lib/features/filters/filtersetPages.svelte.js';
-	import FiltersetButtons from '@/components/menus/filters/filterset/FiltersetButtons.svelte';
-	import { closeModal, type ModalType } from '@/lib/ui/modal.svelte';
-	import { onDestroy, type Snippet } from 'svelte';
-	import Button from '@/components/ui/input/Button.svelte';
-	import {
-		existsCurrentSelectedFilterset, getCurrentSelectedFilterset, getCurrentSelectedFiltersetInEdit,
+		getCurrentSelectedFiltersetInEdit,
 		getCurrentSelectedFiltersetIsShared,
-		resetCurrentSelectedFilterset, type SelectedFiltersetData
-	} from '@/lib/features/filters/filtersetPageData.svelte.js';
-	import PageBase from '@/components/menus/filters/filterset/PageBase.svelte';
-	import type { FilterCategory } from '@/lib/features/filters/filters';
-	import * as m from '@/lib/paraglide/messages';
+		type SelectedFiltersetData
+	} from "@/lib/features/filters/filtersetPageData.svelte.js";
+	import PageBase from "@/components/menus/filters/filterset/PageBase.svelte";
+	import type { FilterCategory } from "@/lib/features/filters/filters";
 
 	import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 

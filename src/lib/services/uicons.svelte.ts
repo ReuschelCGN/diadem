@@ -66,7 +66,7 @@ export function getIconForMap(data: Partial<MapData>, iconSet?: string): string 
 	} else if (data.type === MapObjectType.TAPPABLE) {
 		return getIconTappable(data, iconSet);
 	} else if (data.type === MapObjectType.NEST) {
-		return getIconPokemon(data, iconSet)
+		return getIconPokemon(data, iconSet);
 	}
 
 	return "";
@@ -154,7 +154,7 @@ export function getIconStation(
 	iconSet: string = getUserSettings().uiconSet.station.id
 ) {
 	if (typeof data === "boolean") {
-		return iconSets[iconSet].station(data ?? false)
+		return iconSets[iconSet].station(data ?? false);
 	}
 	return iconSets[iconSet].station(isMaxBattleActive(data));
 }
@@ -249,6 +249,27 @@ export enum League {
 
 export function getIconLeague(league: League) {
 	return iconSets[DEFAULT_UICONS].misc(league) ?? iconSets[DEFAULT_UICONS].misc(League.GREAT);
+}
+
+export function getIconTeam(teamId: number) {
+	return iconSets[DEFAULT_UICONS].team(teamId);
+}
+
+export function getIconPokestopDirect(
+	lureId: number,
+	displayType: number | false,
+	questActive: boolean,
+	ar: boolean,
+	iconSet: string = getUserSettings().uiconSet.pokestop.id
+) {
+	return iconSets[iconSet].pokestop(lureId, displayType, questActive, ar, 0);
+}
+
+export function getIconGymDirect(
+	teamId: number,
+	iconSet: string = getUserSettings().uiconSet.gym.id
+) {
+	return iconSets[iconSet].gym(teamId, 0, false, false, false, 0);
 }
 
 export function getIconTappable(
