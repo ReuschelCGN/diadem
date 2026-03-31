@@ -1,28 +1,27 @@
 <script lang="ts">
-	import { fly } from 'svelte/transition';
-	import { onDestroy, onMount, type Snippet } from 'svelte';
+	import { fly } from "svelte/transition";
+	import { onDestroy, onMount, type Snippet } from "svelte";
 	import {
 		getCurrentSelectedAttribute,
 		resetCurrentSelectedAttribute,
 		setCurrentSelectedAttribute
-	} from '@/lib/features/filters/filtersetPageData.svelte.js';
+	} from "@/lib/features/filters/filtersetPageData.svelte.js";
 	import {
 		getCurrentAttributePage,
 		getFiltersetPageTransition
-	} from '@/lib/features/filters/filtersetPages.svelte.js';
+	} from "@/lib/features/filters/filtersetPages.svelte.js";
 
 	onMount(() => {
-		setCurrentSelectedAttribute()
-	})
+		setCurrentSelectedAttribute();
+	});
 
 	onDestroy(() => {
-		resetCurrentSelectedAttribute()
-	})
+		resetCurrentSelectedAttribute();
+	});
 </script>
 
-
 <div
-	class="w-full absolute top-0 pb-20"
+	class="w-full absolute top-0 pb-20 h-full overflow-y-auto"
 	in:fly={getFiltersetPageTransition().in}
 	out:fly={getFiltersetPageTransition().out}
 >

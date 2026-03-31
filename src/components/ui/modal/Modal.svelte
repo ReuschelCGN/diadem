@@ -1,9 +1,9 @@
 <script lang="ts">
-	import type { Snippet } from 'svelte';
-	import { Dialog, useId, type WithoutChild } from 'bits-ui';
-	import { closeModal, isOpenModal, type ModalType, openModal } from '@/lib/ui/modal.svelte.js';
-	import Button from '@/components/ui/input/Button.svelte';
-	import CloseButton from '@/components/ui/CloseButton.svelte';
+	import type { Snippet } from "svelte";
+	import { Dialog, useId, type WithoutChild } from "bits-ui";
+	import { closeModal, isOpenModal, type ModalType, openModal } from "@/lib/ui/modal.svelte.js";
+	import Button from "@/components/ui/input/Button.svelte";
+	import CloseButton from "@/components/ui/CloseButton.svelte";
 
 	let {
 		modalType,
@@ -12,22 +12,22 @@
 		children,
 		onopenchange = undefined
 	}: {
-		modalType: ModalType,
-		class?: string,
-		title?: Snippet,
-		children?: Snippet
-		onopenchange?: Dialog.RootProps["onOpenChange"]
+		modalType: ModalType;
+		class?: string;
+		title?: Snippet;
+		children?: Snippet;
+		onopenchange?: Dialog.RootProps["onOpenChange"];
 	} = $props();
 
 	function isOpen() {
-		return isOpenModal(modalType)
+		return isOpenModal(modalType);
 	}
 
 	function setIsOpen(value: boolean) {
 		if (value) {
-			openModal(modalType)
+			openModal(modalType);
 		} else {
-			closeModal(modalType)
+			closeModal(modalType);
 		}
 	}
 </script>
@@ -52,4 +52,3 @@
 		</Dialog.Content>
 	</Dialog.Portal>
 </Dialog.Root>
-

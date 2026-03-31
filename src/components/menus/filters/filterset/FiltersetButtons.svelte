@@ -3,16 +3,25 @@
 	import { Pencil, Share, Share2, Trash } from "lucide-svelte";
 	import { fly } from "svelte/transition";
 	import {
-		filtersetPageClose, filtersetPageEdit,
+		filtersetPageClose,
+		filtersetPageEdit,
 		filtersetPageSave,
 		getCurrentFiltersetPage
 	} from "@/lib/features/filters/filtersetPages.svelte";
 	import {
 		deleteCurrentSelectedFilterset,
-		existsCurrentSelectedFilterset, getCurrentSelectedFilterset, getCurrentSelectedFiltersetEncoded,
-		getCurrentSelectedFiltersetInEdit, getCurrentSelectedFiltersetIsEmpty
+		existsCurrentSelectedFilterset,
+		getCurrentSelectedFilterset,
+		getCurrentSelectedFiltersetEncoded,
+		getCurrentSelectedFiltersetInEdit,
+		getCurrentSelectedFiltersetIsEmpty
 	} from "@/lib/features/filters/filtersetPageData.svelte";
-	import { backupShareUrl, canBackupShare, canNativeShare, hasClipboardWrite } from "@/lib/utils/device";
+	import {
+		backupShareUrl,
+		canBackupShare,
+		canNativeShare,
+		hasClipboardWrite
+	} from "@/lib/utils/device";
 	import * as m from "@/lib/paraglide/messages";
 	import { isOpenModal, type ModalType } from "@/lib/ui/modal.svelte";
 	import { closeModal } from "@/lib/ui/modal.svelte.js";
@@ -23,9 +32,15 @@
 		modalType,
 		mapObject
 	}: {
-		modalType: ModalType,
-		mapObject: MapObjectType
+		modalType: ModalType;
+		mapObject: MapObjectType;
 	} = $props();
+
+	let showBaseButtons = $derived(getCurrentFiltersetPage() === "base");
+	let showProgressButtons = $derived(
+		getCurrentFiltersetPage() !== "new" &&
+			!(existsCurrentSelectedFilterset() && getCurrentFiltersetPage() === "base")
+	);
 
 	function ondelete() {
 		if (existsCurrentSelectedFilterset()) {
@@ -46,11 +61,16 @@
 	}
 </script>
 
+{#if showBaseButtons || showProgressButtons}
+	<!-- button padding cuz they're absolute -->
+	<div class="h-12"></div>
+{/if}
+
 <div
 	class="flex gap-2 mt-3 justify-end absolute bottom-0 w-full"
-	transition:fly={{duration: isOpenModal(modalType) ? 100 : 0, y: 80}}
+	transition:fly={{ duration: isOpenModal(modalType) ? 100 : 0, y: 80 }}
 >
-	{#if getCurrentFiltersetPage() === "base"}
+	{#if showBaseButtons}
 		{#if existsCurrentSelectedFilterset()}
 			<Button class="mr-auto" variant="secondary" onclick={ondelete}>
 				<Trash size="14" />
@@ -60,14 +80,11 @@
 			</Button>
 
 			{#if canBackupShare({ url: getShareUrl() })}
-				<Button
-					class=""
-					variant="secondary"
-					onclick={() => backupShareUrl(getShareUrl())}>
+				<Button class="" variant="secondary" onclick={() => backupShareUrl(getShareUrl())}>
 					<Share2 size="14" />
 					<span>
-					{m.popup_share()}
-				</span>
+						{m.popup_share()}
+					</span>
 				</Button>
 			{/if}
 		{/if}
@@ -84,10 +101,7 @@
 		</Button>
 	{/if}
 
-	{#if
-		getCurrentFiltersetPage() !== "new"
-		&& !((existsCurrentSelectedFilterset()) && getCurrentFiltersetPage() === "base")
-	}
+	{#if showProgressButtons}
 		<Button class="" variant="secondary" onclick={() => filtersetPageClose(modalType)}>
 			{m.cancel()}
 		</Button>

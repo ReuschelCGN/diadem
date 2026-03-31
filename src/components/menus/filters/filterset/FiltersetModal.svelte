@@ -3,7 +3,10 @@
 	import PageNewFilterset from "@/components/menus/filters/filterset/PageNewFilterset.svelte";
 	import PageOverview from "@/components/menus/filters/filterset/PageOverview.svelte";
 	import PageAttribute from "@/components/menus/filters/filterset/PageAttribute.svelte";
-	import { getCurrentAttributePage, getCurrentFiltersetPage } from "@/lib/features/filters/filtersetPages.svelte.js";
+	import {
+		getCurrentAttributePage,
+		getCurrentFiltersetPage
+	} from "@/lib/features/filters/filtersetPages.svelte.js";
 	import FiltersetButtons from "@/components/menus/filters/filterset/FiltersetButtons.svelte";
 	import { type ModalType } from "@/lib/ui/modal.svelte";
 	import { type Snippet } from "svelte";
@@ -30,36 +33,39 @@
 		base,
 		height = 130
 	}: {
-		modalType: ModalType
-		mapObject: MapObjectType
-		titleBase: string
-		titleShared: string
-		titleNew: string
-		titleEdit: string
-		majorCategory: SelectedFiltersetData["majorCategory"],
-		subCategory?: FilterCategory,
-		overview: Snippet
-		base: Snippet
-		height?: number
+		modalType: ModalType;
+		mapObject: MapObjectType;
+		titleBase: string;
+		titleShared: string;
+		titleNew: string;
+		titleEdit: string;
+		majorCategory: SelectedFiltersetData["majorCategory"];
+		subCategory?: FilterCategory;
+		overview: Snippet;
+		base: Snippet;
+		height?: number;
 	} = $props();
 
 	let modalTitle = $derived.by(() => {
-		if (getCurrentSelectedFiltersetIsShared()) return titleShared
+		if (getCurrentSelectedFiltersetIsShared()) return titleShared;
 		if (!getCurrentSelectedFiltersetInEdit()) {
-			return titleNew
+			return titleNew;
 		} else {
 			if (getCurrentFiltersetPage() === "base") {
-				return titleBase
+				return titleBase;
 			} else {
-				return titleEdit
+				return titleEdit;
 			}
 		}
-	})
+	});
 </script>
 
-<Modal {modalType} class="max-h-screen">
+<Modal
+	{modalType}
+	class="h-[calc(100vh-8rem)] max-h-200 w-[calc(100%-1rem)] max-w-2xl! flex flex-col pb-4 pt-3 px-4"
+>
 	{#snippet title()}
-		<p class="pb-2 pl-5 pt-3 font-semibold text-base">
+		<p class="pb-2 font-semibold text-base">
 			<span>
 				{modalTitle}
 			</span>
@@ -70,23 +76,20 @@
 			{/if}
 		</p>
 	{/snippet}
-	<div
-		class="px-4 pb-2 pt-1 w-lg max-w-full overflow-hidden"
-		style:height="min(calc(100vh - 4rem), {height / 4}rem)"
-	>
-		<div class="relative h-full">
-			{#if getCurrentFiltersetPage() === "new"}
-				<PageNewFilterset {majorCategory} {subCategory} />
-			{:else if getCurrentFiltersetPage() === "base"}
-				<PageBase {base} />
-			{:else if getCurrentFiltersetPage() === "overview"}
-				<PageOverview {overview} />
-			{:else if getCurrentFiltersetPage() === "attribute" && getCurrentAttributePage().snippet}
-				<PageAttribute />
-			{/if}
-
-			<FiltersetButtons {modalType} {mapObject} />
-		</div>
-
+	<!-- <div class="px-4 pb-2 pt-1 w-lg max-w-full overflow-hidden h-full"> -->
+	<div class="relative h-full">
+		{#if getCurrentFiltersetPage() === "new"}
+			<PageNewFilterset {majorCategory} {subCategory} />
+		{:else if getCurrentFiltersetPage() === "base"}
+			<PageBase {base} />
+		{:else if getCurrentFiltersetPage() === "overview"}
+			<PageOverview {overview} />
+		{:else if getCurrentFiltersetPage() === "attribute" && getCurrentAttributePage().snippet}
+			<PageAttribute />
+		{/if}
 	</div>
+	<div class="relative">
+		<FiltersetButtons {modalType} {mapObject} />
+	</div>
+	<!-- </div> -->
 </Modal>

@@ -17,7 +17,7 @@
 </script>
 
 <div
-	class="w-full absolute top-0 overflow-y-auto"
+	class="w-full absolute top-0 h-full flex flex-col"
 	in:fly={getFiltersetPageTransition().in}
 	out:fly={getFiltersetPageTransition().out}
 >
@@ -35,6 +35,8 @@
 	</div>
 
 	{#if filterset?.data}
-		{@render base()}
+		<div class="overflow-y-auto">
+			{@render base()}
+		</div>
 	{/if}
 </div>

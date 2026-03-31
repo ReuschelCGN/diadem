@@ -5,7 +5,8 @@
 	import type { Snippet } from "svelte";
 	import {
 		filtersetPageEditAttribute,
-		getFiltersetPageTransition, setCurrentAttributePage
+		getFiltersetPageTransition,
+		setCurrentAttributePage
 	} from "@/lib/features/filters/filtersetPages.svelte.js";
 	import Button from "@/components/ui/input/Button.svelte";
 	import { getCurrentSelectedFilterset } from "@/lib/features/filters/filtersetPageData.svelte.js";
@@ -17,7 +18,7 @@
 	let {
 		overview
 	}: {
-		overview: Snippet
+		overview: Snippet;
 	} = $props();
 </script>
 
@@ -26,7 +27,7 @@
 {/snippet}
 
 <div
-	class="w-full absolute top-0 pb-2 overflow-y-auto"
+	class="w-full absolute top-0 pb-2 h-full overflow-y-auto"
 	in:fly={getFiltersetPageTransition().in}
 	out:fly={getFiltersetPageTransition().out}
 >
@@ -36,7 +37,7 @@
 			variant="ghost"
 			onclick={() => {
 				setCurrentAttributePage(editDetailsPage, m.details());
-				filtersetPageEditAttribute()
+				filtersetPageEditAttribute();
 			}}
 		>
 			<div
@@ -51,9 +52,7 @@
 				<b>{filterTitle($state.snapshot(getCurrentSelectedFilterset()?.data))}</b>
 			</div>
 			<Pencil class="ml-auto shrink-0" size="14" />
-
 		</Button>
-
 	</Card>
 
 	<div class="space-y-3">

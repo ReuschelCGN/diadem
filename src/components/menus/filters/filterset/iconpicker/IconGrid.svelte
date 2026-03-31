@@ -12,7 +12,7 @@
 </script>
 
 <div
-	class="grid max-h-100 overflow-y-auto w-full justify-start"
+	class="grid w-full justify-start"
 	style:grid-template-columns="repeat(auto-fill, minmax(2.25rem, 1fr))"
 >
 	{#each items as item (item.key)}
@@ -29,7 +29,7 @@
 					src={resize(item.iconUrl, { width: 64 })}
 					alt={item.label}
 					loading="lazy"
-				>
+				/>
 			{/if}
 		</button>
 	{/each}

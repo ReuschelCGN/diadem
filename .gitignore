@@ -1,5 +1,6 @@
 node_modules
 .idea
+.zed
 config/*
 !config/*example*
 config.toml

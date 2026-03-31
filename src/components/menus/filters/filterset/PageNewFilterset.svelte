@@ -1,50 +1,46 @@
 <script lang="ts">
-	import Button from '@/components/ui/input/Button.svelte';
-	import { fly } from 'svelte/transition';
-	import { CirclePlus } from 'lucide-svelte';
+	import Button from "@/components/ui/input/Button.svelte";
+	import { fly } from "svelte/transition";
+	import { CirclePlus } from "lucide-svelte";
 	import {
 		filtersetPageNew,
 		filtersetPageSelect,
 		getFiltersetPageTransition
-	} from '@/lib/features/filters/filtersetPages.svelte.js';
+	} from "@/lib/features/filters/filtersetPages.svelte.js";
 	import {
 		type SelectedFiltersetData,
 		setCurrentSelectedFilterset
-	} from '@/lib/features/filters/filtersetPageData.svelte.js';
-	import { filterTitle } from '@/lib/features/filters/filtersetUtils';
-	import FiltersetIcon from '@/lib/features/filters/FiltersetIcon.svelte';
-	import { premadeFiltersets } from '@/lib/features/filters/premadeFiltersets';
-	import type { FilterCategory } from '@/lib/features/filters/filters';
+	} from "@/lib/features/filters/filtersetPageData.svelte.js";
+	import { filterTitle } from "@/lib/features/filters/filtersetUtils";
+	import FiltersetIcon from "@/lib/features/filters/FiltersetIcon.svelte";
+	import { premadeFiltersets } from "@/lib/features/filters/premadeFiltersets";
+	import type { FilterCategory } from "@/lib/features/filters/filters";
 	import { getId } from "@/lib/utils/uuid";
 	import { m } from "@/lib/paraglide/messages";
 
 	let {
 		majorCategory,
-		subCategory = undefined,
+		subCategory = undefined
 	}: {
-		majorCategory: SelectedFiltersetData["majorCategory"],
-		subCategory?: FilterCategory,
+		majorCategory: SelectedFiltersetData["majorCategory"];
+		subCategory?: FilterCategory;
 	} = $props();
 
 	// @ts-ignore
-	let premades = $derived(premadeFiltersets[majorCategory] ?? premadeFiltersets[subCategory] ?? [])
+	let premades = $derived(premadeFiltersets[majorCategory] ?? premadeFiltersets[subCategory] ?? []);
 </script>
 
 <div
-	class="w-full absolute top-0 pb-20"
+	class="w-full absolute top-0 pb-20 h-full"
 	in:fly={getFiltersetPageTransition().in}
 	out:fly={getFiltersetPageTransition().out}
 >
-	<Button
-		variant="secondary" size="lg" class="w-full"
-		onclick={filtersetPageNew}
-	>
+	<Button variant="secondary" size="lg" class="w-full" onclick={filtersetPageNew}>
 		<CirclePlus size="18" />
 		<span>
 			{m.create_new()}
 		</span>
 	</Button>
-
 
 	<div class="flex items-center gap-4 my-3">
 		<div class="bg-border h-px w-full"></div>
@@ -62,9 +58,9 @@
 					size=""
 					variant="outline"
 					onclick={() => {
-						filterset.id = getId()
-						setCurrentSelectedFilterset(majorCategory, subCategory, filterset, false)
-						filtersetPageSelect()
+						filterset.id = getId();
+						setCurrentSelectedFilterset(majorCategory, subCategory, filterset, false);
+						filtersetPageSelect();
 					}}
 				>
 					<FiltersetIcon {filterset} size={5} />
