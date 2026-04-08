@@ -169,6 +169,20 @@ export type ServerConfig = {
 	auth: Auth;
 	permissions?: Permissions[];
 	staticMap?: StaticMap;
+	limits?: {
+		enableRateLimiting?: boolean;
+		nonDeltaMultiplier?: number;
+		heavyFilterMultiplier?: number;
+		heavyFilterRatio?: number;
+		captchaOnRateLimit?: boolean;
+		captchaReward?: number;
+	} & {
+		[key in MapObjectType]?: {
+			requestLimit?: number;
+			rateLimit?: number;
+			rateLimitTime?: number;
+		};
+	};
 };
 
 export type Config = {

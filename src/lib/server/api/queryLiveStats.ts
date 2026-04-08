@@ -1,5 +1,5 @@
 import { getMultiplePokemon } from "@/lib/server/api/golbatApi";
-import { LIMIT_GYM, LIMIT_POKEMON } from "@/lib/constants";
+
 import { query } from "@/lib/server/db/external/internalQuery";
 import type { GymData } from "@/lib/types/mapObjectData/gym";
 
@@ -48,7 +48,7 @@ export async function queryLiveFortStats(): Promise<FortLiveStats> {
 	]);
 
 	return {
-		pokestops: pokestopResult.result[0]?.count ?? 0,
-		gyms: gymResult.result[0]?.count ?? 0
+		pokestops: pokestopResult[0]?.count ?? 0,
+		gyms: gymResult[0]?.count ?? 0
 	};
 }

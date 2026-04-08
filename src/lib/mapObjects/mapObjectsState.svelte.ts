@@ -1,4 +1,3 @@
-import { makeMapObject } from "@/lib/mapObjects/makeMapObject";
 import { getCurrentSelectedData } from "@/lib/mapObjects/currentSelectedState.svelte";
 import { allMapObjectTypes, type MapData, MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 
@@ -14,20 +13,29 @@ export function getMapObjects() {
 }
 
 export function addMapObjects(
-	mapObjects: Partial<MapData>[],
+	mapObjects: MapData[],
 	type: MapObjectType,
-	examined: number
+	examined: number,
+	isDelta: boolean = false
 ) {
-	const newState: MapObjectsStateType = {};
-
-	// adds missing mapId and type to map objects
-	// could be moved to the server
-	for (let data of mapObjects) {
-		data = makeMapObject(data, type);
-		newState[data.mapId] = data;
+	mapObjectsState = {
+		...mapObjectsState,
+		...Object.fromEntries(mapObjects.map((o) => [o.mapId, o]))
+	};
+	if (isDelta) {
+		const prefix = type + "-";
+		let showing = 0;
+		for (const key in mapObjectsState) {
+			if (key.startsWith(prefix)) showing++;
+		}
+		// we're not updating examined on deltas.
+		// the examined counts are therefore inaccurate.
+		// but that's fine. deltas happen when the map doesn't move, so the count should be
+		// close enough.
+		mapObjectCounts[type].showing = showing;
+	} else {
+		mapObjectCounts[type] = { showing: mapObjects.length, examined };
 	}
-	mapObjectsState = { ...mapObjectsState, ...newState };
-	mapObjectCounts[type] = { showing: mapObjects.length, examined };
 }
 
 export function delMapObject(key: string) {
