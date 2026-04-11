@@ -11,21 +11,29 @@
 	import { fade, slide } from "svelte/transition";
 	import { isSearchViewActive } from "@/lib/features/activeSearch.svelte.js";
 	import { initSearch, openSearchModal } from "@/lib/services/search.svelte";
-	import { getIsCoverageMapActive } from "@/lib/features/coverageMap.svelte";
+	import maplibre from "maplibre-gl";
+
+	let {
+		map,
+		showSearch = true
+	}: {
+		map: maplibre.Map | undefined,
+		showSearch?: boolean
+	} = $props();
 
 	let isSearchAllowed = $derived(
+		showSearch &&
 		!isSearchViewActive() &&
-			hasLoadedFeature(
-				LoadedFeature.SUPPORTED_FEATURES,
-				LoadedFeature.REMOTE_LOCALE,
-				LoadedFeature.ICON_SETS,
-				LoadedFeature.MASTER_FILE,
-				LoadedFeature.MASTER_STATS,
-				LoadedFeature.USER_DETAILS
-			) &&
-			hasLoadedFeature(LoadedFeature.KOJI) &&
-			isSupportedFeature("koji") &&
-			!getIsCoverageMapActive()
+		hasLoadedFeature(
+			LoadedFeature.SUPPORTED_FEATURES,
+			LoadedFeature.REMOTE_LOCALE,
+			LoadedFeature.ICON_SETS,
+			LoadedFeature.MASTER_FILE,
+			LoadedFeature.MASTER_STATS,
+			LoadedFeature.USER_DETAILS
+		) && (
+			!isSupportedFeature("koji") || hasLoadedFeature(LoadedFeature.KOJI)
+		)
 	);
 
 	$effect(() => {
@@ -48,12 +56,12 @@
 
 <div
 	class="mx-2 gap-2 flex-col flex items-center"
-	hidden={!getMap()}
+	hidden={!map}
 	transition:fade={{ duration: 90 }}
 >
 	{#if isMapSkewed()}
 		<div transition:slide={{ duration: 120 }}>
-			<BaseFab onclick={() => resetMap()} class="rounded-full!">
+			<BaseFab onclick={() => resetMap(map)} class="rounded-full!">
 				<Navigation2
 					size="24"
 					style="transform: rotateX({getSkew().pitch}deg) rotateZ({-getSkew().bearing}deg);"
@@ -68,5 +76,5 @@
 		</BaseFab>
 	{/if}
 
-	<LocateFab />
+	<LocateFab {map} />
 </div>

@@ -1,108 +1,72 @@
 <script lang="ts">
-	import {
-		CircleLayer,
-		FillLayer,
-		GeoJSON,
-		LineLayer,
-		MapLibre,
-		Marker,
-		SymbolLayer
-	} from "svelte-maplibre";
+	import { CircleLayer, FillLayer, GeoJSON, LineLayer } from "svelte-maplibre";
 	import { getUserSettings, updateUserSettings } from "@/lib/services/userSettings.svelte.js";
 	import { onDestroy, onMount, tick } from "svelte";
 	import { getDirectLinkObject, openMapObject } from "@/lib/features/directLinks.svelte.js";
-	import { clickMapHandler, openPopup, updateCurrentPath } from "@/lib/mapObjects/interact";
+	import { clickMapHandler, updateCurrentPath } from "@/lib/mapObjects/interact";
 	import { updateAllMapObjects } from "@/lib/mapObjects/updateMapObject";
 	import * as m from "@/lib/paraglide/messages";
-	import {
-		clearUpdateMapObjectsInterval,
-		resetUpdateMapObjectsInterval
-	} from "@/lib/map/mapObjectsInterval";
-	import { getMap, handleRotatePitchDisable, setMap } from "@/lib/map/map.svelte";
+	import { clearUpdateMapObjectsInterval, resetUpdateMapObjectsInterval } from "@/lib/map/mapObjectsInterval";
+	import { getMap, setMap } from "@/lib/map/map.svelte";
 	import { clearPressTimer, onContextMenu } from "@/lib/ui/contextmenu.svelte.js";
 	import { loadMapObjectInterval } from "@/lib/map/loadMapObjects";
-	import {
-		onMapMove,
-		onMapMoveEnd,
-		onMapMoveStart,
-		onMapStyleDataLoading,
-		onMapStyleLoad,
-		onTouchStart,
-		onWindowFocus
-	} from "@/lib/map/events";
+	import { onMapMoveEnd, onMapMoveStart, onTouchStart, onWindowFocus } from "@/lib/map/events";
 	import maplibre from "maplibre-gl";
 	import GeometryLayer from "@/components/map/GeometryLayer.svelte";
 	import DebugMenu from "@/components/map/DebugMenu.svelte";
 	import { hasLoadedFeature, LoadedFeature } from "@/lib/services/initialLoad.svelte.js";
 	import { openToast } from "@/lib/ui/toasts.svelte.js";
-	import { addMapObjects } from "@/lib/mapObjects/mapObjectsState.svelte";
 	import MarkerCurrentLocation from "@/components/map/MarkerCurrentLocation.svelte";
 	import MarkerContextMenu from "@/components/map/MarkerContextMenu.svelte";
 	import { getCurrentScoutData } from "@/lib/features/scout.svelte.js";
-	import { Coords } from "@/lib/utils/coordinates";
-	import { isAnyModalOpen } from "@/lib/ui/modal.svelte.js";
 	import {
 		getCurrentSelectedFiltersetIsShared,
 		openFiltersetModal
 	} from "@/lib/features/filters/filtersetPageData.svelte";
 	import { filtersetPageReset } from "@/lib/features/filters/filtersetPages.svelte";
 	import { getOpenedMenu, Menu, openMenu } from "@/lib/ui/menus.svelte";
-	import { CoverageMapLayerId, MapObjectLayerId, MapSourceId } from "@/lib/map/layers";
+	import { MapObjectLayerId, MapSourceId } from "@/lib/map/layers";
 	import MarkerSearchedLocation from "@/components/map/MarkerSearchedLocation.svelte";
-	import { getCurrentLocation } from "@/lib/map/geolocate.svelte";
-	import { getFixedBounds } from "@/lib/mapObjects/mapBounds";
-	import { getCoverageMapAreas, getIsCoverageMapActive } from "@/lib/features/coverageMap.svelte";
-	import { featureCollection } from "@turf/turf";
-	import { getKojiGeofences } from "@/lib/features/koji";
-	import { getMapStyle, mapStyleFromId } from "@/lib/utils/mapStyle";
-	import { getConfig } from "@/lib/services/config/config";
 	import MapObjectIconLayer from "@/components/map/MapObjectIconLayer.svelte";
 	import { FeatureTypes } from "@/lib/map/render/featureTypes";
+	import MapCommon from "@/components/map/MapCommon.svelte";
+	import { getMapPositionFromUrlParams } from "@/components/map/mapPositionParams";
+	import { Coords } from "@/lib/utils/coordinates";
 
-	let map: maplibre.Map | undefined = $state(undefined);
+	let {
+		map = $bindable()
+	}: {
+		map?: maplibre.Map | undefined
+	} = $props()
 
-	// lat/lon/zoom params
-	const params = new URLSearchParams(window.location.search);
-
+	const [center, zoom] = getMapPositionFromUrlParams()
 	const userSettings = getUserSettings();
-	const lat = Number(params.get("lat") ?? undefined);
-	const lon = Number(params.get("lon") ?? undefined);
-	const zoom = Number(params.get("zoom") ?? undefined);
-
-	if (Number.isFinite(lat)) {
-		userSettings.mapPosition.center.lat = lat;
+	if (center) {
+		userSettings.mapPosition.center.lat = center.lat
+		userSettings.mapPosition.center.lng = center.lon
+	}
+	if (zoom) {
+		userSettings.mapPosition.zoom = zoom
+	}
+	if (center || zoom) {
+		updateUserSettings()
 	}
 
-	if (Number.isFinite(lon)) {
-		userSettings.mapPosition.center.lng = lon;
-	}
+	const mapPosition = $state.snapshot(getUserSettings().mapPosition)
 
-	if (Number.isFinite(zoom)) {
-		userSettings.mapPosition.zoom = zoom;
-	}
+	async function onMapLoad(map: maplibre.Map) {
+		setMap(map);
 
-	history.replaceState({}, "", window.location.origin + window.location.pathname);
-	updateUserSettings();
+		map.on("moveend", onMapMoveEnd);
+		map.on("contextmenu", onContextMenu)
+		map.on("touchstart", onTouchStart);
+		map.on("touchend", clearPressTimer);
+		map.on("touchmove", clearPressTimer);
+		map.on("touchcancel", clearPressTimer);
+		map.on("movestart", onMapMoveStart);
 
-	const initialMapPosition = JSON.parse(JSON.stringify(getUserSettings().mapPosition));
-
-	async function onMapLoad() {
-		if (map) {
-			setMap(map);
-
-			map.on("touchstart", onTouchStart);
-			map.on("touchend", clearPressTimer);
-			map.on("touchmove", clearPressTimer);
-			map.on("touchcancel", clearPressTimer);
-			map.on("movestart", onMapMoveStart);
-			map.on("move", onMapMove);
-			map.on("styledataloading", onMapStyleDataLoading);
-
-			handleRotatePitchDisable();
-
-			// tick so feature handler registers first
-			tick().then(() => map?.on("click", clickMapHandler));
-		}
+		// tick so feature handler registers first
+		tick().then(() => map?.on("click", clickMapHandler));
 	}
 
 	// update initial map objects only once every required part has been loaded
@@ -149,6 +113,7 @@
 	});
 
 	onMount(() => {
+		isInitUpdatedMapObjects = false
 		setMap(undefined);
 		updateCurrentPath();
 	});
@@ -163,19 +128,11 @@
 
 <DebugMenu />
 
-<MapLibre
+<MapCommon
 	bind:map
-	center={[initialMapPosition.center.lng, initialMapPosition.center.lat]}
-	zoom={initialMapPosition.zoom}
-	class="h-screen overflow-hidden"
-	style={getMapStyle(mapStyleFromId(getUserSettings().mapStyle.id))}
-	attributionControl={false}
-	interactive={!isAnyModalOpen()}
-	onmoveend={onMapMoveEnd}
 	onload={onMapLoad}
-	oncontextmenu={onContextMenu}
-	minZoom={getConfig().general.minZoom}
-	maxZoom={getConfig().general.maxZoom}
+	initialCenter={Coords.infer(mapPosition.center)}
+	initialZoom={mapPosition.zoom}
 >
 	<GeometryLayer id={MapSourceId.SELECTED_WEATHER} reactive={false} />
 	<GeometryLayer
@@ -187,14 +144,6 @@
 		show={() => getOpenedMenu() === Menu.SCOUT}
 		id={MapSourceId.SCOUT_SMALL_POINTS}
 		data={getCurrentScoutData().smallPoints}
-	/>
-
-	<GeometryLayer
-		id={MapSourceId.COVERAGE_MAP_AREAS}
-		data={getCoverageMapAreas()}
-		show={getIsCoverageMapActive}
-		fillId={CoverageMapLayerId.POLYGON_FILL}
-		strokeId={CoverageMapLayerId.POLYGON_STROKE}
 	/>
 
 	<GeoJSON
@@ -242,19 +191,7 @@
 		/>
 	</GeoJSON>
 
-	<!--{#if getMap()}-->
-	<!--{@const fixedBounds = getFixedBounds(8)}-->
-
-	<!--<Marker lngLat={[fixedBounds.minLon, fixedBounds.minLat]}>-->
-	<!--	<div class="size-4 bg-red-400"></div>-->
-	<!--</Marker>-->
-
-	<!--<Marker lngLat={[fixedBounds.maxLon, fixedBounds.maxLat]}>-->
-	<!--	<div class="size-4 bg-red-400"></div>-->
-	<!--</Marker>-->
-	<!--{/if}-->
-
 	<MarkerCurrentLocation />
 	<MarkerContextMenu />
 	<MarkerSearchedLocation />
-</MapLibre>
+</MapCommon>

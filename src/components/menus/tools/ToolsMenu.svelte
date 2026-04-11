@@ -7,7 +7,6 @@
 	import ToolLink from "@/components/menus/tools/ToolLink.svelte";
 	import {
 		getCoverageMapAreas,
-		getIsCoverageMapActive,
 		openCoverageMap
 	} from "@/lib/features/coverageMap.svelte";
 	import GeometryLayer from "@/components/map/GeometryLayer.svelte";

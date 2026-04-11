@@ -178,13 +178,18 @@ stats = true
 
 # Map Positions for various maps in the UI
 [client.mapPositions]
+# Starting position when opening the coverage map
+coverageMapLat = 51.516855
+coverageMapLon = -0.080500
+coverageMapZoom = 10
+
 # Profile Menu - Map Style Preview Maps
 # You may change them if you have a style without tiles in Germany
 styleLat = 53.563
 styleLon = 9.979
 styleZoom = 12
 
-# Tooles Menu - Coverage Map - Background Map
+# Tools Menu - Coverage Map - Background Map
 # Would generally recommend to set this to a position where you have areas
 coverageLat = 53.563
 coverageLon = 9.979

@@ -3,7 +3,7 @@ import type { Feature, Polygon } from "geojson";
 export type KojiReference = {
 	id: number;
 	name: string;
-	parent: number | null;
+	parent: string | null;
 };
 
 type KojiProperties = {
@@ -27,14 +27,15 @@ export async function loadKojiGeofences() {
 
 	const data: KojiFeatures = await result.json();
 
-	const areaMap = new Map<number, KojiFeature>();
+	const areaMap = new Map<string, KojiFeature>();
 	data.forEach((a) => {
-		areaMap.set(a.properties.id, a);
+		areaMap.set(a.properties.name, a);
 		a.properties.children = [];
 	});
 
 	data.forEach((area) => {
-		// @ts-ignore
+		if (!area.properties.parent) return
+
 		const parent = areaMap.get(area.properties.parent);
 		if (parent) {
 			parent.properties.children.push(area);

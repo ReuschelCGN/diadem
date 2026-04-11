@@ -1,17 +1,11 @@
 <script lang="ts">
 	import { m } from "@/lib/paraglide/messages";
-	import { closeMenu } from "@/lib/ui/menus.svelte";
-	import CloseButton from "@/components/ui/CloseButton.svelte";
-	import { closeCoverageMap, getClickedCoverageMapAreas } from "@/lib/features/coverageMap.svelte";
 	import Button from "@/components/ui/input/Button.svelte";
 	import { ArrowLeft } from "lucide-svelte";
-	import { slide, fade, fly } from "svelte/transition";
-	import Card from "@/components/ui/Card.svelte";
-	import { flip } from "svelte/animate";
 	import { getConfig } from "@/lib/services/config/config";
-	import { getMapPath } from "@/lib/utils/getMapPath";
-	import { SvelteURL } from "svelte/reactivity";
-	import { onMount } from "svelte";
+	import { getCoverageMapInvokedFromMap } from "@/lib/features/coverageMap.svelte";
+	import { goto } from "$app/navigation";
+	import { closeMenu } from "@/lib/ui/menus.svelte";
 </script>
 
 <div
@@ -21,13 +15,16 @@
 		{m.nav_coveragemap()}
 	</h1>
 
-	{#if getConfig().general.customHome && !location.pathname.startsWith(getMapPath(getConfig()))}
-		<Button size="sm" variant="outline" tag="a" href="/" onclick={closeCoverageMap}>
+	{#if getConfig().general.customHome && !getCoverageMapInvokedFromMap()}
+		<Button size="sm" variant="outline" tag="a" href="/" onclick={() => closeMenu()}>
 			<ArrowLeft class="size-4" />
 			<span>{m.error_back_to_website()}</span>
 		</Button>
 	{:else}
-		<Button size="sm" variant="outline" onclick={closeCoverageMap}>
+		<Button size="sm" variant="outline" onclick={() => {
+			closeMenu();
+			goto("/map")
+		}}>
 			<ArrowLeft class="size-4" />
 			<span>{m.back_to_map()}</span>
 		</Button>
