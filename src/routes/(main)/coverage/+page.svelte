@@ -83,7 +83,7 @@
 
 	<div class="flex">
 		{#if isMenuSidebar()}
-			<div class="w-full max-w-[40%] overflow-y-auto max-h-screen px-2">
+			<div class="w-[40%] max-w-lg min-w-xs shrink-0 overflow-y-auto max-h-screen px-2">
 				<div class="w-full px-2 pt-4 top-0 sticky z-10 bg-background">
 					<CoverageMapTitle />
 				</div>
