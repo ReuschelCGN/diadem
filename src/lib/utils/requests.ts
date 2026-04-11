@@ -1,7 +1,9 @@
 import { decode } from "@msgpack/msgpack";
 
 export function getHeaders(options?: { msgpack?: boolean }): Record<string, string> {
-	const headers: Record<string, string> = {};
+	const headers: Record<string, string> = {
+		"Content-Type": "application/json"
+	};
 	if (options?.msgpack ?? false) headers.Accept = "application/msgpack";
 	return headers;
 }
