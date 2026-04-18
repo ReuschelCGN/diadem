@@ -10,8 +10,10 @@ import { League } from "@/lib/services/uicons.svelte";
 import { getId } from "@/lib/utils/uuid";
 import { RaidLevel } from "@/lib/utils/gymUtils";
 import { MODIFIER_COLORS } from "@/lib/features/filters/modifierPresets";
+import { getPremadeQuestFiltersets } from "@/lib/features/filters/filterUtilsQuest";
+import { getPremadeInvasionFiltersets } from "@/lib/features/filters/filterUtilsInvasion";
 
-export const premadeFiltersets: { [key in FilterCategory]?: FiltersetPokemon[] } = {
+export const premadeFiltersets: { [key in FilterCategory]?: AnyFilterset[] } = {
 	pokemon: [
 		filterset<FiltersetPokemon>({
 			emoji: "💯",
@@ -84,18 +86,6 @@ export const premadeFiltersets: { [key in FilterCategory]?: FiltersetPokemon[] }
 		filterset<FiltersetPokemon>({
 			uicon: {
 				category: IconCategory.POKEMON,
-				params: { pokemon_id: 144, form: 0 }
-			},
-			title: "filter_template_legendary_birds",
-			pokemon: [
-				{ pokemon_id: 144, form: 0 },
-				{ pokemon_id: 145, form: 0 },
-				{ pokemon_id: 146, form: 0 }
-			]
-		}),
-		filterset<FiltersetPokemon>({
-			uicon: {
-				category: IconCategory.POKEMON,
 				params: { pokemon_id: 480, form: 0 }
 			},
 			title: "filter_template_sea_trio",
@@ -106,7 +96,6 @@ export const premadeFiltersets: { [key in FilterCategory]?: FiltersetPokemon[] }
 			]
 		})
 	],
-	quest: [],
 	raid: [
 		filterset<FiltersetRaid>({
 			uicon: {
@@ -174,6 +163,24 @@ export const premadeFiltersets: { [key in FilterCategory]?: FiltersetPokemon[] }
 		})
 	]
 };
+
+export function getPremadeFiltersets(category: FilterCategory) {
+	const filters = [...(premadeFiltersets[category] ?? [])];
+
+	if (category === "quest") {
+		const questFilters = getPremadeQuestFiltersets();
+		if (!questFilters) return;
+		filters.push(...questFilters);
+	} else if (category === "invasion") {
+		const invasionFilters = getPremadeInvasionFiltersets();
+		if (!invasionFilters) return;
+		filters.push(...invasionFilters);
+	}
+
+	if (!filters.length) return;
+
+	return filters;
+}
 
 type BaseParams = {
 	emoji?: BaseFilterset["icon"]["emoji"];

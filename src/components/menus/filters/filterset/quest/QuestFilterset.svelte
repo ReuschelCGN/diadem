@@ -6,18 +6,33 @@
 	import * as m from "@/lib/paraglide/messages";
 	import type { FiltersetQuest } from "@/lib/features/filters/filtersets";
 	import { getCurrentSelectedFilterset } from "@/lib/features/filters/filtersetPageData.svelte";
-	import { makeAttributePokemonLabel } from "@/lib/features/filters/makeAttributeChipLabel";
-	import RewardAttribute from "@/components/menus/filters/filterset/quest/RewardAttribute.svelte";
-	import Card from "@/components/ui/Card.svelte";
+	import {
+		makeAttributeItemLabel,
+		makeAttributeMegaResourceLabel,
+		makeAttributePokemonLabel,
+		makeAttributeRewardPokemonLabel,
+		makeAttributeTaskLabel
+	} from "@/lib/features/filters/makeAttributeChipLabel";
 	import { RewardType, rewardTypeLabel } from "@/lib/utils/pokestopUtils";
 	import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
-	import QuestRewardPokemonAttribute from "@/components/menus/filters/filterset/quest/QuestRewardPokemonAttribute.svelte";
-	import { makeAttributeItemLabel } from "@/lib/features/filters/makeAttributeChipLabel";
-	import QuestRewardItemAttribute from "@/components/menus/filters/filterset/quest/QuestRewardItemAttribute.svelte";
 	import QuestFilterDisplay from "@/components/menus/filters/filterset/quest/QuestFilterDisplay.svelte";
+	import PokemonSelectPage from "@/components/menus/filters/filterset/multiselect/PokemonSelectPage.svelte";
+	import QuestRewardSelectPage from "@/components/menus/filters/filterset/quest/QuestRewardSelectPage.svelte";
+	import QuestTaskSelectPage from "@/components/menus/filters/filterset/quest/QuestTaskSelectPage.svelte";
+	import SliderRange from "@/components/ui/input/slider/SliderRange.svelte";
+	import { changeAttributeMinMax } from "@/lib/features/filters/filtersetUtils";
+	import { getQuestRewards } from "@/lib/features/masterStats.svelte";
+	import {
+		getAttributeLabelStardust,
+		getAttributeLabelXp,
+		questBounds
+	} from "@/lib/features/filters/filterUtilsQuest";
+
 	let data: FiltersetQuest | undefined = $derived(getCurrentSelectedFilterset()?.data) as
 		| FiltersetQuest
 		| undefined;
+
+	const hasReward = (type: RewardType) => getQuestRewards(type).length > 0;
 </script>
 
 <FiltersetModal
@@ -37,73 +52,167 @@
 	{/snippet}
 	{#snippet overview()}
 		{#if data}
-			<!--			<Card class="w-full px-4 pt-2 pb-3">-->
-			<!--				<ArAttribute data={data} />-->
-			<!--			</Card>-->
-			<Card class="w-full px-4 pt-2 pb-3">
-				<RewardAttribute {data} />
-			</Card>
-
-			{#if data.rewardType !== undefined}
-				<AttributesOverview>
-					{#if data.rewardType === RewardType.POKEMON}
-						<Attribute label={rewardTypeLabel(data.rewardType)}>
-							<AttributeChip
-								label={makeAttributePokemonLabel(data.pokemon ?? [])}
-								isEmpty={!data.pokemon}
-								onremove={() => delete data.pokemon}
+			<AttributesOverview>
+				{#if hasReward(RewardType.POKEMON)}
+					<Attribute label={rewardTypeLabel(RewardType.POKEMON)}>
+						<AttributeChip
+							label={makeAttributePokemonLabel(data.pokemon ?? [])}
+							isEmpty={!data.pokemon}
+							onremove={() => delete data.pokemon}
+						/>
+						{#snippet page(thisData: FiltersetQuest)}
+							<PokemonSelectPage
+								data={thisData}
+								attribute="pokemon"
+								pokemonList={getQuestRewards(RewardType.POKEMON).map((r) => r.reward.info)}
 							/>
-							{#snippet page(thisData: FiltersetQuest)}
-								<QuestRewardPokemonAttribute data={thisData} />
-							{/snippet}
-						</Attribute>
-					{:else if data.rewardType === RewardType.ITEM}
-						<Attribute label={rewardTypeLabel(data.rewardType)}>
-							<AttributeChip
-								label={makeAttributeItemLabel(data.item ?? [])}
-								isEmpty={!data.item}
-								onremove={() => delete data.item}
-							/>
-							{#snippet page(thisData: FiltersetQuest)}
-								<QuestRewardItemAttribute data={thisData} />
-							{/snippet}
-						</Attribute>
-					{/if}
+						{/snippet}
+					</Attribute>
+				{/if}
 
-					<!--					<Attribute label="Tasks">-->
-					<!--						<AppearanceChips {data} sizeBounds={pokemonBounds.size} />-->
-					<!--						{#snippet page(thisData: FiltersetPokemon)}-->
-					<!--							<AppearanceAttribute data={thisData} sizeBounds={pokemonBounds.size} />-->
-					<!--						{/snippet}-->
-					<!--					</Attribute>-->
-				</AttributesOverview>
-			{/if}
-			<!--			<ArAttribute data={data} />-->
-			<!--			<RewardAttribute data={data} />-->
-			<!--			<AttributesOverview>-->
-			<!--				<Attribute label={m.ar_layer()}>-->
-			<!--					<AttributeChip-->
-			<!--						label={getAttributeLabelAr(data.ar)}-->
-			<!--						isEmpty={!data.ar}-->
-			<!--						onremove={() => delete data.ar}-->
-			<!--					/>-->
-			<!--					{#snippet page(thisData: FiltersetQuest)}-->
-			<!--						<ArAttribute data={thisData} />-->
-			<!--					{/snippet}-->
-			<!--				</Attribute>-->
-			<!--			</AttributesOverview>-->
-			<!--			<AttributesOverview>-->
-			<!--				<Attribute label={m.reward()}>-->
-			<!--					<AttributeChip-->
-			<!--						label={getAttributeLabelAr(data.ar)}-->
-			<!--						isEmpty={!data.ar}-->
-			<!--						onremove={() => delete data.ar}-->
-			<!--					/>-->
-			<!--					{#snippet page(thisData: FiltersetQuest)}-->
-			<!--						<RewardAttribute data={thisData} />-->
-			<!--					{/snippet}-->
-			<!--				</Attribute>-->
-			<!--			</AttributesOverview>-->
+				{#if hasReward(RewardType.ITEM)}
+					<Attribute label={rewardTypeLabel(RewardType.ITEM)}>
+						<AttributeChip
+							label={makeAttributeItemLabel(data.item ?? [])}
+							isEmpty={!data.item}
+							onremove={() => delete data.item}
+						/>
+						{#snippet page(thisData: FiltersetQuest)}
+							<QuestRewardSelectPage
+								data={thisData}
+								attribute="item"
+								rewardType={RewardType.ITEM}
+								getId={(info) => String(info.item_id)}
+							/>
+						{/snippet}
+					</Attribute>
+				{/if}
+
+				{#if hasReward(RewardType.MEGA_ENERGY)}
+					<Attribute label={rewardTypeLabel(RewardType.MEGA_ENERGY)}>
+						<AttributeChip
+							label={makeAttributeMegaResourceLabel(data.megaResource ?? [])}
+							isEmpty={!data.megaResource}
+							onremove={() => delete data.megaResource}
+						/>
+						{#snippet page(thisData: FiltersetQuest)}
+							<QuestRewardSelectPage
+								data={thisData}
+								attribute="megaResource"
+								rewardType={RewardType.MEGA_ENERGY}
+								getId={(info) => String(info.pokemon_id)}
+							/>
+						{/snippet}
+					</Attribute>
+				{/if}
+
+				{#if hasReward(RewardType.CANDY)}
+					<Attribute label={rewardTypeLabel(RewardType.CANDY)}>
+						<AttributeChip
+							label={makeAttributeRewardPokemonLabel(data.candy ?? [])}
+							isEmpty={!data.candy}
+							onremove={() => delete data.candy}
+						/>
+						{#snippet page(thisData: FiltersetQuest)}
+							<QuestRewardSelectPage
+								data={thisData}
+								attribute="candy"
+								rewardType={RewardType.CANDY}
+								getId={(info) => String(info.pokemon_id)}
+							/>
+						{/snippet}
+					</Attribute>
+				{/if}
+
+				{#if hasReward(RewardType.XL_CANDY)}
+					<Attribute label={rewardTypeLabel(RewardType.XL_CANDY)}>
+						<AttributeChip
+							label={makeAttributeRewardPokemonLabel(data.xlCandy ?? [])}
+							isEmpty={!data.xlCandy}
+							onremove={() => delete data.xlCandy}
+						/>
+						{#snippet page(thisData: FiltersetQuest)}
+							<QuestRewardSelectPage
+								data={thisData}
+								attribute="xlCandy"
+								rewardType={RewardType.XL_CANDY}
+								getId={(info) => String(info.pokemon_id)}
+							/>
+						{/snippet}
+					</Attribute>
+				{/if}
+
+				{#if hasReward(RewardType.STARDUST)}
+					<Attribute label={rewardTypeLabel(RewardType.STARDUST)}>
+						<AttributeChip
+							label={getAttributeLabelStardust(data.stardust)}
+							isEmpty={!data.stardust}
+							onremove={() => delete data.stardust}
+						/>
+						{#snippet page(thisData: FiltersetQuest)}
+							<SliderRange
+								min={questBounds.stardust.min}
+								max={questBounds.stardust.max}
+								step={100}
+								title={rewardTypeLabel(RewardType.STARDUST)}
+								valueMin={thisData.stardust?.min ?? questBounds.stardust.min}
+								valueMax={thisData.stardust?.max ?? questBounds.stardust.max}
+								onchange={([min, max]) =>
+									changeAttributeMinMax(
+										thisData,
+										"stardust",
+										questBounds.stardust.min,
+										questBounds.stardust.max,
+										min,
+										max
+									)}
+							/>
+						{/snippet}
+					</Attribute>
+				{/if}
+
+				{#if hasReward(RewardType.XP)}
+					<Attribute label={rewardTypeLabel(RewardType.XP)}>
+						<AttributeChip
+							label={getAttributeLabelXp(data.xp)}
+							isEmpty={!data.xp}
+							onremove={() => delete data.xp}
+						/>
+						{#snippet page(thisData: FiltersetQuest)}
+							<SliderRange
+								min={questBounds.xp.min}
+								max={questBounds.xp.max}
+								step={100}
+								title={rewardTypeLabel(RewardType.XP)}
+								valueMin={thisData.xp?.min ?? questBounds.xp.min}
+								valueMax={thisData.xp?.max ?? questBounds.xp.max}
+								onchange={([min, max]) =>
+									changeAttributeMinMax(
+										thisData,
+										"xp",
+										questBounds.xp.min,
+										questBounds.xp.max,
+										min,
+										max
+									)}
+							/>
+						{/snippet}
+					</Attribute>
+				{/if}
+			</AttributesOverview>
+
+			<AttributesOverview>
+				<Attribute label={m.tasks()}>
+					<AttributeChip
+						label={makeAttributeTaskLabel(data.tasks ?? [])}
+						isEmpty={!data.tasks}
+						onremove={() => delete data.tasks}
+					/>
+					{#snippet page(thisData: FiltersetQuest)}
+						<QuestTaskSelectPage data={thisData} />
+					{/snippet}
+				</Attribute>
+			</AttributesOverview>
 		{/if}
 	{/snippet}
 </FiltersetModal>

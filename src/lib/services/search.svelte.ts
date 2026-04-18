@@ -9,14 +9,15 @@ import microfuzz, {
 import { getKojiGeofences, type KojiFeature } from "@/lib/features/koji";
 import type { Attachment } from "svelte/attachments";
 import { browser } from "$app/environment";
-import { getAllLureModuleIds, getSpawnablePokemon } from "@/lib/services/masterfile";
+import { getAllLureModuleIds, getAllPokemon } from "@/lib/services/masterfile";
 import {
 	getActiveCharacters,
 	getActiveContests,
 	getActiveMaxBattles,
 	getActiveNests,
 	getActiveQuestRewards,
-	getActiveRaids
+	getActiveRaids,
+	getSpawnablePokemon
 } from "@/lib/features/masterStats.svelte";
 import type { ContestFocus, QuestReward } from "@/lib/types/mapObjectData/pokestop";
 import { getContestText, getRewardText, RewardType } from "@/lib/utils/pokestopUtils";
@@ -31,7 +32,8 @@ import { hasFeatureAnywhere } from "@/lib/services/user/checkPerm";
 import { getUserDetails } from "@/lib/services/user/userDetails.svelte";
 import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 
-const createFuzzySearch = microfuzz?.default ?? microfuzz;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const createFuzzySearch: typeof microfuzz = (microfuzz as any)?.default ?? microfuzz;
 
 const searchLimit = 20;
 const highlightKey = "search-highlight";
@@ -235,7 +237,7 @@ export function initSearch() {
 
 	let pokemonEntries: PokemonSearchEntry[] = [];
 	if (hasFeatureAnywhere(permissions, MapObjectType.POKEMON)) {
-		pokemonEntries = getSpawnablePokemon(true).map((p) => {
+		pokemonEntries = getSpawnablePokemon().map((p) => {
 			return {
 				name: mPokemon(p),
 				category: "pogo_pokemon",

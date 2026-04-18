@@ -13,7 +13,7 @@ import type {
 } from "@/lib/server/api/queryStats";
 import { getQuestKey, RewardType } from "@/lib/utils/pokestopUtils";
 import type { QuestReward } from "@/lib/types/mapObjectData/pokestop";
-import type { PokemonData } from "@/lib/types/mapObjectData/pokemon";
+import type { PokemonData, PokemonVisual } from "@/lib/types/mapObjectData/pokemon";
 
 let masterStats: MasterStats | undefined = $state(undefined);
 
@@ -32,6 +32,10 @@ export async function loadMasterStats() {
 	masterStats = await response.json();
 }
 
+export function setMasterStats(stats: MasterStats) {
+	masterStats = stats;
+}
+
 export function getMasterStats() {
 	return masterStats;
 }
@@ -47,27 +51,20 @@ export function getPokemonStats(pokemonId: number, formId: number): PokemonStats
 }
 
 /**
- * this returns all unique quest rewarda available today.
+ * this returns all unique quest rewards available today.
  * counts are not included
  */
 export function getActiveQuestRewards() {
 	if (!masterStats) return undefined;
 
-	const rewards = Object.values(masterStats.quests).map((v) => v.reward);
-	return rewards.filter(
-		(reward, index, self) =>
-			index ===
-			self.findIndex(
-				(r) =>
-					r.type === reward.type &&
-					// @ts-ignore
-					r.info?.item_id === reward.info?.item_id &&
-					// @ts-ignore
-					r.info?.pokemon_id === reward.info?.pokemon_id &&
-					// @ts-ignore
-					r.info?.form === reward.info?.form
-			)
-	);
+	const unique = new Map<string, QuestReward>();
+
+	for (const reward of Object.values(masterStats.quests).map((v) => v.reward)) {
+		const key = getQuestRewardUniqueKey(reward);
+		if (!unique.has(key)) unique.set(key, reward);
+	}
+
+	return Array.from(unique.values());
 }
 
 export function getQuestCount(reward: string, title: string, target: number) {
@@ -96,7 +93,7 @@ export function getQuestRewards<T extends RewardType>(
 	>();
 
 	for (const current of stats) {
-		const key = JSON.stringify(current.reward);
+		const key = getQuestRewardUniqueKey(current.reward);
 
 		const task = { title: current.title, target: current.target };
 
@@ -113,6 +110,27 @@ export function getQuestRewards<T extends RewardType>(
 
 	// @ts-ignore too lazy to type this propery
 	return Array.from(groupedMap.values());
+}
+
+function getQuestRewardUniqueKey(reward: QuestReward): string {
+	const { type } = reward;
+
+	switch (type) {
+		case RewardType.ITEM:
+			return `${type}|${reward.info.item_id}|${reward.info.amount}`;
+		case RewardType.POKEMON:
+			return `${type}|${reward.info.pokemon_id}|${reward.info.form}|${reward.info.gender ?? -1}|${reward.info.costume ?? -1}|${reward.info.shiny ? 1 : 0}|${reward.info.temp_evolution_id ?? -1}|${reward.info.alignment ?? -1}|${reward.info.bread_mode ?? -1}`;
+		case RewardType.CANDY:
+		case RewardType.XL_CANDY:
+		case RewardType.MEGA_ENERGY:
+			return `${type}|${reward.info.pokemon_id}|${reward.info.amount}`;
+		case RewardType.XP:
+		case RewardType.STARDUST:
+		case RewardType.POKECOINS:
+			return `${type}|${reward.info.amount}`;
+		default:
+			return `${type}`;
+	}
 }
 
 export function getTotalQuests() {
@@ -157,12 +175,10 @@ export function getInvasionCatchable(character: number): InvasionPokemonStats[] 
 	return Array.from(unique.values());
 }
 
-export function getInvasionPokemon(
-	characterSlot: Partial<InvasionPokemonStats>
-): Partial<PokemonData> {
+export function getInvasionPokemon(characterSlot: Partial<InvasionPokemonStats>): PokemonVisual {
 	return {
-		pokemon_id: characterSlot.pokemon_id,
-		form: characterSlot.form,
+		pokemon_id: characterSlot.pokemon_id ?? 0,
+		form: characterSlot.form ?? 0,
 		alignment: 1
 	};
 }
@@ -181,4 +197,17 @@ export function getActiveNests(): NestStatsEntry[] {
 
 export function getActiveEggs(): EggStats[] {
 	return masterStats?.activeEggs ?? [];
+}
+
+export function getSpawnablePokemon(): PokemonVisual[] {
+	const entries: PokemonVisual[] = [];
+
+	for (const [key, stats] of Object.entries(masterStats?.pokemon ?? {})) {
+		const [pokemonId, formId] = key.split("-").map(Number);
+		if (!pokemonId) continue;
+
+		entries.push({ pokemon_id: pokemonId, form: formId });
+	}
+
+	return entries;
 }
