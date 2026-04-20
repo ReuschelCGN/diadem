@@ -1,14 +1,17 @@
 ---
-title: Set up a CDN using Cloudflare Cache
+title: Caching
 ---
 
 Diadem proxies all external resources through its own server, so your users don't have to directly hit external links,
 and so it can optimize the resources.
 
+Some of these resources are set up to be cached by clients by default, but it's recommended 
+to set up your own Caching layer, to act as a CDN.
+
 ## UIcons
 
 Diadem serves your configured UIcons on `/assets/{id}`. Icons are optimized, converted to WebP, and optionally scaled
-to width 64. It sets caching headers, so your clients will cache the icons locally.
+to width 64. It sets caching headers, so clients will cache the icons locally.
 
 - `/assets/home/pokemon/25.png?w=64` returns the HOME icon for Pikachu, scaled to width 64 (cached by clients for 120 days)
 - `/assets/home/index.json` serves the UIcon index for the HOME icon set

@@ -26,10 +26,10 @@ export default defineConfig({
 					items: [
 						{ label: "Installation", slug: "guides/installation" },
 						{ label: "Translate Diadem", slug: "guides/translating" },
-						{ label: "Set up a CDN using Cloudflare Cache", slug: "guides/cloudflare-cache" },
+						{ label: "Caching", slug: "guides/cache" },
 						{ label: "Extending Diadem", slug: "guides/extending" },
-						{ label: "Self-host address search using Photon", slug: "guides/photon" },
-						{ label: "Self-host map tiles using Rampardos", slug: "guides/tileserver" }
+						{ label: "Self-host address search", slug: "guides/photon" },
+						{ label: "Self-host map tiles", slug: "guides/tileserver" }
 					]
 				},
 				{

@@ -1,5 +1,5 @@
 ---
-title: Self-host address search using Photon
+title: Self-host address search
 ---
 
 Geocoding describes the process of converting a written address to coordinates, while reverse geocoding converts a given set
