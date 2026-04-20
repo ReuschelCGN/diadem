@@ -37,10 +37,10 @@
 		}}
 		class="w-full"
 	>
-		<SelectGroupItem type="radio" value="level" class="p-2 w-full">
+		<SelectGroupItem type="radio" value="level" class="p-2 flex-1">
 			{m.raid_filter_by_level()}
 		</SelectGroupItem>
-		<SelectGroupItem type="radio" value="boss" class="p-2 w-full">
+		<SelectGroupItem type="radio" value="boss" class="p-2 flex-1">
 			{m.raid_filter_by_boss()}
 		</SelectGroupItem>
 	</RadioGroup>

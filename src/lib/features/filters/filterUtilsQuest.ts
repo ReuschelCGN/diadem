@@ -1,6 +1,6 @@
 import * as m from "@/lib/paraglide/messages";
 import type { FiltersetQuest, FiltersetTitle, MinMax } from "@/lib/features/filters/filtersets";
-import { setFilterIcon } from "@/lib/features/filters/filtersetUtils";
+import { setFilterIcon } from "@/lib/features/filters/filtersetUtils.svelte";
 import { IconCategory } from "@/lib/features/filters/icons";
 import {
 	makeAttributeItemLabel,

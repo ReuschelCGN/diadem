@@ -48,7 +48,7 @@ export function filterTitle(filterset: AnyFilterset | undefined) {
 
 	if (filterset.title.message in m) {
 		// @ts-ignore
-		const params = filterset.title.params;
+		const params = $state.snapshot(filterset.title.params);
 		if (params) {
 			for (const [key, value] of Object.entries(params)) {
 				if (Object.hasOwn(m, value)) {

@@ -10,7 +10,7 @@
 		toggleFilterset
 	} from "@/lib/features/filters/filtersetPageData.svelte";
 	import { filtersetPageReset } from "@/lib/features/filters/filtersetPages.svelte";
-	import { filterTitle } from "@/lib/features/filters/filtersetUtils";
+	import { filterTitle } from "@/lib/features/filters/filtersetUtils.svelte";
 	import FiltersetIcon from "@/lib/features/filters/FiltersetIcon.svelte";
 	import type { FilterCategory } from "@/lib/features/filters/filters";
 

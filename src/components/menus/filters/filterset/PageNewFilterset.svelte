@@ -11,7 +11,7 @@
 		type SelectedFiltersetData,
 		setCurrentSelectedFilterset
 	} from "@/lib/features/filters/filtersetPageData.svelte.js";
-	import { filterTitle } from "@/lib/features/filters/filtersetUtils";
+	import { filterTitle } from "@/lib/features/filters/filtersetUtils.svelte";
 	import FiltersetIcon from "@/lib/features/filters/FiltersetIcon.svelte";
 	import Separator from "@/components/ui/Separator.svelte";
 	import {

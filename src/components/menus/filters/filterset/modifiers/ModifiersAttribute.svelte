@@ -15,7 +15,7 @@
 		MODIFIER_GLOW_OPACITY
 	} from "@/lib/features/filters/modifierPresets";
 	import type { FilterCategory } from "@/lib/features/filters/filters";
-	import { filterTitle } from "@/lib/features/filters/filtersetUtils";
+	import { filterTitle } from "@/lib/features/filters/filtersetUtils.svelte";
 	import { slide } from "svelte/transition";
 	import { formatPercentage } from "@/lib/utils/numberFormat";
 
@@ -127,13 +127,13 @@
 			}}
 			class="w-full mt-3"
 		>
-			<SelectGroupItem class="p-2 w-full" value="none">
+			<SelectGroupItem class="p-2 flex-1" value="none">
 				{m.modifier_none()}
 			</SelectGroupItem>
-			<SelectGroupItem class="p-2 w-full" value="glow">
+			<SelectGroupItem class="p-2 flex-1" value="glow">
 				{m.modifier_glow()}
 			</SelectGroupItem>
-			<SelectGroupItem class="p-2 w-full" value="background"
+			<SelectGroupItem class="p-2 flex-1" value="background"
 				>{m.modifier_background_circle()}</SelectGroupItem
 			>
 		</RadioGroup>

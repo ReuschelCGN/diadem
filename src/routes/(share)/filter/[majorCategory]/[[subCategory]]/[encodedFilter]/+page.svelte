@@ -17,7 +17,7 @@
 		FiltersetRaid
 	} from "@/lib/features/filters/filtersets";
 	import { getGenderLabel } from "@/lib/utils/pokemonUtils";
-	import { filterTitle } from "@/lib/features/filters/filtersetUtils";
+	import { filterTitle } from "@/lib/features/filters/filtersetUtils.svelte";
 	import {
 		makeAttributePokemonLabel,
 		makeAttributeRaidLevelLabel,
