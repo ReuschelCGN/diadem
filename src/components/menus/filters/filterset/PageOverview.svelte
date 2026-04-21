@@ -12,13 +12,13 @@
 	import { getCurrentSelectedFilterset } from "@/lib/features/filters/filtersetPageData.svelte.js";
 	import * as m from "@/lib/paraglide/messages";
 	import EditDetails from "@/components/menus/filters/filterset/EditDetails.svelte";
-	import { filterTitle } from "@/lib/features/filters/filtersetUtils";
+	import { filterTitle } from "@/lib/features/filters/filtersetUtils.svelte";
 	import FiltersetIcon from "@/lib/features/filters/FiltersetIcon.svelte";
 	import ModifierPreview from "./modifiers/ModifierPreview.svelte";
 	import ModifiersAttribute from "./modifiers/ModifiersAttribute.svelte";
 	import type { AnyFilterset } from "@/lib/features/filters/filtersets";
 	import type { FilterCategory } from "@/lib/features/filters/filters";
-	import { getModifierPreviewIcon } from "@/lib/features/filters/filtersetUtils";
+	import { getModifierPreviewIcon } from "@/lib/features/filters/filtersetUtils.svelte";
 
 	let {
 		overview

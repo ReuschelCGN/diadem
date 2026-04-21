@@ -9,7 +9,7 @@
 	import { getCurrentSelectedFilterset } from "@/lib/features/filters/filtersetPageData.svelte.js";
 	import * as m from "@/lib/paraglide/messages";
 	import AppearanceAttribute from "@/components/menus/filters/filterset/pokemon/AppearanceAttribute.svelte";
-	import { changeAttributeMinMax } from "@/lib/features/filters/filtersetUtils";
+	import { changeAttributeMinMax } from "@/lib/features/filters/filtersetUtils.svelte";
 	import AppearanceChips from "@/components/menus/filters/filterset/pokemon/AppearanceChips.svelte";
 	import IvChips from "@/components/menus/filters/filterset/pokemon/IvChips.svelte";
 	import IvAttribute from "@/components/menus/filters/filterset/pokemon/IvAttribute.svelte";

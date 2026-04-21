@@ -38,7 +38,13 @@ export function formatNumberCompact(
 		return formatNumber(value, { maximumFractionDigits: decimals });
 	}
 
-	return new Intl.NumberFormat(getLocale(), {
+	let locale = getLocale();
+
+	if (getLocale() === "de") {
+		locale = "en";
+	}
+
+	return new Intl.NumberFormat(locale, {
 		notation: "compact",
 		compactDisplay: "short",
 		maximumFractionDigits: decimals,

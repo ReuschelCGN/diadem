@@ -20,7 +20,7 @@
 	import QuestRewardSelectPage from "@/components/menus/filters/filterset/quest/QuestRewardSelectPage.svelte";
 	import QuestTaskSelectPage from "@/components/menus/filters/filterset/quest/QuestTaskSelectPage.svelte";
 	import SliderRange from "@/components/ui/input/slider/SliderRange.svelte";
-	import { changeAttributeMinMax } from "@/lib/features/filters/filtersetUtils";
+	import { changeAttributeMinMax } from "@/lib/features/filters/filtersetUtils.svelte";
 	import { getQuestRewards } from "@/lib/features/masterStats.svelte";
 	import {
 		getAttributeLabelStardust,

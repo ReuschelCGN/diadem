@@ -37,10 +37,10 @@
 		}}
 		class="w-full"
 	>
-		<SelectGroupItem type="radio" value={InvasionFilterType.CHARACTERS} class="p-2 w-full">
+		<SelectGroupItem type="radio" value={InvasionFilterType.CHARACTERS} class="p-2 flex-1">
 			{m.invasion_filter_by_character()}
 		</SelectGroupItem>
-		<SelectGroupItem type="radio" value={InvasionFilterType.REWARDS} class="p-2 w-full">
+		<SelectGroupItem type="radio" value={InvasionFilterType.REWARDS} class="p-2 flex-1">
 			{m.invasion_filter_by_reward()}
 		</SelectGroupItem>
 	</RadioGroup>

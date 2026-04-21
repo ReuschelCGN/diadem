@@ -55,7 +55,7 @@ import type { AnyFilterset, FiltersetQuest } from "@/lib/features/filters/filter
 import { getUserSettings } from "@/lib/services/userSettings.svelte";
 import { matchPokemonFilterset } from "@/lib/features/filterLogic/pokemon";
 import { getUnderlayFeature } from "@/lib/map/render/modifierUnderlay";
-import { filterTitle } from "@/lib/features/filters/filtersetUtils";
+import { filterTitle } from "@/lib/features/filters/filtersetUtils.svelte";
 
 export function getConfigModifiers(iconSet: UiconSet | undefined, type: UiconSetModifierType) {
 	let scale: number = 0.25;

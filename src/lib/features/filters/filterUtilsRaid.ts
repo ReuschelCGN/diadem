@@ -2,7 +2,7 @@ import type { FiltersetRaid, FiltersetTitle } from "@/lib/features/filters/filte
 import { m } from "@/lib/paraglide/messages";
 import { RaidLevel } from "@/lib/utils/gymUtils";
 import { mPokemon } from "@/lib/services/ingameLocale";
-import { setFilterIcon } from "@/lib/features/filters/filtersetUtils";
+import { setFilterIcon } from "@/lib/features/filters/filtersetUtils.svelte";
 import { IconCategory } from "@/lib/features/filters/icons";
 
 export function generateRaidFilterDetails(filter: FiltersetRaid): FiltersetRaid {

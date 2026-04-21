@@ -43,7 +43,7 @@
 	{/if}
 
 	<MenuGeneric title={m.settings_theme()}>
-		<RadioGroup value={mode.current} onValueChange={setThemeMode} class="self-center">
+		<RadioGroup value={mode.current} onValueChange={setThemeMode} class="self-center justify-center">
 			<SelectGroupItem class="p-4" value="light">
 				<Sun size="20" />
 				{m.theme_light()}
@@ -64,7 +64,7 @@
 			childCount={getConfig().mapStyles.length}
 			value={getUserSettings().mapStyle.id}
 			onValueChange={onMapStyleChange}
-			class="self-center"
+			class="self-center justify-center"
 		>
 			{#each getConfig().mapStyles as mapStyle (mapStyle.id)}
 				<SelectGroupItem class="overflow-hidden" value={mapStyle.id}>

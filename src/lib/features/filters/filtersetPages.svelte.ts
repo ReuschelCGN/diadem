@@ -11,7 +11,7 @@ import {
 	updateDetailsCurrentSelectedFilterset
 } from "@/lib/features/filters/filtersetPageData.svelte.js";
 import type { AnyFilterset } from "@/lib/features/filters/filtersets";
-import { generateFilterDetails } from "@/lib/features/filters/filtersetUtils";
+import { generateFilterDetails } from "@/lib/features/filters/filtersetUtils.svelte";
 import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 
 export type FiltersetPage = "base" | "new" | "overview" | "attribute";
