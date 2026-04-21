@@ -131,7 +131,7 @@
 		</IconValue>
 	{/if}
 
-	{#if data.iv === null}
+	{#if !data.iv && data.iv !== 0}
 		<IconValue Icon={SearchX}>
 			{m.popup_no_iv_scanned()}
 		</IconValue>
@@ -150,7 +150,7 @@
 		</IconValue>
 	{/if}
 
-	{#if data.iv !== null}
+	{#if data.iv || data.iv === 0}
 		<IconValue Icon={LibraryBig}>
 			{m.pogo_ivs()}: <b>{data.iv.toFixed(1)}%</b>
 			({data.atk_iv ?? "?"}/{data.def_iv ?? "?"}/{data.sta_iv ?? "?"})
@@ -205,7 +205,7 @@
 
 	{#snippet title()}
 		<p class="flex items-baseline text-lg font-semibold tracking-tight -ml-0.5">
-			{#if data.iv !== undefined && data.iv !== null}
+			{#if data.iv || data.iv === 0}
 				<span
 					class="mr-2 border-1 bg-muted border-border rounded-lg px-2 py-0.5 text-base"
 					class:text-tier-0={data.iv <= 50}
