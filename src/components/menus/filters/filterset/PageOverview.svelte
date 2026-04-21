@@ -12,13 +12,13 @@
 	import { getCurrentSelectedFilterset } from "@/lib/features/filters/filtersetPageData.svelte.js";
 	import * as m from "@/lib/paraglide/messages";
 	import EditDetails from "@/components/menus/filters/filterset/EditDetails.svelte";
-	import { filterTitle } from "@/lib/features/filters/filtersetUtils";
+	import { filterTitle } from "@/lib/features/filters/filtersetUtils.svelte";
 	import FiltersetIcon from "@/lib/features/filters/FiltersetIcon.svelte";
 	import ModifierPreview from "./modifiers/ModifierPreview.svelte";
 	import ModifiersAttribute from "./modifiers/ModifiersAttribute.svelte";
 	import type { AnyFilterset } from "@/lib/features/filters/filtersets";
 	import type { FilterCategory } from "@/lib/features/filters/filters";
-	import { getModifierPreviewIcon } from "@/lib/features/filters/filtersetUtils";
+	import { getModifierPreviewIcon } from "@/lib/features/filters/filtersetUtils.svelte";
 
 	let {
 		overview
@@ -27,7 +27,6 @@
 	} = $props();
 
 	let filterset = getCurrentSelectedFilterset();
-	let snapshot = $state.snapshot(filterset);
 </script>
 
 {#snippet editDetailsPage(thisData: AnyFilterset)}
@@ -56,17 +55,17 @@
 				filtersetPageEditAttribute();
 			}}
 		>
-			{#if snapshot?.data}
+			{#if filterset?.data}
 				<div
 					class="rounded-full bg-accent size-10 border flex items-center justify-center relative shrink-0 mr-1"
 				>
-					<FiltersetIcon filterset={snapshot.data} size={5} />
+					<FiltersetIcon filterset={filterset.data} size={5} />
 				</div>
 				<div class="relative text-left text-base min-w-0 w-full overflow-hidden">
 					<div
 						class="absolute right-0 h-full w-4 bg-linear-to-l from-background to-transparent group-hover:from-accent group-active:from-accent transition-colors"
 					></div>
-					<b>{filterTitle(snapshot.data)}</b>
+					<b>{filterTitle(filterset.data)}</b>
 				</div>
 			{/if}
 			<Pencil class="ml-auto shrink-0" size="14" />

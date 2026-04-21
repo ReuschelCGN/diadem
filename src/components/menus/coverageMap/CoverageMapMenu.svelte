@@ -7,11 +7,16 @@
 	import { getFeatureJump } from "@/lib/utils/geo";
 	import { flyTo, jumpTo } from "@/lib/map/utils";
 	import { closeSearchModal } from "@/lib/ui/modal.svelte";
-	import { closeCoverageMap, coverageMapActiveSnapPoint } from "@/lib/features/coverageMap.svelte";
+	import {
+		coverageMapActiveSnapPoint,
+		getCoverageMap,
+		setClickedCoverageMapAreas
+	} from "@/lib/features/coverageMap.svelte";
 	import { SvelteSet } from "svelte/reactivity";
 	import { slide, fly } from "svelte/transition";
 	import { onDestroy } from "svelte";
 	import { hasLoadedFeature, LoadedFeature } from "@/lib/services/initialLoad.svelte";
+	import { m } from "@/lib/paraglide/messages";
 
 	let expandedAreas: Set<number> = new SvelteSet();
 </script>
@@ -19,6 +24,26 @@
 {#snippet areaTitle(area: KojiFeature)}
 	<LucideIcon class="size-4 ml-2" name={area.properties.lucideIcon ?? "Globe"} />
 	<span>{area.properties.name}</span>
+{/snippet}
+
+{#snippet jumpButton(area: KojiFeature)}
+	<Button
+		class="ml-auto px-6"
+		size="sm"
+		variant="secondary"
+		onclick={() => {
+			coverageMapActiveSnapPoint.reset();
+			setClickedCoverageMapAreas([area]);
+			const params = getFeatureJump(area, true, getCoverageMap());
+
+			getCoverageMap()?.flyTo({
+				center: params.coords,
+				zoom: params.zoom
+			});
+		}}
+	>
+		{m.coveragemap_view()}
+	</Button>
 {/snippet}
 
 {#snippet areaEntry(area: KojiFeature)}
@@ -45,42 +70,27 @@
 			</Button>
 		{/if}
 
-		<Button
-			class="ml-auto px-6"
-			size="sm"
-			variant="secondary"
-			onclick={() => {
-				coverageMapActiveSnapPoint.reset();
-				const params = getFeatureJump(area, true);
-				flyTo(params.coords, params.zoom);
-			}}
-		>
-			View
-		</Button>
+		{@render jumpButton(area)}
 	</div>
 
 	{#if isExpanded}
-		<div
-			class="text-muted-foreground text-sm px-4 py-2 space-y-2"
-			transition:slide={{ duration: 150 }}
-		>
+		<div class="pl-6" transition:slide={{ duration: 150 }}>
 			{#each area.properties.children as child (child.properties.id)}
-				<p>
-					{child.properties.name}
-				</p>
+				<div class="w-full flex py-2 items-center pl-2 pr-2 gap-3 text-sm font-medium">
+					{@render areaTitle(child)}
+					{@render jumpButton(child)}
+				</div>
 			{/each}
 		</div>
 	{/if}
 {/snippet}
 
-<div class="space-y-2">
-	<Card class="overflow-hidden">
-		{#if hasLoadedFeature(LoadedFeature.KOJI)}
-			{#each getKojiGeofences() as area (area.properties.id)}
-				{#if !area.properties.parent}
-					{@render areaEntry(area)}
-				{/if}
-			{/each}
-		{/if}
-	</Card>
+<div class="overflow-hidden">
+	{#if hasLoadedFeature(LoadedFeature.KOJI)}
+		{#each getKojiGeofences() as area (area.properties.id)}
+			{#if !area.properties.parent}
+				{@render areaEntry(area)}
+			{/if}
+		{/each}
+	{/if}
 </div>

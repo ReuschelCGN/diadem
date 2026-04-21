@@ -25,7 +25,6 @@
 	import { currentTimestamp } from "@/lib/utils/currentTimestamp";
 	import { isMenuSidebar, isUiLeft } from "@/lib/utils/device";
 	import { isSearchViewActive } from "@/lib/features/activeSearch.svelte";
-	import { getIsCoverageMapActive } from "@/lib/features/coverageMap.svelte";
 
 	let ignoreWatch = false;
 	let isClicked: boolean = $state(false);
@@ -77,7 +76,7 @@
 	}
 </script>
 
-{#if getCurrentWeather() && isWeatherUpdated(getCurrentWeather()) && hasLoadedFeature(LoadedFeature.REMOTE_LOCALE, LoadedFeature.ICON_SETS) && !isSearchViewActive() && !getIsCoverageMapActive()}
+{#if getCurrentWeather() && isWeatherUpdated(getCurrentWeather()) && hasLoadedFeature(LoadedFeature.REMOTE_LOCALE, LoadedFeature.ICON_SETS) && !isSearchViewActive()}
 	<div
 		class="pointer-events-none fixed top-2 z-10"
 		class:right-2={!isUiLeft() || isMenuSidebar()}

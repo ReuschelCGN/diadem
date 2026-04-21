@@ -22,6 +22,7 @@ import {
 } from "@/lib/services/uicons.svelte";
 import { RewardType } from "@/lib/utils/pokestopUtils";
 import { RaidLevel } from "@/lib/utils/gymUtils";
+import { generateQuestFilterDetails } from "@/lib/features/filters/filterUtilsQuest";
 
 export function changeAttributeMinMax(
 	data: AnyFilterset,
@@ -47,7 +48,7 @@ export function filterTitle(filterset: AnyFilterset | undefined) {
 
 	if (filterset.title.message in m) {
 		// @ts-ignore
-		const params = filterset.title.params;
+		const params = $state.snapshot(filterset.title.params);
 		if (params) {
 			for (const [key, value] of Object.entries(params)) {
 				if (Object.hasOwn(m, value)) {
@@ -75,6 +76,7 @@ export function generateFilterDetails(
 	if (majorCategory === "pokemon") {
 		generatePokemonFilterDetails(filtersert as FiltersetPokemon);
 	} else if (subCategory === "quest") {
+		generateQuestFilterDetails(filtersert as FiltersetQuest);
 	} else if (subCategory === "raid") {
 		generateRaidFilterDetails(filtersert as FiltersetRaid);
 	} else if (subCategory === "invasion") {

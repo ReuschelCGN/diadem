@@ -11,15 +11,10 @@ import type { MapData } from "@/lib/mapObjects/mapObjectTypes";
 import { getMap } from "@/lib/map/map.svelte";
 import { CoverageMapLayerId, MapObjectLayerId } from "@/lib/map/layers";
 import { closeMenu, getOpenedMenu, Menu } from "@/lib/ui/menus.svelte";
-import {
-	type CoverageMapAreaProperties,
-	getIsCoverageMapActive,
-	setClickedCoverageMapAreas
-} from "@/lib/features/coverageMap.svelte";
-import type { Feature, Polygon } from "geojson";
 import { setCurrentScoutCenter } from "@/lib/features/scout.svelte";
 import { Coords } from "@/lib/utils/coordinates";
 import type { MapObjectFeature } from "@/lib/map/render/featureTypes";
+import { page } from "$app/state";
 
 export function closePopup() {
 	setCurrentSelectedData(null);
@@ -49,7 +44,12 @@ export function getCurrentPath() {
 	if (data) {
 		return `/${data.type}/${data.id}`;
 	}
-	return getMapPath(getConfig());
+
+	if (getMap()) {
+		return getMapPath(getConfig());
+	}
+
+	return page.url.pathname;
 }
 
 function setCurrentPath() {
@@ -62,18 +62,7 @@ export function clickMapHandler(event: MapMouseEvent) {
 	const map = getMap();
 	if (!map) return;
 
-	if (getIsCoverageMapActive()) {
-		// @ts-ignore this is ok
-		const areas = map.queryRenderedFeatures(event.point, {
-			layers: [CoverageMapLayerId.POLYGON_FILL]
-		}) as Feature<Polygon, CoverageMapAreaProperties>[];
-
-		if (areas.length === 0) {
-			setClickedCoverageMapAreas(undefined);
-		} else {
-			setClickedCoverageMapAreas(areas);
-		}
-	} else if (getOpenedMenu() === Menu.SCOUT) {
+	if (getOpenedMenu() === Menu.SCOUT) {
 		setCurrentScoutCenter(Coords.infer(event.lngLat));
 	} else {
 		const features = map.queryRenderedFeatures(event.point, {

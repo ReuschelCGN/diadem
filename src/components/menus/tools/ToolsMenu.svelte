@@ -5,11 +5,7 @@
 	import { CoverageMapLayerId, MapObjectLayerId, MapSourceId } from "@/lib/map/layers";
 	import * as turf from "@turf/turf";
 	import ToolLink from "@/components/menus/tools/ToolLink.svelte";
-	import {
-		getCoverageMapAreas,
-		getIsCoverageMapActive,
-		openCoverageMap
-	} from "@/lib/features/coverageMap.svelte";
+	import { getCoverageMapAreas, openCoverageMap } from "@/lib/features/coverageMap.svelte";
 	import GeometryLayer from "@/components/map/GeometryLayer.svelte";
 	import { getConfig } from "@/lib/services/config/config";
 	import { hasFeatureAnywhere } from "@/lib/services/user/checkPerm";
@@ -92,16 +88,6 @@
 			</MapLibre>
 		</ToolLink>
 	{/if}
-
-	<!--{#if getConfig().tools.stats}-->
-	<!--	<ToolLink-->
-	<!--		Icon={ChartColumnBig}-->
-	<!--		title="Stats"-->
-	<!--		description="Shiny odds, active raids and more"-->
-	<!--	>-->
-	<!--		<div></div>-->
-	<!--	</ToolLink>-->
-	<!--{/if}-->
 
 	{#if isSupportedFeature("koji") && getConfig().tools.coverageMap}
 		<ToolLink

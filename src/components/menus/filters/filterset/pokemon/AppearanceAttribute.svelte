@@ -6,7 +6,7 @@
 	import SelectGroupItem from "@/components/ui/input/selectgroup/SelectGroupItem.svelte";
 	import { CircleSmall, Mars, Venus } from "lucide-svelte";
 	import type { FiltersetPokemon, MinMax } from "@/lib/features/filters/filtersets";
-	import { changeAttributeMinMax } from "@/lib/features/filters/filtersetUtils";
+	import { changeAttributeMinMax } from "@/lib/features/filters/filtersetUtils.svelte";
 
 	let {
 		data,
@@ -36,7 +36,6 @@
 	</div>
 
 	<ToggleGroup
-		childCount={3}
 		values={thisValues}
 		onchange={(values) => {
 			if (values.length > 0 && values.length < 3) {
@@ -48,15 +47,15 @@
 		}}
 		class="w-full"
 	>
-		<SelectGroupItem type="toggle" value="2" class="p-2 w-full">
+		<SelectGroupItem type="toggle" value="2" class="p-2 flex-1">
 			<Venus size="20" />
 			{m.pokemon_gender_female()}
 		</SelectGroupItem>
-		<SelectGroupItem type="toggle" value="1" class="p-2 w-full">
+		<SelectGroupItem type="toggle" value="1" class="p-2 flex-1">
 			<Mars size="20" />
 			{m.pokemon_gender_male()}
 		</SelectGroupItem>
-		<SelectGroupItem type="toggle" value="3" class="p-2 w-full">
+		<SelectGroupItem type="toggle" value="3" class="p-2 flex-1">
 			<CircleSmall size="20" />
 			{m.pokemon_gender_neutral()}
 		</SelectGroupItem>

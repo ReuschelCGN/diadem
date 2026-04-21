@@ -15,8 +15,6 @@ import { getUserDetails } from "@/lib/services/user/userDetails.svelte";
 import { allMapObjectTypes, type MapData, MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 import type { MapObjectResponse } from "@/lib/server/queryMapObjects/MapObjectQuery";
 import { getActiveSearch } from "@/lib/features/activeSearch.svelte.js";
-import { getIsCoverageMapActive } from "@/lib/features/coverageMap.svelte";
-import { decode } from "@msgpack/msgpack";
 import { currentTimestamp } from "@/lib/utils/currentTimestamp";
 import { getHeaders, parseResponse } from "@/lib/utils/requests";
 
@@ -150,8 +148,6 @@ export async function updateMapObject(
 }
 
 export async function updateAllMapObjects(removeOld: boolean = true, onlyChanged: boolean = false) {
-	if (getIsCoverageMapActive()) return;
-
 	if (onlyChanged && currentController) return;
 
 	currentController?.abort();

@@ -14,6 +14,7 @@
 		coverageMapSnapPoints,
 		coverageMapActiveSnapPoint
 	} from "@/lib/features/coverageMap.svelte";
+	import Fabs from "@/components/ui/fab/Fabs.svelte";
 
 	let contentClass = $derived(
 		coverageMapActiveSnapPoint.value === coverageMapSnapPoints[coverageMapSnapPoints.length - 1]
@@ -34,10 +35,10 @@
 >
 	<Drawer.Portal>
 		<Drawer.Content
-			class="duration-150! rounded-t-xl fixed flex flex-col bottom-0 z-10 px-2 py-2 w-full h-full border border-t-border bg-card/60 backdrop-blur-sm"
+			class="duration-150! rounded-t-xl fixed flex flex-col bottom-0 z-10 px-2 py-2 w-full h-full border border-t-border bg-card/60 backdrop-blur-sm focus:outline-none"
 		>
-			<div class="w-10 mx-auto mb-2 rounded-full bg-ring h-6"></div>
-			<div class={contentClass}>
+			<div class="w-10 mx-auto mb-2 rounded-full bg-ring h-1 shrink-0"></div>
+			<div class="{contentClass} bg-background rounded-lg border border-border">
 				<MenuContainer />
 			</div>
 		</Drawer.Content>

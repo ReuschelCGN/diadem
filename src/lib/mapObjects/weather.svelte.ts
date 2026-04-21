@@ -32,6 +32,8 @@ export function getCurrentWeather() {
 }
 
 export function updateCurrentWeatherFeatures(show: boolean) {
+	const map = getMap();
+	if (!map) return;
 	if (!show && lastSelectedWeatherWasEmpty) return;
 
 	const data: FeatureCollection<Polygon, S2CellProperties> = {
@@ -46,7 +48,7 @@ export function updateCurrentWeatherFeatures(show: boolean) {
 		lastSelectedWeatherWasEmpty = true;
 	}
 
-	updateMapGeojsonSource(MapSourceId.SELECTED_WEATHER, data);
+	updateMapGeojsonSource(map, MapSourceId.SELECTED_WEATHER, data);
 }
 
 export async function updateWeather() {

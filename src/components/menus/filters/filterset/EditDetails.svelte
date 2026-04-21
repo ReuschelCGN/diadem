@@ -3,7 +3,7 @@
 	import TextInput from "@/components/ui/input/TextInput.svelte";
 	import Button from "@/components/ui/input/Button.svelte";
 	import MenuTitle from "@/components/menus/MenuTitle.svelte";
-	import { filterTitle } from "@/lib/features/filters/filtersetUtils";
+	import { filterTitle } from "@/lib/features/filters/filtersetUtils.svelte";
 	import FiltersetIcon from "@/lib/features/filters/FiltersetIcon.svelte";
 	import {
 		filtersetPageEditAttribute,

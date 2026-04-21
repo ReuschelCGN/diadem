@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { changeAttributeMinMax } from "@/lib/features/filters/filtersetUtils";
+	import { changeAttributeMinMax } from "@/lib/features/filters/filtersetUtils.svelte";
 	import SliderRange from "@/components/ui/input/slider/SliderRange.svelte";
 	import type { FiltersetPokemon, MinMax } from "@/lib/features/filters/filtersets";
 	import { m } from "@/lib/paraglide/messages";

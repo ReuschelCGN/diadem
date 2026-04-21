@@ -72,31 +72,36 @@ serverId = "1359028304128245934"
 #
 # Below are some examples
 
-# Every user gets access to gyms and pokestops in New York
+# Everyone has access to everything
 [[server.permissions]]
 everyone = true
-areas = ["New York"]
-features = ["gym", "pokestop"]
+features = ["*"]
+
+# Every user gets access to gyms and pokestops in New York
+#[[server.permissions]]
+#everyone = true
+#areas = ["New York"]
+#features = ["gym", "pokestop"]
 
 # Every logged-in user gets access to all Power Spots
 # Above permissions are also granted, since these users also fulfill those requirements
-[[server.permissions]]
-loggedIn = true
-features = ["station"]
+#[[server.permissions]]
+#loggedIn = true
+#features = ["station"]
 
 # Every user who's a member of my Malte# server gets access to all Pokemon and Scout
 # Above permissions are also granted, since these users also fulfill those requirements
-[[server.permissions]]
-guildId = "1359028304128245934"
-features = ["pokemon", "scout"]
+#[[server.permissions]]
+#guildId = "1359028304128245934"
+#features = ["pokemon", "scout"]
 
 # Every user with that specific role gets access to every feature in Tokyo
 # Above permissions are also granted, since these users also fulfill those requirements
-[[server.permissions]]
-guildId = "1359028304128245934"
-roleId = "1483326963558653982"
-areas = ["Tokyo"]
-features = ["*"]
+#[[server.permissions]]
+#guildId = "1359028304128245934"
+#roleId = "1483326963558653982"
+#areas = ["Tokyo"]
+#features = ["*"]
 
 # Rate limits can be used to limit the data clients can fetch from your server
 # Abuse may be rare, but can happen. If you notice abuse, you can enable rate limits.
@@ -182,17 +187,21 @@ showToolsMenu = true
 
 coverageMap = true
 scout = true
-stats = true
 
 # Map Positions for various maps in the UI
 [client.mapPositions]
+# Starting position when opening the coverage map
+coverageMapLat = 51.516855
+coverageMapLon = -0.080500
+coverageMapZoom = 10
+
 # Profile Menu - Map Style Preview Maps
 # You may change them if you have a style without tiles in Germany
 styleLat = 53.563
 styleLon = 9.979
 styleZoom = 12
 
-# Tooles Menu - Coverage Map - Background Map
+# Tools Menu - Coverage Map - Background Map
 # Would generally recommend to set this to a position where you have areas
 coverageLat = 53.563
 coverageLon = 9.979

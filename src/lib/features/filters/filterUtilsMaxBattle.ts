@@ -1,6 +1,6 @@
 import type { FiltersetMaxBattle, FiltersetTitle } from "@/lib/features/filters/filtersets";
 import { mPokemon } from "@/lib/services/ingameLocale";
-import { setFilterIcon } from "@/lib/features/filters/filtersetUtils";
+import { setFilterIcon } from "@/lib/features/filters/filtersetUtils.svelte";
 import { IconCategory } from "@/lib/features/filters/icons";
 
 export function generateMaxBattleFilterDetails(filter: FiltersetMaxBattle): FiltersetMaxBattle {

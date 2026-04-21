@@ -12,8 +12,8 @@ export function setMap(newMap: maplibre.Map | undefined) {
 	map = newMap;
 }
 
-export function resetMap() {
-	map?.easeTo({
+export function resetMap(map: maplibre.Map | undefined = undefined) {
+	(map ?? getMap())?.easeTo({
 		bearing: 0,
 		pitch: 0
 	});

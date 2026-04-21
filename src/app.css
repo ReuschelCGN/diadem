@@ -176,10 +176,22 @@
 	}
 }
 
+@utility grid-autofill-* {
+    grid-template-columns: repeat(auto-fill, minmax(calc(--value(integer) * 0.25rem), 1fr));
+}
+
 b {
 	@apply font-semibold;
 }
 
 .lucide-icon {
 	flex-shrink: 0;
+}
+
+input[type="search"]::-webkit-search-cancel-button {
+	display: none;
+}
+
+::highlight(search-highlight) {
+	background-color: var(--color-search-highlight);
 }

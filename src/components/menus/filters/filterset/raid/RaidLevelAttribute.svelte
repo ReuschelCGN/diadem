@@ -15,7 +15,7 @@
 </script>
 
 <ToggleGroup
-	class="grid-cols-2! w-full max-h-120 overflow-y-auto px-1 py-1"
+	class="w-full px-1 py-1"
 	childCount={RAID_LEVELS.length}
 	evenColumns={false}
 	values={data.levels?.map(String) ?? []}
@@ -28,7 +28,7 @@
 	}}
 >
 	{#each RAID_LEVELS as raidLevel}
-		<SelectGroupItem class="w-full h-16!" type="toggle" value={raidLevel.toString()}>
+		<SelectGroupItem class="w-[48%] h-16!" type="toggle" value={raidLevel.toString()}>
 			<img
 				class="w-5"
 				src={resize(getIconRaidEgg(raidLevel), { width: 64 })}

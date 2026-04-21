@@ -8,13 +8,18 @@
 		getIsFetchingLocation
 	} from "@/lib/map/geolocate.svelte";
 	import { onMount } from "svelte";
+	import type maplibre from "maplibre-gl";
 
-	let { ...rest } = $props();
+	let {
+		map
+	}: {
+		map: maplibre.Map | undefined;
+	} = $props();
 
 	onMount(() => updateGeolocationEnabled().then());
 </script>
 
-<BaseFab onclick={updateLocation} {...rest}>
+<BaseFab onclick={() => updateLocation(map)}>
 	{#if getIsGeolocationEnabled()}
 		<Locate size="24" class={getIsFetchingLocation() ? "fetching-location" : ""} />
 	{:else}

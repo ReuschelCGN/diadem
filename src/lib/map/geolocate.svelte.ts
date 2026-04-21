@@ -1,7 +1,6 @@
 import * as m from "@/lib/paraglide/messages";
 import { openToast } from "@/lib/ui/toasts.svelte.js";
-import { getMap } from "@/lib/map/map.svelte";
-import type { LngLatLike } from "maplibre-gl";
+import maplibre, { type LngLatLike } from "maplibre-gl";
 import { tick } from "svelte";
 
 let geolocationEnabled: boolean = $state(false);
@@ -60,14 +59,12 @@ export async function updateGeolocationEnabled(showResult: boolean = false) {
 	return geolocationOk;
 }
 
-export function updateLocation() {
+export function updateLocation(map: maplibre.Map | undefined) {
 	isFetchingLocation = true;
 	navigator?.geolocation?.getCurrentPosition(
 		(s) => {
-			console.debug(s);
 			isFetchingLocation = false;
 
-			const map = getMap();
 			if (!map) return;
 
 			currentLocation = {
