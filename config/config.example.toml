@@ -35,7 +35,7 @@ projectName = "reactmap"
 #basicAuth = ""
 
 [server.auth]
-enabled = true
+enabled = false
 optional = true
 # Required when auth is enabled.
 # Used to sign/encrypt auth cookies and tokens. Use a cryptographically random value (min 32 chars; 64+ recommended).
