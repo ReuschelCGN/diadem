@@ -438,13 +438,26 @@ export async function queryMasterStats(): Promise<MasterStats> {
 	for (const row of allRaidStats) {
 		const form = getNormalizedForm(row.pokemon_id, row.form);
 		const count = Number(row.count ?? 0);
-		activeRaids.push({
-			level: row.level,
-			pokemon_id: row.pokemon_id,
-			form,
-			temp_evolution_id: row.temp_evolution_id,
-			count
-		});
+
+		const existingRaid = activeRaids.find(
+			(raid) =>
+				raid.level === row.level &&
+				raid.pokemon_id === row.pokemon_id &&
+				raid.form === form &&
+				raid.temp_evolution_id === row.temp_evolution_id
+		);
+
+		if (existingRaid) {
+			existingRaid.count += count;
+		} else {
+			activeRaids.push({
+				level: row.level,
+				pokemon_id: row.pokemon_id,
+				form,
+				temp_evolution_id: row.temp_evolution_id,
+				count
+			});
+		}
 	}
 
 	for (const row of allContestStats) {
@@ -455,31 +468,65 @@ export async function queryMasterStats(): Promise<MasterStats> {
 			focus.pokemon_form = getNormalizedForm(focus.pokemon_id, focus.pokemon_form);
 		}
 
-		activeContests.push({
-			ranking_standard: row.ranking_standard,
-			focus: focus,
-			count
-		});
+		const focusKey = JSON.stringify(focus);
+		const existingContest = activeContests.find(
+			(contest) =>
+				contest.ranking_standard === row.ranking_standard && JSON.stringify(contest.focus) === focusKey
+		);
+
+		if (existingContest) {
+			existingContest.count += count;
+		} else {
+			activeContests.push({
+				ranking_standard: row.ranking_standard,
+				focus,
+				count
+			});
+		}
 	}
 
 	for (const row of allMaxBattlesStats) {
 		const count = Number(row.count ?? 0);
-		activeMaxBattles.push({
-			level: row.level,
-			pokemon_id: row.pokemon_id,
-			form: getNormalizedForm(row.pokemon_id, row.form),
-			bread_mode: row.bread_mode,
-			count
-		});
+		const form = getNormalizedForm(row.pokemon_id, row.form);
+
+		const existingMaxBattle = activeMaxBattles.find(
+			(maxBattle) =>
+				maxBattle.level === row.level &&
+				maxBattle.pokemon_id === row.pokemon_id &&
+				maxBattle.form === form &&
+				maxBattle.bread_mode === row.bread_mode
+		);
+
+		if (existingMaxBattle) {
+			existingMaxBattle.count += count;
+		} else {
+			activeMaxBattles.push({
+				level: row.level,
+				pokemon_id: row.pokemon_id,
+				form,
+				bread_mode: row.bread_mode,
+				count
+			});
+		}
 	}
 
 	for (const row of allNestsStats) {
 		const count = Number(row.count ?? 0);
-		activeNests.push({
-			pokemon_id: row.pokemon_id,
-			form: getNormalizedForm(row.pokemon_id, row.form),
-			count
-		});
+		const form = getNormalizedForm(row.pokemon_id, row.form);
+
+		const existingNest = activeNests.find(
+			(nest) => nest.pokemon_id === row.pokemon_id && nest.form === form
+		);
+
+		if (existingNest) {
+			existingNest.count += count;
+		} else {
+			activeNests.push({
+				pokemon_id: row.pokemon_id,
+				form,
+				count
+			});
+		}
 	}
 
 	const activeEggs: EggStats[] = [];
