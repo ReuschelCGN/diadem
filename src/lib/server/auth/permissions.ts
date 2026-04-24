@@ -10,6 +10,11 @@ import { getLogger } from "@/lib/utils/logger";
 
 const log = getLogger("permissions");
 
+export type PermissionUser = {
+	id: string;
+	permissions: unknown;
+};
+
 let initializedEveryonePerms: boolean = false;
 let everyonePerms: Perms = { everywhere: [], areas: [] };
 
@@ -75,10 +80,15 @@ export async function getEveryonePerms(thisFetch: typeof fetch, geofences?: Koji
 	return everyonePerms;
 }
 
-export async function updatePermissions(user: User, accessToken: string, thisFetch: typeof fetch) {
+export async function updatePermissions(
+	user: PermissionUser,
+	accessToken: string,
+	thisFetch: typeof fetch
+) {
 	const guildCache: { [key: string]: DiscordGuildData } = {};
 	const authConfig = getServerConfig().auth;
 	const permConfig = getServerConfig().permissions;
+	const canCheckGuildRules = accessToken.trim().length > 0;
 
 	const geofences = await getGeofences(thisFetch);
 
@@ -91,9 +101,21 @@ export async function updatePermissions(user: User, accessToken: string, thisFet
 			let ruleApplies = !!rule.loggedIn || !!rule.everyone;
 
 			if (!ruleApplies && rule.guildId) {
+				if (!canCheckGuildRules) {
+					continue;
+				}
+
 				let guild = guildCache[rule.guildId];
 				if (!guild) {
-					guild = await getGuildMemberInfo(rule.guildId, accessToken);
+					const lookup = await getGuildMemberInfo(rule.guildId, accessToken);
+					if (!lookup) {
+						log.warning(
+							`discord guild lookup failed for user ${user.id}; treating guild ${rule.guildId} as non-member`
+						);
+						guild = { roles: [] };
+					} else {
+						guild = lookup;
+					}
 					guildCache[rule.guildId] = guild;
 				}
 
