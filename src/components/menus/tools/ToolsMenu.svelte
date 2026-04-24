@@ -23,6 +23,22 @@
 	import { Coords } from "@/lib/utils/coordinates";
 	import { featureCollection } from "@turf/turf";
 	import * as m from "@/lib/paraglide/messages";
+	import type { Component } from "svelte";
+
+	// Custom tool cards are optional. The file at
+	// `src/components/custom/Tools.svelte` is usually provided via
+	// setup.sh's hardlink to `config/Tools.svelte`, but the build must
+	// not require it — operators who haven't enabled `customTools` (or
+	// haven't run setup.sh yet) still need a working build. Vite's
+	// `import.meta.glob` resolves to an empty record when the file is
+	// absent, so `CustomTools` is simply undefined and the render
+	// short-circuits. If the file exists, it's imported eagerly just
+	// like a static import.
+	const customToolsModules = import.meta.glob<{ default: Component }>(
+		"/src/components/custom/Tools.svelte",
+		{ eager: true }
+	);
+	const CustomTools = Object.values(customToolsModules)[0]?.default;
 </script>
 
 <div class="space-y-2">
@@ -123,5 +139,9 @@
 				</GeoJSON>
 			</MapLibre>
 		</ToolLink>
+	{/if}
+
+	{#if getConfig().tools.customTools && CustomTools}
+		<CustomTools />
 	{/if}
 </div>

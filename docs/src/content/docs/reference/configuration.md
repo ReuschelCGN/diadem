@@ -266,9 +266,12 @@ or [SwiftTileserverCache](https://github.com/123FLO321/SwiftTileserverCache).
 showToolsMenu = true
 coverageMap = true
 scout = true
+customTools = false
 ```
 
 Enables/disables the different tools. `showToolsMenu` disables the Tools menu altogether.
+`customTools` renders `src/components/custom/Tools.svelte` at the bottom of the drawer —
+see [Extending Diadem](/guides/extending/#custom-tools-drawer-entries).
 
 ## `client.mapPositions`
 
