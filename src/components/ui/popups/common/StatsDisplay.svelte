@@ -34,8 +34,6 @@
 			<!--	</Button>-->
 		</p>
 
-		<div class="space-y-1 text-sm leading-snug">
-			{@render children()}
-		</div>
+		{@render children()}
 	</div>
 {/if}
