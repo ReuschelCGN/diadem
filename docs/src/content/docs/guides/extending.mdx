@@ -14,11 +14,13 @@ For advanced extensions, you can use the designated `custom*` directories.
 <FileTree>
 	- config
 		- Home.svelte Link to /src/components/custom/Home.svelte
+		- Tools.svelte Link to /src/components/custom/Tools.svelte
 		- custom.css Link to /src/custom.css
 	- src
 		- components
 			- custom
 				- Home.svelte
+				- Tools.svelte
 				- ... Add your own components
 		- routes
 			- (custom)
@@ -49,6 +51,37 @@ Relevant documentation:
 - [SvelteKit](https://svelte.dev/docs/kit/introduction)
 - [Tailwind CSS](https://tailwindcss.com/docs)
 - [Bits UI](https://www.bits-ui.com/docs)
+
+## Custom tools drawer entries
+
+Enable in config:
+
+```toml
+[client.tools]
+customTools = true
+```
+
+When enabled, `src/components/custom/Tools.svelte` is rendered at the bottom of the Tools drawer.
+You can use this to add your own cards alongside the built-in Scout and Coverage Map entries.
+
+Example using the shipped `ToolLink` component for matching style:
+
+```svelte
+<script lang="ts">
+	import { Trophy } from "lucide-svelte";
+	import { goto } from "$app/navigation";
+	import ToolLink from "@/components/menus/tools/ToolLink.svelte";
+</script>
+
+<ToolLink
+	Icon={Trophy}
+	title="Rankings"
+	description="Local trainer rankings"
+	onclick={() => goto("/rankings")}
+>
+	<!-- children slot is required; leave empty for no map preview -->
+</ToolLink>
+```
 
 ## Custom CSS
 

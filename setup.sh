@@ -65,6 +65,11 @@ ensure_linked_file \
   "config/Home.example.svelte"
 
 ensure_linked_file \
+  "src/components/custom/Tools.svelte" \
+  "config/Tools.svelte" \
+  "config/Tools.example.svelte"
+
+ensure_linked_file \
   "src/lib/server/config.toml" \
   "config/config.toml" \
   "config/config.example.toml"

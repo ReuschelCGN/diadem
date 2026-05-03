@@ -23,6 +23,30 @@
 	import { Coords } from "@/lib/utils/coordinates";
 	import { featureCollection } from "@turf/turf";
 	import * as m from "@/lib/paraglide/messages";
+	import { onMount, type Component } from "svelte";
+
+	const customToolsModules = import.meta.glob<{ default: Component }>(
+		"/src/components/custom/Tools.svelte"
+	);
+	const loadCustomTools = Object.values(customToolsModules)[0];
+	let CustomTools: Component | undefined = $state();
+
+	onMount(() => {
+		if (!getConfig().tools.customTools || !loadCustomTools) return;
+
+		let cancelled = false;
+		loadCustomTools()
+			.then(({ default: component }) => {
+				if (!cancelled) CustomTools = component;
+			})
+			.catch((error) => {
+				console.error("Failed to load custom tools", error);
+			});
+
+		return () => {
+			cancelled = true;
+		};
+	});
 </script>
 
 <div class="space-y-2">
@@ -123,5 +147,9 @@
 				</GeoJSON>
 			</MapLibre>
 		</ToolLink>
+	{/if}
+
+	{#if getConfig().tools.customTools && CustomTools}
+		<CustomTools />
 	{/if}
 </div>

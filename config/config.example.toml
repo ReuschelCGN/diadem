@@ -182,6 +182,7 @@ showToolsMenu = true
 
 coverageMap = true
 scout = true
+customTools = false  # If enabled, renders config/Tools.svelte at the bottom of the drawer
 
 # Map Positions for various maps in the UI
 [client.mapPositions]
