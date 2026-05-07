@@ -1,6 +1,5 @@
+import { getPokemonStats } from "@/lib/features/masterStats.svelte";
 import type { MasterFile, MasterPokemon, MasterWeather } from "@/lib/types/masterfile";
-import { getMasterStats, getPokemonStats } from "@/lib/features/masterStats.svelte";
-import { browser } from "$app/environment";
 
 const url = "/api/pogodata";
 let masterFile: MasterFile;

@@ -1,9 +1,9 @@
+import { getMap } from "@/lib/map/map.svelte";
 import * as m from "@/lib/paraglide/messages";
 import { openToast } from "@/lib/ui/toasts.svelte.js";
-import maplibre from "maplibre-gl";
 import { round } from "@/lib/utils/numberFormat";
 import { distance } from "@turf/turf";
-import { getMap } from "@/lib/map/map.svelte";
+import maplibre from "maplibre-gl";
 
 type Location = {
 	lat: number;

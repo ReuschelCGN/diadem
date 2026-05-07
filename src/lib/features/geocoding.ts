@@ -1,7 +1,6 @@
-import { getUserSettings } from "@/lib/services/userSettings.svelte.js";
+import { getMap } from "@/lib/map/map.svelte";
 import { getLocale } from "@/lib/paraglide/runtime";
 import { addAddressSearchResults, setIsSearchingAddress } from "@/lib/services/search.svelte";
-import { getMap } from "@/lib/map/map.svelte";
 import type { BBox, Geometry } from "geojson";
 
 const searchDebounceMs = 100;

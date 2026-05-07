@@ -1,4 +1,4 @@
-import { getConfig } from "@/lib/services/config/config";
+import { browser } from "$app/environment";
 import type {
 	FilterGym,
 	FilterNest,
@@ -10,13 +10,13 @@ import type {
 	FilterStation,
 	FilterTappable
 } from "@/lib/features/filters/filters";
-import { getUserDetails } from "@/lib/services/user/userDetails.svelte.js";
-import { browser } from "$app/environment";
-import { getDefaultMapStyle } from "@/lib/services/themeMode";
 import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
+import { getConfig } from "@/lib/services/config/config";
 import type { AnySearchEntry } from "@/lib/services/search.svelte";
-import { getDefaultPokestopFilter } from "@/lib/utils/pokestopUtils";
+import { getDefaultMapStyle } from "@/lib/services/themeMode";
+import { getUserDetails } from "@/lib/services/user/userDetails.svelte.js";
 import { getDefaultGymFilter } from "@/lib/utils/gymUtils";
+import { getDefaultPokestopFilter } from "@/lib/utils/pokestopUtils";
 import { getDefaultStationFilter } from "@/lib/utils/stationUtils";
 
 export type UiconSetUS = {

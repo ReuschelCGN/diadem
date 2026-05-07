@@ -1,4 +1,6 @@
-import type { Handle, ServerInit } from "@sveltejs/kit";
+import { DISCORD_REFRESH_INTERVAL, PERMISSION_UPDATE_INTERVAL } from "@/lib/constants";
+import { locales, serverAsyncLocalStorage } from "@/lib/paraglide/runtime";
+import { paraglideMiddleware } from "@/lib/paraglide/server";
 import {
 	deleteSessionTokenCookie,
 	invalidateSession,
@@ -7,20 +9,18 @@ import {
 	setSessionTokenCookie,
 	validateSessionToken
 } from "@/lib/server/auth/auth";
-import TTLCache from "@isaacs/ttlcache";
+import { getDiscordAuth } from "@/lib/server/auth/discord";
 import { getEveryonePerms, updatePermissions } from "@/lib/server/auth/permissions";
 import type { User } from "@/lib/server/db/internal/schema";
-import { DISCORD_REFRESH_INTERVAL, PERMISSION_UPDATE_INTERVAL } from "@/lib/constants";
-import { getDiscordAuth } from "@/lib/server/auth/discord";
-import type { Perms } from "@/lib/utils/features";
-import { paraglideMiddleware } from "@/lib/paraglide/server";
-import { sequence } from "@sveltejs/kit/hooks";
-import { setServerLoggerFactory } from "@/lib/utils/logger";
 import { getServerLogger } from "@/lib/server/logging";
-import { getClientConfig, getServerConfig } from "@/lib/services/config/config.server";
 import { setConfig } from "@/lib/services/config/config";
+import { getClientConfig } from "@/lib/services/config/config.server";
 import { getDisallowedPaths } from "@/lib/utils/disallowedPaths";
-import { locales, serverAsyncLocalStorage, setLocale } from "@/lib/paraglide/runtime";
+import type { Perms } from "@/lib/utils/features";
+import { setServerLoggerFactory } from "@/lib/utils/logger";
+import TTLCache from "@isaacs/ttlcache";
+import type { Handle, ServerInit } from "@sveltejs/kit";
+import { sequence } from "@sveltejs/kit/hooks";
 
 process.title = "Diadem";
 

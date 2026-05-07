@@ -1,9 +1,8 @@
-import { getServerConfig } from "@/lib/services/config/config.server";
 import type { AddressData } from "@/lib/features/geocoding";
-import { error } from "@sveltejs/kit";
+import { getServerConfig } from "@/lib/services/config/config.server";
 import { getLogger } from "@/lib/utils/logger";
-import type { FeatureCollection, Geometry, Point } from "geojson";
 import addressFormatter from "@fragaria/address-formatter";
+import type { FeatureCollection, Geometry, Point } from "geojson";
 
 const log = getLogger("addrsearch");
 

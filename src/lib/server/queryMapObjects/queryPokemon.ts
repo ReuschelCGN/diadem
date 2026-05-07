@@ -1,36 +1,24 @@
+import { shouldDisplayPokemon } from "@/lib/features/filterLogic/pokemon";
+import type { FilterPokemon } from "@/lib/features/filters/filters";
+import type { Bounds } from "@/lib/mapObjects/mapBounds";
+import { MapObjectType, type MinMapObject } from "@/lib/mapObjects/mapObjectTypes";
+import { getMultiplePokemon, getSinglePokemon } from "@/lib/server/api/golbatApi";
+import { requestLimits } from "@/lib/server/api/rateLimit";
 import {
 	MapObjectQuery,
 	type MapObjectResponse
 } from "@/lib/server/queryMapObjects/MapObjectQuery";
-import type { PokemonData, PvpStats } from "@/lib/types/mapObjectData/pokemon";
-import type { FilterPokemon } from "@/lib/features/filters/filters";
-import type { FiltersetPokemon, MinMax } from "@/lib/features/filters/filtersets";
-import { MapObjectType, type MinMapObject } from "@/lib/mapObjects/mapObjectTypes";
-import type { Bounds } from "@/lib/mapObjects/mapBounds";
-import type { Feature, MultiPolygon, Polygon } from "geojson";
-import { getMultiplePokemon, getSinglePokemon } from "@/lib/server/api/golbatApi";
 import type {
 	GolbatPokemonQuery,
 	GolbatPokemonSpecies
 } from "@/lib/server/queryMapObjects/queries";
-import { requestLimits } from "@/lib/server/api/rateLimit";
 import { getMasterPokemon } from "@/lib/services/masterfile";
-import {
-	getNormalizedForm,
-	getBestRank,
-	League,
-	showGreat,
-	showLittle,
-	showPvp,
-	showUltra
-} from "@/lib/utils/pokemonUtils";
-import { booleanPointInPolygon, featureCollection, point, pointsWithinPolygon } from "@turf/turf";
-import { error } from "@sveltejs/kit";
 import type { PermittedPolygon } from "@/lib/services/user/checkPerm";
-import { currentTimestamp } from "@/lib/utils/currentTimestamp";
-import { getLogger } from "@/lib/utils/logger";
+import type { PokemonData, PvpStats } from "@/lib/types/mapObjectData/pokemon";
 import { round } from "@/lib/utils/numberFormat";
-import { matchPokemonFilterset, shouldDisplayPokemon } from "@/lib/features/filterLogic/pokemon";
+import { getNormalizedForm, League, showPvp } from "@/lib/utils/pokemonUtils";
+import { error } from "@sveltejs/kit";
+import { booleanPointInPolygon, point } from "@turf/turf";
 
 export class PokemonQuery extends MapObjectQuery<PokemonData, FilterPokemon> {
 	protected readonly type = MapObjectType.POKEMON;

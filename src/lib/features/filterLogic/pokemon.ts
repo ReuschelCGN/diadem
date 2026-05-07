@@ -1,9 +1,9 @@
-import type { PokemonData } from "@/lib/types/mapObjectData/pokemon";
-import type { FiltersetPokemon, MinMax } from "@/lib/features/filters/filtersets";
-import { getUserSettings } from "@/lib/services/userSettings.svelte";
-import { getBestRank, League } from "@/lib/utils/pokemonUtils";
 import type { FilterPokemon } from "@/lib/features/filters/filters";
+import type { FiltersetPokemon, MinMax } from "@/lib/features/filters/filtersets";
 import { isCurrentSelectedOverwrite } from "@/lib/mapObjects/currentSelectedState.svelte";
+import { getUserSettings } from "@/lib/services/userSettings.svelte";
+import type { PokemonData } from "@/lib/types/mapObjectData/pokemon";
+import { getBestRank, League } from "@/lib/utils/pokemonUtils";
 
 function inRange(value: number | null | undefined, range: MinMax): boolean {
 	if (value == null) return false;

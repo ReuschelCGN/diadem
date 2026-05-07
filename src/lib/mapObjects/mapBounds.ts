@@ -1,7 +1,7 @@
-import { type Map, type LngLatLike, type LngLat } from "maplibre-gl";
-import { getUserSettings } from "@/lib/services/userSettings.svelte.js";
 import { getMap } from "@/lib/map/map.svelte";
-import { point, buffer, bbox as makeBbox } from "@turf/turf";
+import { getUserSettings } from "@/lib/services/userSettings.svelte.js";
+import { buffer, bbox as makeBbox, point } from "@turf/turf";
+import { type LngLat, type LngLatLike, type Map } from "maplibre-gl";
 
 export type Bounds = {
 	minLat: number;

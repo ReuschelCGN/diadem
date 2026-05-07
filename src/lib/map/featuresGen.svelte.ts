@@ -1,21 +1,16 @@
-import { type MapObjectsStateType } from "@/lib/mapObjects/mapObjectsState.svelte.js";
 import {
 	RANGE_FORTS,
 	RANGE_POKEMON,
 	RANGE_POKEMON_EXTENDED,
 	SELECTED_MAP_OBJECT_SCALE
 } from "@/lib/constants";
+import { updateMapObjectsGeoJson } from "@/lib/map/render/manageGeojson";
 import {
 	getCurrentSelectedData,
 	isCurrentSelectedOverwrite
 } from "@/lib/mapObjects/currentSelectedState.svelte.js";
-import { updateMapObjectsGeoJson } from "@/lib/map/render/manageGeojson";
+import { type MapObjectsStateType } from "@/lib/mapObjects/mapObjectsState.svelte.js";
 
-import { currentTimestamp } from "@/lib/utils/currentTimestamp";
-import { allMapObjectTypes, type MapData, MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
-import { getRenderer } from "@/lib/map/render/renderMapObjects";
-import { getUserSettings } from "@/lib/services/userSettings.svelte";
-import { circle } from "@turf/turf";
 import {
 	getPolygonFeature,
 	isFeatureCircle,
@@ -23,6 +18,11 @@ import {
 	isFeaturePolygon,
 	type MapObjectFeature
 } from "@/lib/map/render/featureTypes";
+import { getRenderer } from "@/lib/map/render/renderMapObjects";
+import { allMapObjectTypes, type MapData, MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
+import { getUserSettings } from "@/lib/services/userSettings.svelte";
+import { currentTimestamp } from "@/lib/utils/currentTimestamp";
+import { circle } from "@turf/turf";
 
 type FeatureEntry = {
 	lat: number;

@@ -1,4 +1,3 @@
-import { getMap } from "@/lib/map/map.svelte";
 import type { GeoJSON as GeoJsonType } from "geojson";
 import type maplibregl from "maplibre-gl";
 

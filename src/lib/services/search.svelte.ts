@@ -1,15 +1,6 @@
-import type { Coords } from "@/lib/utils/coordinates";
-import { mCharacter, mItem, mPokemon, mRaid } from "@/lib/services/ingameLocale";
-import microfuzz, {
-	fuzzyMatch,
-	type FuzzyResult,
-	type FuzzySearcher,
-	type HighlightRanges
-} from "@nozbe/microfuzz";
-import { getKojiGeofences, type KojiFeature } from "@/lib/features/koji";
-import type { Attachment } from "svelte/attachments";
 import { browser } from "$app/environment";
-import { getAllLureModuleIds, getAllPokemon } from "@/lib/services/masterfile";
+import { type AddressData, searchAddress } from "@/lib/features/geocoding";
+import { getKojiGeofences, type KojiFeature } from "@/lib/features/koji";
 import {
 	getActiveCharacters,
 	getActiveContests,
@@ -19,18 +10,27 @@ import {
 	getActiveRaids,
 	getSpawnablePokemon
 } from "@/lib/features/masterStats.svelte";
-import type { ContestFocus, QuestReward } from "@/lib/types/mapObjectData/pokestop";
-import { getContestText, getRewardText, RewardType } from "@/lib/utils/pokestopUtils";
-import { m } from "@/lib/paraglide/messages";
-import { type AddressData, searchAddress } from "@/lib/features/geocoding";
-import { isSupportedFeature } from "@/lib/services/supportedFeatures";
-import type { BBox, Geometry } from "geojson";
-import { getFixedBounds } from "@/lib/mapObjects/mapBounds";
 import { getMap } from "@/lib/map/map.svelte";
-import { openModal } from "@/lib/ui/modal.svelte";
+import { getFixedBounds } from "@/lib/mapObjects/mapBounds";
+import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
+import { m } from "@/lib/paraglide/messages";
+import { mCharacter, mItem, mPokemon, mRaid } from "@/lib/services/ingameLocale";
+import { getAllLureModuleIds } from "@/lib/services/masterfile";
+import { isSupportedFeature } from "@/lib/services/supportedFeatures";
 import { hasFeatureAnywhere } from "@/lib/services/user/checkPerm";
 import { getUserDetails } from "@/lib/services/user/userDetails.svelte";
-import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
+import type { ContestFocus, QuestReward } from "@/lib/types/mapObjectData/pokestop";
+import { openModal } from "@/lib/ui/modal.svelte";
+import type { Coords } from "@/lib/utils/coordinates";
+import { getContestText, getRewardText, RewardType } from "@/lib/utils/pokestopUtils";
+import microfuzz, {
+	fuzzyMatch,
+	type FuzzyResult,
+	type FuzzySearcher,
+	type HighlightRanges
+} from "@nozbe/microfuzz";
+import type { BBox, Geometry } from "geojson";
+import type { Attachment } from "svelte/attachments";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const createFuzzySearch: typeof microfuzz = (microfuzz as any)?.default ?? microfuzz;

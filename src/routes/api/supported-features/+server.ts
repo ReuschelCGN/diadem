@@ -1,6 +1,6 @@
-import { json } from "@sveltejs/kit";
 import { getServerConfig, isAuthRequired } from "@/lib/services/config/config.server";
 import type { SupportedFeatures } from "@/lib/services/supportedFeatures";
+import { json } from "@sveltejs/kit";
 
 export async function GET({ locals }) {
 	const config = getServerConfig();

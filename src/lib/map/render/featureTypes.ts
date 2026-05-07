@@ -1,5 +1,5 @@
-import type { Feature as GeojsonFeature, MultiPolygon, Point } from "geojson";
 import { resize } from "@/lib/services/assets";
+import type { Feature as GeojsonFeature, MultiPolygon, Point } from "geojson";
 
 export enum FeatureTypes {
 	ICON = 0,

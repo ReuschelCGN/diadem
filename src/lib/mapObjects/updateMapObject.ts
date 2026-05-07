@@ -1,20 +1,20 @@
+import { getActiveSearch } from "@/lib/features/activeSearch.svelte.js";
+import type { AnyFilter, FilterS2Cell } from "@/lib/features/filters/filters";
+import { updateFeatures } from "@/lib/map/featuresGen.svelte";
+import { type Bounds, getBounds } from "@/lib/mapObjects/mapBounds";
 import {
 	addMapObjects,
 	clearAllMapObjects,
 	clearMapObjects,
 	getMapObjects
 } from "@/lib/mapObjects/mapObjectsState.svelte.js";
-import { type Bounds, getBounds } from "@/lib/mapObjects/mapBounds";
-import { getUserSettings } from "@/lib/services/userSettings.svelte.js";
-import type { AnyFilter, FilterS2Cell } from "@/lib/features/filters/filters";
-import { updateFeatures } from "@/lib/map/featuresGen.svelte";
+import { allMapObjectTypes, type MapData, MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 import { getS2CellMapObjects } from "@/lib/mapObjects/s2cells.js";
 import { updateWeather } from "@/lib/mapObjects/weather.svelte";
+import type { MapObjectResponse } from "@/lib/server/queryMapObjects/MapObjectQuery";
 import { hasFeatureAnywhere } from "@/lib/services/user/checkPerm";
 import { getUserDetails } from "@/lib/services/user/userDetails.svelte";
-import { allMapObjectTypes, type MapData, MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
-import type { MapObjectResponse } from "@/lib/server/queryMapObjects/MapObjectQuery";
-import { getActiveSearch } from "@/lib/features/activeSearch.svelte.js";
+import { getUserSettings } from "@/lib/services/userSettings.svelte.js";
 import { currentTimestamp } from "@/lib/utils/currentTimestamp";
 import { getHeaders, parseResponse } from "@/lib/utils/requests";
 import { SvelteMap } from "svelte/reactivity";
