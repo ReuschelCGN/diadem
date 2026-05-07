@@ -8,14 +8,14 @@
 	"settings_left_handed_mode_description": "Place UI elements on the left",
 	"settings_theme": "Theme",
 	"settings_map_style": "Map Style",
-	"settings_icons": "Icons",
+	"settings_icons": "Icon Style",
 	"pogo_pokemon": "Pokémon",
 	"pogo_pokestops": "Pokéstops",
 	"pogo_gyms": "Gyms",
 	"settings_advanced": "Advanced",
 	"settings_load_map_objects_while_moving_title": "Aggressive Map Updates",
 	"settings_load_map_objects_while_moving_description": "⚠ Major performance impact! Fetch data while moving the map",
-	"settings_load_map_objects_padding_title": "Map Update Size",
+	"settings_load_map_objects_padding_title": "Map Update Padding",
 	"settings_load_map_objects_padding_description": "Additional pixels to fetch around the map's bounding box",
 	"settings_language": "Language",
 	"language_auto": "Auto",
@@ -377,7 +377,7 @@
 	"external_map_context_menu": "Selected location",
 	"google_maps": "Google Maps",
 	"apple_maps": "Apple Maps",
-	"settings_external_map_provider": "Open navigation links",
+	"settings_external_map_provider": "Navigate using",
 	"wayfarer_cells": "Wayfarer Cells",
 	"cell_level": "S2 Cell Level",
 	"redirect_title": "Bringing you to {goal}",
@@ -509,5 +509,8 @@
 	"popup_action_show_on_every_tappable": "Show on every Ground Item",
 	"popup_action_show_timer": "Show timer",
 	"popup_action_hide_timer": "Hide timer",
+	"close": "Close",
+	"language_polish": "Polish"
+}
 	"close": "Close"
 }
