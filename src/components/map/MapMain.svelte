@@ -12,7 +12,7 @@
 	} from "@/lib/map/mapObjectsInterval";
 	import { getMap, setMap } from "@/lib/map/map.svelte";
 	import { clearPressTimer, onContextMenu } from "@/lib/ui/contextmenu.svelte.js";
-	import { loadMapObjectInterval } from "@/lib/map/loadMapObjects";
+	import { clearLoadMapObjectsInterval } from "@/lib/map/loadMapObjects";
 	import { onMapMoveEnd, onMapMoveStart, onTouchStart, onWindowFocus } from "@/lib/map/events";
 	import maplibre from "maplibre-gl";
 	import GeometryLayer from "@/components/map/GeometryLayer.svelte";
@@ -130,7 +130,8 @@
 
 	onDestroy(() => {
 		clearUpdateMapObjectsInterval();
-		if (loadMapObjectInterval !== undefined) clearInterval(loadMapObjectInterval);
+		clearLoadMapObjectsInterval();
+		setMap(undefined);
 	});
 </script>
 

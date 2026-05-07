@@ -71,9 +71,13 @@ export function setActiveSearch(newParams: ActiveSearchParams) {
 	updateAllMapObjects().then();
 }
 
-export function resetActiveSearchFilter() {
+export function clearActiveSearchFilter() {
 	activeSearchSvelte = undefined;
 	deleteAllFeatures();
+}
+
+export function resetActiveSearchFilter() {
+	clearActiveSearchFilter();
 	updateAllMapObjects().then();
 }
 
