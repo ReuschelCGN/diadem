@@ -158,6 +158,7 @@ export type ServerConfig = {
 	nominatim?: {
 		url: string;
 		basicAuth?: string;
+		userAgent?: string;
 	};
 	pelias?: {
 		url: string;
@@ -167,6 +168,7 @@ export type ServerConfig = {
 	photon?: {
 		url: string;
 		basicAuth?: string;
+		hasGeometries?: boolean;
 	};
 	log: Log;
 	internalDb: DbCreds;

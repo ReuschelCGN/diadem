@@ -12,8 +12,14 @@
 	} from "@/lib/map/mapObjectsInterval";
 	import { getMap, setMap } from "@/lib/map/map.svelte";
 	import { clearPressTimer, onContextMenu } from "@/lib/ui/contextmenu.svelte.js";
-	import { loadMapObjectInterval } from "@/lib/map/loadMapObjects";
-	import { onMapMoveEnd, onMapMoveStart, onTouchStart, onWindowFocus } from "@/lib/map/events";
+	import { clearLoadMapObjectsInterval } from "@/lib/map/loadMapObjects";
+	import {
+		onMapDragStart,
+		onMapMoveEnd,
+		onMapMoveStart,
+		onTouchStart,
+		onWindowFocus
+	} from "@/lib/map/events";
 	import maplibre from "maplibre-gl";
 	import GeometryLayer from "@/components/map/GeometryLayer.svelte";
 	import DebugMenu from "@/components/map/DebugMenu.svelte";
@@ -38,6 +44,8 @@
 		getMapPositionFromUrlParams
 	} from "@/components/map/mapPositionParams";
 	import { Coords } from "@/lib/utils/coordinates";
+	import TimerLayer from "@/components/map/TimerLayer.svelte";
+	import LayerSearchedGeometry from "@/components/map/LayerSearchedGeometry.svelte";
 
 	let {
 		map = $bindable()
@@ -69,6 +77,7 @@
 		map.on("touchend", clearPressTimer);
 		map.on("touchmove", clearPressTimer);
 		map.on("touchcancel", clearPressTimer);
+		map.on("dragstart", onMapDragStart);
 		map.on("movestart", onMapMoveStart);
 
 		// tick so feature handler registers first
@@ -128,7 +137,8 @@
 
 	onDestroy(() => {
 		clearUpdateMapObjectsInterval();
-		if (loadMapObjectInterval !== undefined) clearInterval(loadMapObjectInterval);
+		clearLoadMapObjectsInterval();
+		setMap(undefined);
 	});
 </script>
 
@@ -154,6 +164,8 @@
 		data={getCurrentScoutData().smallPoints}
 	/>
 
+	<LayerSearchedGeometry />
+
 	<GeoJSON
 		id={MapSourceId.MAP_OBJECTS}
 		data={{
@@ -161,6 +173,19 @@
 			features: []
 		}}
 	>
+		<FillLayer
+			id={MapObjectLayerId.RADIUS_FILL}
+			filter={["==", ["get", "isActionRadius"], true]}
+			paint={{
+				"fill-color": ["get", "fillColor"]
+			}}
+		/>
+		<LineLayer
+			id={MapObjectLayerId.RADIUS_STROKE}
+			filter={["==", ["get", "isActionRadius"], true]}
+			layout={{ "line-cap": "round", "line-join": "round" }}
+			paint={{ "line-color": ["get", "strokeColor"], "line-width": 2 }}
+		/>
 		<FillLayer
 			id={MapObjectLayerId.POLYGON_FILL}
 			paint={{
@@ -202,4 +227,5 @@
 	<MarkerCurrentLocation />
 	<MarkerContextMenu />
 	<MarkerSearchedLocation />
+	<TimerLayer />
 </MapCommon>

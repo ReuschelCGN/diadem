@@ -1,6 +1,23 @@
-import type { PokemonData } from "@/lib/types/mapObjectData/pokemon";
+import { type MapData, MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 import * as m from "@/lib/paraglide/messages";
-import { timestampToLocalTime } from "@/lib/utils/timestampToLocalTime";
+import { mCharacter, mItem, mPokemon, mQuest, mRaid } from "@/lib/services/ingameLocale";
+import type { GymData } from "@/lib/types/mapObjectData/gym";
+import type { NestData } from "@/lib/types/mapObjectData/nest";
+import type { PokemonData } from "@/lib/types/mapObjectData/pokemon";
+import type { PokestopData } from "@/lib/types/mapObjectData/pokestop";
+import type { RouteData } from "@/lib/types/mapObjectData/route";
+import type { SpawnpointData } from "@/lib/types/mapObjectData/spawnpoint";
+import type { StationData } from "@/lib/types/mapObjectData/station";
+import type { TappableData } from "@/lib/types/mapObjectData/tappable";
+import { currentTimestamp } from "@/lib/utils/currentTimestamp";
+import {
+	getRaidPokemon,
+	GYM_SLOTS,
+	hasActiveRaid,
+	isFortOutdated,
+	isRaidHatched
+} from "@/lib/utils/gymUtils";
+import { formatDecimal } from "@/lib/utils/numberFormat";
 import {
 	getBestRank,
 	hasTimer,
@@ -9,9 +26,6 @@ import {
 	showLittle,
 	showUltra
 } from "@/lib/utils/pokemonUtils";
-import type { PokestopData } from "@/lib/types/mapObjectData/pokestop";
-import type { GymData } from "@/lib/types/mapObjectData/gym";
-import type { StationData } from "@/lib/types/mapObjectData/station";
 import {
 	getArTag,
 	getContestText,
@@ -22,24 +36,10 @@ import {
 	isIncidentKecleon,
 	KECLEON_ID
 } from "@/lib/utils/pokestopUtils";
-import { mCharacter, mItem, mPokemon, mQuest, mRaid } from "@/lib/services/ingameLocale";
-import { currentTimestamp } from "@/lib/utils/currentTimestamp";
-import {
-	getRaidPokemon,
-	GYM_SLOTS,
-	hasActiveRaid,
-	isFortOutdated,
-	isRaidHatched
-} from "@/lib/utils/gymUtils";
-import { type MapData, MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
-import type { SpawnpointData } from "@/lib/types/mapObjectData/spawnpoint";
-import { getMmSsFromSeconds } from "@/lib/utils/time";
-import type { NestData } from "@/lib/types/mapObjectData/nest";
-import type { RouteData } from "@/lib/types/mapObjectData/route";
-import type { TappableData } from "@/lib/types/mapObjectData/tappable";
-import { formatDecimal } from "@/lib/utils/numberFormat";
-import { getTappableName } from "@/lib/utils/tappableUtils";
 import { getStationTitle } from "@/lib/utils/stationUtils";
+import { getTappableName } from "@/lib/utils/tappableUtils";
+import { getMmSsFromSeconds } from "@/lib/utils/time";
+import { timestampToLocalTime } from "@/lib/utils/timestampToLocalTime";
 
 // unused; was replaced by thumbnails
 export function getShareText(data: MapData): string {

@@ -1,8 +1,7 @@
-import { m } from "@/lib/paraglide/messages";
-import type { IconCategory } from "@/lib/features/filters/icons";
 import { QuestArType } from "@/lib/features/filters/filterUtilsQuest";
+import type { IconCategory } from "@/lib/features/filters/icons";
+import { m } from "@/lib/paraglide/messages";
 import type { RewardType } from "@/lib/utils/pokestopUtils";
-import type { ContestFocus } from "@/lib/types/mapObjectData/pokestop";
 
 export type AnyFilterset =
 	| FiltersetPokemon

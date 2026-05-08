@@ -1,7 +1,7 @@
-import { eq } from "drizzle-orm";
-import { encodeBase32LowerCase } from "@oslojs/encoding";
 import { db } from "@/lib/server/db/internal";
 import * as table from "@/lib/server/db/internal/schema";
+import { encodeBase32LowerCase } from "@oslojs/encoding";
+import { eq } from "drizzle-orm";
 
 import type { User } from "@/lib/server/db/internal/schema";
 import type { Perms } from "@/lib/utils/features";
@@ -58,19 +58,17 @@ export async function getUserFromDiscordId(discordId: string) {
 export async function createUserFromDiscordId(discordId: string) {
 	const userId = generateUserId();
 	const now = new Date();
-	await db
-		.insert(table.user)
-		.values({
-			id: userId,
-			name: `discord-${discordId}`,
-			email: `${discordId}@discord.diadem.local`,
-			emailVerified: true,
-			discordId,
-			permissions: getDefaultPerms(),
-			userSettings: {},
-			createdAt: now,
-			updatedAt: now
-		});
+	await db.insert(table.user).values({
+		id: userId,
+		name: `discord-${discordId}`,
+		email: `${discordId}@discord.diadem.local`,
+		emailVerified: true,
+		discordId,
+		permissions: getDefaultPerms(),
+		userSettings: {},
+		createdAt: now,
+		updatedAt: now
+	});
 	return userId;
 }
 

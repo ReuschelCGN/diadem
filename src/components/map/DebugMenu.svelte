@@ -44,9 +44,7 @@
 			Map Objects: {Object.keys(getMapObjects()).length}
 		</div>
 
-		<div class="mt-3">
-			updated
-		</div>
+		<div class="mt-3">updated</div>
 
 		{#each getLastQueryTimestamps().entries() as [type, time]}
 			<div>

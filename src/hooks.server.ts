@@ -1,6 +1,6 @@
-import type { Handle, ServerInit } from "@sveltejs/kit";
 import { building } from "$app/environment";
-import { svelteKitHandler } from "better-auth/svelte-kit";
+import { locales, serverAsyncLocalStorage } from "@/lib/paraglide/runtime";
+import { paraglideMiddleware } from "@/lib/paraglide/server";
 import { getOrCreateUserFromDiscordId } from "@/lib/server/auth/auth";
 import {
 	assertBetterAuthStartupReadiness,
@@ -9,19 +9,19 @@ import {
 	getDiscordAccessToken,
 	isAuthFeatureEnabled
 } from "@/lib/server/auth/betterAuth";
-import TTLCache from "@isaacs/ttlcache";
 import { getEveryonePerms, updatePermissions } from "@/lib/server/auth/permissions";
 import type { User } from "@/lib/server/db/internal/schema";
-import { PERMISSION_UPDATE_INTERVAL } from "@/lib/constants";
-import type { Perms } from "@/lib/utils/features";
-import { paraglideMiddleware } from "@/lib/paraglide/server";
-import { sequence } from "@sveltejs/kit/hooks";
-import { setServerLoggerFactory } from "@/lib/utils/logger";
 import { getServerLogger } from "@/lib/server/logging";
-import { getClientConfig } from "@/lib/services/config/config.server";
 import { setConfig } from "@/lib/services/config/config";
+import { getClientConfig } from "@/lib/services/config/config.server";
+import { PERMISSION_UPDATE_INTERVAL } from "@/lib/constants";
 import { getDisallowedPaths } from "@/lib/utils/disallowedPaths";
-import { locales, serverAsyncLocalStorage } from "@/lib/paraglide/runtime";
+import type { Perms } from "@/lib/utils/features";
+import { setServerLoggerFactory } from "@/lib/utils/logger";
+import TTLCache from "@isaacs/ttlcache";
+import type { Handle, ServerInit } from "@sveltejs/kit";
+import { sequence } from "@sveltejs/kit/hooks";
+import { svelteKitHandler } from "better-auth/svelte-kit";
 
 process.title = "Diadem";
 

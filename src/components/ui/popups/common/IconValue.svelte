@@ -9,7 +9,7 @@
 	}: {
 		Icon: LucideIcon | Component;
 		children: Snippet;
-		class?: string
+		class?: string;
 	} = $props();
 </script>
 

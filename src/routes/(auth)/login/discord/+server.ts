@@ -1,4 +1,3 @@
-import type { RequestEvent } from "@sveltejs/kit";
 import {
 	getAuthBaseUrl,
 	isAuthFeatureEnabled,
@@ -6,6 +5,7 @@ import {
 } from "@/lib/server/auth/betterAuth";
 import { getClientConfig } from "@/lib/services/config/config.server";
 import { getMapPath } from "@/lib/utils/getMapPath";
+import type { RequestEvent } from "@sveltejs/kit";
 
 function sanitizeRedirectPath(redirectPath: string | null, fallback: string) {
 	if (!redirectPath) return fallback;
