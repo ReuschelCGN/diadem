@@ -150,7 +150,10 @@ export const auth = IS_BETTER_AUTH_ENABLED
 			},
 			session: {
 				expiresIn: 60 * 60 * 24 * 30,
-				updateAge: 60 * 60 * 24 * 15
+				updateAge: 60 * 60 * 24 * 15,
+				cookieCache: {
+					enabled: false
+				}
 			},
 			account: {
 				encryptOAuthTokens: true
@@ -266,6 +269,9 @@ export async function getAuthSession(event: RequestEvent): Promise<BetterAuthSes
 	try {
 		const result = await auth.api.getSession({
 			headers: event.request.headers,
+			query: {
+				disableCookieCache: true
+			},
 			returnHeaders: true
 		});
 		applyAuthCookies(event, result.headers);

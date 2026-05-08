@@ -55,6 +55,14 @@ export async function getUserFromDiscordId(discordId: string) {
 	return coerceUser(result);
 }
 
+export async function getUserFromId(userId: string) {
+	const [result] = await db.select().from(table.user).where(eq(table.user.id, userId));
+
+	if (!result) return null;
+
+	return coerceUser(result);
+}
+
 export async function createUserFromDiscordId(discordId: string) {
 	const userId = generateUserId();
 	const now = new Date();
