@@ -1,3 +1,6 @@
+import type { Snippet } from "svelte";
+import { FiniteStateMachine } from "runed";
+import { closeModal, type ModalType } from "@/lib/ui/modal.svelte.js";
 import {
 	getCurrentSelectedFilterset,
 	getCurrentSelectedFiltersetInEdit,
@@ -8,10 +11,8 @@ import {
 	updateDetailsCurrentSelectedFilterset
 } from "@/lib/features/filters/filtersetPageData.svelte.js";
 import type { AnyFilterset } from "@/lib/features/filters/filtersets";
+import { generateFilterDetails } from "@/lib/features/filters/filtersetUtils.svelte";
 import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
-import { closeModal, type ModalType } from "@/lib/ui/modal.svelte.js";
-import { FiniteStateMachine } from "runed";
-import type { Snippet } from "svelte";
 
 export type FiltersetPage = "base" | "new" | "overview" | "attribute";
 export type FiltersetSnippet<T extends AnyFilterset> = Snippet<[T]>;

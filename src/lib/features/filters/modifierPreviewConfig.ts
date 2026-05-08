@@ -1,4 +1,3 @@
-import type { FilterCategory } from "@/lib/features/filters/filters";
 import type {
 	AnyFilterset,
 	FiltersetInvasion,
@@ -6,6 +5,7 @@ import type {
 	FiltersetQuest,
 	FiltersetRaid
 } from "@/lib/features/filters/filtersets";
+import type { FilterCategory } from "@/lib/features/filters/filters";
 import { getIcon, IconCategory } from "@/lib/features/filters/icons";
 import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 import { getIconPokemon, getIconRaidEgg, getIconStation } from "@/lib/services/uicons.svelte";

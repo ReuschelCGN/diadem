@@ -11,25 +11,11 @@
 		getCurrentSelectedMapId
 	} from "@/lib/mapObjects/currentSelectedState.svelte";
 	import IconValue from "@/components/ui/popups/common/IconValue.svelte";
-	import {
-		ChartSpline,
-		Clock,
-		ClockArrowDown,
-		ClockArrowUp,
-		MapPinned,
-		Star,
-		UsersRound
-	} from "lucide-svelte";
+	import { Clock, ClockArrowDown, ClockArrowUp, MapPinned, Star, UsersRound } from "lucide-svelte";
 	import TimeWithCountdown from "@/components/ui/popups/common/TimeWithCountdown.svelte";
 	import Countdown from "@/components/utils/Countdown.svelte";
 	import { currentTimestamp } from "@/lib/utils/currentTimestamp";
-	import {
-		calculateMaxBattleCp,
-		getStationPokemon,
-		getStationTitle,
-		STATION_SLOTS
-	} from "@/lib/utils/stationUtils";
-	import { formatNumber } from "@/lib/utils/numberFormat";
+	import { getStationPokemon, getStationTitle, STATION_SLOTS } from "@/lib/utils/stationUtils";
 
 	let data: StationData = $derived(
 		(getMapObjects()[getCurrentSelectedMapId()] as StationData) ??
@@ -85,13 +71,6 @@
 		</div>
 
 		{#if (data.start_time ?? 0) < currentTimestamp()}
-			{#if data.battle_pokemon_stamina && data.battle_pokemon_cp_multiplier}
-				<IconValue Icon={ChartSpline}>
-					<b>{m.pogo_cp({ cp: calculateMaxBattleCp(data) })}</b>
-					({m.pogo_hp({ hp: formatNumber(data.battle_pokemon_stamina) })},
-					{m.cpm()}: {formatNumber(data.battle_pokemon_cp_multiplier)})
-				</IconValue>
-			{/if}
 			<IconValue Icon={Star}>
 				{m.x_start_max_battle({ level: data.battle_level ?? 0 })}
 			</IconValue>

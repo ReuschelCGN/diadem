@@ -1,7 +1,8 @@
-import { getMap } from "@/lib/map/map.svelte";
+import { getUserSettings } from "@/lib/services/userSettings.svelte.js";
 import { getLocale } from "@/lib/paraglide/runtime";
 import { addAddressSearchResults, setIsSearchingAddress } from "@/lib/services/search.svelte";
-import type { BBox, Geometry } from "geojson";
+import { getMap } from "@/lib/map/map.svelte";
+import type { BBox } from "geojson";
 
 const searchDebounceMs = 100;
 
@@ -10,7 +11,6 @@ export type AddressData = {
 	center: number[];
 	id: string;
 	bbox?: BBox;
-	geometry?: Geometry;
 };
 
 let abortController: AbortController | undefined = undefined;

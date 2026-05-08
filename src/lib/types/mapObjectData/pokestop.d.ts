@@ -1,5 +1,5 @@
+import type { PokemonData, PokemonVisual } from "@/lib/types/mapObjectData/pokemon";
 import type { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
-import type { PokemonVisual } from "@/lib/types/mapObjectData/pokemon";
 import type { RewardType } from "@/lib/utils/pokestopUtils";
 
 export type PokestopData = {

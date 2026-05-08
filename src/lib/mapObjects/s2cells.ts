@@ -1,12 +1,12 @@
-import type { FilterS2Cell } from "@/lib/features/filters/filters";
-import { getMap } from "@/lib/map/map.svelte.js";
-import type { MapObjectPolygonProperties } from "@/lib/map/render/featureTypes";
-import type { Bounds } from "@/lib/mapObjects/mapBounds";
-import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
-import type { S2CellData } from "@/lib/types/mapObjectData/s2cell";
-import type { Feature, Polygon } from "geojson";
 import { geojson, r1, s1, s2 } from "s2js";
+import type { FilterS2Cell } from "@/lib/features/filters/filters";
+import type { Bounds } from "@/lib/mapObjects/mapBounds";
+import { getMap } from "@/lib/map/map.svelte.js";
+import type { Feature, Polygon } from "geojson";
 import type { CellID } from "s2js/dist/s2/cellid";
+import type { S2CellData } from "@/lib/types/mapObjectData/s2cell";
+import type { MapObjectPolygonProperties } from "@/lib/map/render/featureTypes";
+import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 
 const LIMIT_S2_CELLS = 5_000;
 

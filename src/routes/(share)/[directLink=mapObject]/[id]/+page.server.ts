@@ -1,12 +1,12 @@
-import { getShareTitle } from "@/lib/features/shareTexts";
-import { allMapObjectTypes } from "@/lib/mapObjects/mapObjectTypes";
-import { querySingleMapObject } from "@/lib/server/queryMapObjects/queryMapObjects";
-import { getConfig } from "@/lib/services/config/config";
-import { loadRemoteLocale } from "@/lib/services/ingameLocale";
-import { initAllIconSets } from "@/lib/services/uicons.svelte.js";
-import { getLogger } from "@/lib/utils/logger";
-import { error } from "@sveltejs/kit";
 import type { PageServerLoad } from "./$types";
+import { getConfig } from "@/lib/services/config/config";
+import { initAllIconSets } from "@/lib/services/uicons.svelte.js";
+import { loadRemoteLocale } from "@/lib/services/ingameLocale";
+import { querySingleMapObject } from "@/lib/server/queryMapObjects/queryMapObjects";
+import { allMapObjectTypes } from "@/lib/mapObjects/mapObjectTypes";
+import { getLogger } from "@/lib/utils/logger";
+import { getShareTitle } from "@/lib/features/shareTexts";
+import { error } from "@sveltejs/kit";
 
 const log = getLogger("directlink");
 export const ssr = true;

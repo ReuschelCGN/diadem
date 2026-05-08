@@ -1,8 +1,8 @@
-import { REFRESH_MASTERFILE } from "@/lib/constants";
-import { BaseDataProvider } from "@/lib/server/provider/dataProvider";
-import { overwriteMasterfile } from "@/lib/services/masterfile";
-import type { MasterFile, MasterPokemon } from "@/lib/types/masterfile";
+import type { MasterFile, MasterPokemon, MasterWeather } from "@/lib/types/masterfile";
 import { getLogger } from "@/lib/utils/logger";
+import { BaseDataProvider } from "@/lib/server/provider/dataProvider";
+import { REFRESH_MASTERFILE } from "@/lib/constants";
+import { overwriteMasterfile } from "@/lib/services/masterfile";
 
 type RawMasterFile = {
 	pokemon: {

@@ -1,6 +1,8 @@
 <script lang="ts">
 	import { Marker } from "svelte-maplibre";
+	import { getAnimateLocationMarker, getCurrentLocation } from "@/lib/map/geolocate.svelte";
 	import { getSearchedLocation } from "@/lib/services/search.svelte";
+	import { fade, scale } from "svelte/transition";
 
 	let location = $derived(getSearchedLocation());
 </script>

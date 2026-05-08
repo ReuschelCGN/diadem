@@ -1,6 +1,7 @@
 import { getMultiplePokemon } from "@/lib/server/api/golbatApi";
 
 import { query } from "@/lib/server/db/external/internalQuery";
+import type { GymData } from "@/lib/types/mapObjectData/gym";
 
 export type LiveStats = {
 	pokemon: number;

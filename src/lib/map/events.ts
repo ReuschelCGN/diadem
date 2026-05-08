@@ -1,24 +1,25 @@
-import { updateFeatures } from "@/lib/map/featuresGen.svelte";
-import { setIsLocateFollowing } from "@/lib/map/geolocate.svelte";
-import { clearLoadMapObjectsInterval, resetLoadMapObjects } from "@/lib/map/loadMapObjects";
-import { addMapStyleVersion, getMap } from "@/lib/map/map.svelte";
-import {
-	clearUpdateMapObjectsInterval,
-	resetUpdateMapObjectsInterval
-} from "@/lib/map/mapObjectsInterval";
-import { setSkew } from "@/lib/map/mapSkew.svelte";
-import { getMapObjects } from "@/lib/mapObjects/mapObjectsState.svelte";
-import { updateAllMapObjects } from "@/lib/mapObjects/updateMapObject";
-import { resetSearchedLocation } from "@/lib/services/search.svelte";
-import { getUserSettings, updateUserSettings } from "@/lib/services/userSettings.svelte.js";
+import maplibre from "maplibre-gl";
 import {
 	clearPressTimer,
 	longPressDuration,
 	onContextMenu,
-	pressTimer
+	pressTimer,
+	setIsContextMenuOpen
 } from "@/lib/ui/contextmenu.svelte.js";
-import maplibre from "maplibre-gl";
+import { clearLoadMapObjectsInterval, resetLoadMapObjects } from "@/lib/map/loadMapObjects";
+import { updateAllMapObjects } from "@/lib/mapObjects/updateMapObject";
+import {
+	clearUpdateMapObjectsInterval,
+	resetUpdateMapObjectsInterval
+} from "@/lib/map/mapObjectsInterval";
+import { getUserSettings, updateUserSettings } from "@/lib/services/userSettings.svelte.js";
+import { addMapStyleVersion, getMap, getMapStyleVersion } from "@/lib/map/map.svelte";
+import { setAnimateLocationMarker } from "@/lib/map/geolocate.svelte";
 import type { MapMoveEvent } from "svelte-maplibre";
+import { setSkew } from "@/lib/map/mapSkew.svelte";
+import { updateFeatures } from "@/lib/map/featuresGen.svelte";
+import { getMapObjects } from "@/lib/mapObjects/mapObjectsState.svelte";
+import { resetSearchedLocation } from "@/lib/services/search.svelte";
 
 export async function onMapMoveEnd() {
 	clearLoadMapObjectsInterval();
@@ -43,11 +44,8 @@ export async function onMapMoveStart() {
 	clearUpdateMapObjectsInterval();
 	resetLoadMapObjects();
 
+	setAnimateLocationMarker(false);
 	resetSearchedLocation();
-}
-
-export function onMapDragStart() {
-	setIsLocateFollowing(false);
 }
 
 export function onWindowFocus() {

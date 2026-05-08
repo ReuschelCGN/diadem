@@ -1,12 +1,11 @@
 <script lang="ts">
 	import BaseFab from "@/components/ui/fab/BaseFab.svelte";
-	import { Locate, LocateFixed, LocateOff } from "lucide-svelte";
+	import { Locate, LocateOff } from "lucide-svelte";
 	import {
 		updateGeolocationEnabled,
 		updateLocation,
 		getIsGeolocationEnabled,
-		getIsFetchingLocation,
-		getIsLocateFollowing
+		getIsFetchingLocation
 	} from "@/lib/map/geolocate.svelte";
 	import { onMount } from "svelte";
 	import type maplibre from "maplibre-gl";
@@ -22,11 +21,7 @@
 
 <BaseFab onclick={() => updateLocation(map)}>
 	{#if getIsGeolocationEnabled()}
-		{#if getIsLocateFollowing()}
-			<LocateFixed size="24" />
-		{:else}
-			<Locate size="24" class={getIsFetchingLocation() ? "fetching-location" : ""} />
-		{/if}
+		<Locate size="24" class={getIsFetchingLocation() ? "fetching-location" : ""} />
 	{:else}
 		<LocateOff size="24" />
 	{/if}

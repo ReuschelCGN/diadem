@@ -1,6 +1,7 @@
-import { getConfig } from "@/lib/services/config/config";
+import { mode, resetMode, setMode, toggleMode } from "mode-watcher";
 import { getUserSettings, updateUserSettings } from "@/lib/services/userSettings.svelte";
-import { mode, setMode, toggleMode } from "mode-watcher";
+import { getConfig } from "@/lib/services/config/config";
+import type { MapStyle } from "@/lib/services/config/configTypes";
 
 export function toggleThemeMode() {
 	toggleMode();

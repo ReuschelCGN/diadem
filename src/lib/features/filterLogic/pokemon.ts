@@ -1,8 +1,6 @@
-import type { FilterPokemon } from "@/lib/features/filters/filters";
-import type { FiltersetPokemon, MinMax } from "@/lib/features/filters/filtersets";
-import { isCurrentSelectedOverwrite } from "@/lib/mapObjects/currentSelectedState.svelte";
-import { getUserSettings } from "@/lib/services/userSettings.svelte";
 import type { PokemonData } from "@/lib/types/mapObjectData/pokemon";
+import type { FiltersetPokemon, MinMax } from "@/lib/features/filters/filtersets";
+import { getUserSettings } from "@/lib/services/userSettings.svelte";
 import { getBestRank, League } from "@/lib/utils/pokemonUtils";
 
 function inRange(value: number | null | undefined, range: MinMax): boolean {
@@ -10,10 +8,8 @@ function inRange(value: number | null | undefined, range: MinMax): boolean {
 	return value >= range.min && value <= range.max;
 }
 
-export function matchPokemonFilterset(
-	data: PokemonData,
-	pokemonFilter: FilterPokemon = getUserSettings().filters.pokemon
-): FiltersetPokemon | undefined {
+export function matchPokemonFilterset(data: PokemonData): FiltersetPokemon | undefined {
+	const pokemonFilter = getUserSettings().filters.pokemon;
 	if (!pokemonFilter.enabled) return;
 
 	const filtersets = pokemonFilter.filters.filter((f) => f.enabled);
@@ -56,16 +52,4 @@ export function matchPokemonFilterset(
 
 		return filterset;
 	}
-}
-
-export function shouldDisplayPokemon(
-	data: PokemonData,
-	pokemonFilter: FilterPokemon = getUserSettings().filters.pokemon
-) {
-	if (isCurrentSelectedOverwrite(data.mapId)) return true;
-	if (!pokemonFilter.enabled) return false;
-	const filtersets = pokemonFilter.filters.filter((f) => f.enabled);
-	if (filtersets.length === 0) return true;
-
-	return Boolean(matchPokemonFilterset(data, pokemonFilter));
 }

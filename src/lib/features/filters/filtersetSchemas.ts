@@ -1,5 +1,5 @@
-import { IconCategory } from "@/lib/features/filters/icons";
 import { z } from "zod";
+import { IconCategory } from "@/lib/features/filters/icons";
 
 const FiltersetModifiersSchema = z
 	.object({

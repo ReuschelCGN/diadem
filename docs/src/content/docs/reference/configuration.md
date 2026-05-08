@@ -70,20 +70,7 @@ by setting a `lucideIcon` property in Koji.
 
 ## Reverse Geocoding
 
-Diadem supports different geocoding providers for address search.
-
-Out of all options, Photon is the best fit and can be used across your mapping stack. [Find how to set it up here](/guides/photon).
-
-### Geometry
-
-When searching for a place, Diadem can show the resulting geometry on the map. These are not supported by all providers.
-- Photon
-    - Option 1: Run Photon with `-full-geometries` and set `hasGeometries` to true
-(requires ~600 GB for a planet import, [more details here](https://github.com/komoot/photon/pull/823))
-    - Option 2: Configure Nominatim. When a user select a search result, geometries are fetched from Nominatim
-(jumping is instant, displaying the result may take a little)
-- Pelias: Not supported
-- Nominatim: Supported
+Diadem supports different geocoding providers for address search. It's recommended to use Photon.
 
 ### `server.photon`
 
@@ -91,10 +78,7 @@ When searching for a place, Diadem can show the resulting geometry on the map. T
 [server.photon]
 url = "https://photon.komoot.io/"
 # basicAuth = "user:pass"
-#hasGeometries = false
 ```
-
-- `hasGeomtries`: If you run Photon with `-full-geometries`, set to true
 
 ### `server.pelias`
 
@@ -109,12 +93,9 @@ url = "https://api.geocode.earth/"
 
 ```toml
 [server.nominatim]
-url = "https://nominatim.openstreetmap.org/"
+url = "http://127.0.0.1:5000/"
 # basicAuth = "user:pass"
-#userAgent = "Diadem / Contact: name@email.com"
 ```
-
-- `userAgent`: Set this to something unique if you're using public nominatim
 
 ## `server.auth`
 

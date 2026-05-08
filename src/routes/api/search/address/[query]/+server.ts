@@ -1,8 +1,10 @@
-import { getClientConfig } from "@/lib/services/config/config.server";
-import { searchAddress } from "@/lib/services/geocoding.server";
-import { cacheHttpHeaders } from "@/lib/utils/apiUtils.server";
+import { error, json } from "@sveltejs/kit";
+import { getClientConfig, getServerConfig } from "@/lib/services/config/config.server";
+import type { FeatureCollection, Point } from "geojson";
+import { getServerLogger } from "@/lib/server/logging";
 import { getLogger } from "@/lib/utils/logger";
-import { json } from "@sveltejs/kit";
+import { cacheHttpHeaders } from "@/lib/utils/apiUtils.server";
+import { searchAddress } from "@/lib/services/geocoding.server";
 
 const log = getLogger("addrsearch");
 

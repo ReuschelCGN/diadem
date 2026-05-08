@@ -1,11 +1,11 @@
-import { browser } from "$app/environment";
-import { setConfig } from "@/lib/services/config/config";
+import type { LayoutLoad } from "./$types";
+import { getConfig, setConfig } from "@/lib/services/config/config";
 import {
 	getDefaultUserSettings,
 	setUserSettings,
 	updateUserSettings
 } from "@/lib/services/userSettings.svelte";
-import type { LayoutLoad } from "./$types";
+import { browser } from "$app/environment";
 
 export const ssr = false;
 

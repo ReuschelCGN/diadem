@@ -1,9 +1,9 @@
-import { resetActiveSearchFilter } from "@/lib/features/activeSearch.svelte";
 import {
 	clearUpdateMapObjectsInterval,
 	resetUpdateMapObjectsInterval
 } from "@/lib/map/mapObjectsInterval";
 import { setCurrentSearchQuery } from "@/lib/services/search.svelte";
+import { resetActiveSearchFilter } from "@/lib/features/activeSearch.svelte";
 import type { Snippet } from "svelte";
 
 export type OpenModals = {

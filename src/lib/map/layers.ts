@@ -1,3 +1,4 @@
+import { getMap } from "@/lib/map/map.svelte";
 import type { GeoJSON as GeoJsonType } from "geojson";
 import type maplibregl from "maplibre-gl";
 
@@ -6,17 +7,12 @@ export enum MapSourceId {
 	SELECTED_WEATHER = "selectedWeather",
 	SCOUT_BIG_POINTS = "scoutBigPoints",
 	SCOUT_SMALL_POINTS = "scoutSmallPoints",
-	COVERAGE_MAP_AREAS = "coverageMapAreas",
-	POPUP_ACTION_TIMERS = "popupActionTimers",
-	SEARCHED_GEOMETRY = "searchedGeometry"
+	COVERAGE_MAP_AREAS = "coverageMapAreas"
 }
 
 export enum MapObjectLayerId {
 	ICONS = "mapObjectIcons",
 	CIRCLES = "mapObjectCircles",
-	RADIUS_FILL = "mapObjectRadiusFill",
-	RADIUS_STROKE = "mapObjectRadiusStroke",
-	TIMER_LABELS = "mapObjectTimerLabels",
 	POLYGON_FILL = "mapObjectPolygonFill",
 	POLYGON_STROKE = "mapObjectPolygonStroke"
 }

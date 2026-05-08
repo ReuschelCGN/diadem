@@ -1,4 +1,15 @@
-import type { AnyFilter, FilterNest, FilterPokemon } from "@/lib/features/filters/filters";
+import type {
+	AnyFilter,
+	FilterNest,
+	FilterPokemon,
+	FilterPokestop
+} from "@/lib/features/filters/filters";
+import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
+import { mItem, mPokemon } from "@/lib/services/ingameLocale";
+import type { PokemonData } from "@/lib/types/mapObjectData/pokemon";
+import { updateAllMapObjects } from "@/lib/mapObjects/updateMapObject";
+import { getDefaultPokestopFilter, RewardType, rewardTypeLabel } from "@/lib/utils/pokestopUtils";
+import type { ContestFocus, QuestReward } from "@/lib/types/mapObjectData/pokestop";
 import type {
 	FiltersetContest,
 	FiltersetInvasion,
@@ -8,13 +19,11 @@ import type {
 	FiltersetQuest,
 	FiltersetRaid
 } from "@/lib/features/filters/filtersets";
-import { deleteAllFeatures } from "@/lib/map/featuresGen.svelte";
-import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
-import { updateAllMapObjects } from "@/lib/mapObjects/updateMapObject";
-import { defaultFilter } from "@/lib/services/userSettings.svelte";
-import type { ContestFocus, QuestReward } from "@/lib/types/mapObjectData/pokestop";
+import * as m from "@/lib/paraglide/messages";
+import { clearAllMapObjects, clearMapObjects } from "@/lib/mapObjects/mapObjectsState.svelte";
+import { deleteAllFeatures, deleteAllFeaturesOfType } from "@/lib/map/featuresGen.svelte";
 import { getDefaultGymFilter } from "@/lib/utils/gymUtils";
-import { getDefaultPokestopFilter, RewardType } from "@/lib/utils/pokestopUtils";
+import { defaultFilter } from "@/lib/services/userSettings.svelte";
 import { getDefaultStationFilter } from "@/lib/utils/stationUtils";
 
 export type ActiveSearchParams = {
@@ -62,13 +71,9 @@ export function setActiveSearch(newParams: ActiveSearchParams) {
 	updateAllMapObjects().then();
 }
 
-export function clearActiveSearchFilter() {
+export function resetActiveSearchFilter() {
 	activeSearchSvelte = undefined;
 	deleteAllFeatures();
-}
-
-export function resetActiveSearchFilter() {
-	clearActiveSearchFilter();
 	updateAllMapObjects().then();
 }
 
