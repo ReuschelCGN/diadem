@@ -15,10 +15,6 @@ export type PermissionUser = {
 	permissions: unknown;
 };
 
-export function hasDiscordPermissionRules() {
-	return (getServerConfig().permissions ?? []).some((rule) => rule.guildId);
-}
-
 let initializedEveryonePerms: boolean = false;
 let everyonePerms: Perms = { everywhere: [], areas: [] };
 
