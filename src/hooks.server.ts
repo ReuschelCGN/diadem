@@ -1,7 +1,7 @@
 import { building } from "$app/environment";
 import { locales, serverAsyncLocalStorage } from "@/lib/paraglide/runtime";
 import { paraglideMiddleware } from "@/lib/paraglide/server";
-import { getOrCreateUserFromDiscordId, getUserFromId } from "@/lib/server/auth/auth";
+import { getOrCreateUserFromDiscordId } from "@/lib/server/auth/auth";
 import {
 	assertBetterAuthStartupReadiness,
 	auth,
@@ -86,25 +86,13 @@ const handleAuth: Handle = async ({ event, resolve }) => {
 		return resolve(event);
 	}
 
-	const sessionUserId = authSession.user.id;
 	const discordId = authSession.user.discordId;
-	let user: User | null = null;
-	if (discordId) {
-		user = await getOrCreateUserFromDiscordId(discordId);
-	} else if (sessionUserId) {
-		user = await getUserFromId(sessionUserId);
-		if (user) {
-			authLogger.warning(
-				`Authenticated session user ${sessionUserId} has no discordId in Better Auth response; using stored user row`
-			);
-		}
-	}
-
-	if (!user) {
-		authLogger.warning("Authenticated session could not be matched to a Diadem user");
+	if (!discordId) {
+		authLogger.warning("Authenticated user has no discordId in Better Auth session");
 		return resolve(event);
 	}
 
+	const user = await getOrCreateUserFromDiscordId(discordId);
 	if (!permissionCache.has(user.id)) {
 		const accessToken = await getDiscordAccessToken(event);
 		if (accessToken || !hasDiscordPermissionRules()) {
