@@ -9,7 +9,11 @@ import {
 	getDiscordAccessToken,
 	isAuthFeatureEnabled
 } from "@/lib/server/auth/betterAuth";
-import { getEveryonePerms, updatePermissions } from "@/lib/server/auth/permissions";
+import {
+	getEveryonePerms,
+	hasDiscordPermissionRules,
+	updatePermissions
+} from "@/lib/server/auth/permissions";
 import type { User } from "@/lib/server/db/internal/schema";
 import { getServerLogger } from "@/lib/server/logging";
 import { setConfig } from "@/lib/services/config/config";
@@ -91,8 +95,14 @@ const handleAuth: Handle = async ({ event, resolve }) => {
 	const user = await getOrCreateUserFromDiscordId(discordId);
 	if (!permissionCache.has(user.id)) {
 		const accessToken = await getDiscordAccessToken(event);
-		user.permissions = await updatePermissionsLocked(user, accessToken ?? "", event.fetch);
-		permissionCache.set(user.id, undefined);
+		if (accessToken || !hasDiscordPermissionRules()) {
+			user.permissions = await updatePermissionsLocked(user, accessToken ?? "", event.fetch);
+			permissionCache.set(user.id, undefined);
+		} else {
+			authLogger.warning(
+				`Authenticated user ${user.id} has no Discord access token; keeping stored permissions and retrying next request`
+			);
+		}
 	}
 
 	event.locals.user = user;
