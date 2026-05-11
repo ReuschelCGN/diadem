@@ -17,7 +17,8 @@ export async function POST({ request, locals }) {
 
 	if (!scoutData.coords) return json(result(undefined, "No Coords"));
 
-	const username = "Diadem: " + (locals.user?.username || "<unknown user>");
+	const username =
+		"Diadem: " + (locals.authUser?.name || locals.user?.discordId || "<unknown user>");
 	const locations = scoutData.coords.map((c) => [c.lat, c.lon]);
 	const success = await addScoutEntries(username, locations);
 
