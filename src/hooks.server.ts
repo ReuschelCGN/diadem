@@ -54,8 +54,11 @@ const userResolveInFlight = new Map<string, Promise<User>>();
 const authLogger = getServerLogger("auth");
 
 async function resolveUserAndPerms(event: Parameters<Handle>[0]["event"], discordId: string) {
+	// Clone on every read: the cached value is shared across requests in the TTL
+	// window, and any downstream handler mutating `locals.perms` would otherwise
+	// poison every concurrent user. Clone is shallow-deep over a small POJO.
 	const cached = userCache.get(discordId);
-	if (cached) return cached;
+	if (cached) return structuredClone(cached);
 
 	let promise = userResolveInFlight.get(discordId);
 	if (!promise) {
@@ -68,9 +71,11 @@ async function resolveUserAndPerms(event: Parameters<Handle>[0]["event"], discor
 				throw new Error(`No user row for authenticated discordId ${discordId}`);
 			}
 			const accessToken = await getDiscordAccessToken(event);
+			// Intentional mutation: the row returned by getUserFromDiscordId is a stub
+			// until permissions are resolved; we hydrate it before caching.
 			user.permissions = await updatePermissions(user, accessToken ?? "", event.fetch);
 			userCache.set(discordId, user);
-			return user;
+			return structuredClone(user);
 		})().finally(() => userResolveInFlight.delete(discordId));
 		userResolveInFlight.set(discordId, promise);
 	}

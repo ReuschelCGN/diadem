@@ -11,9 +11,24 @@
 
 DELIMITER //
 
+-- Defense-in-depth: refuse identifiers that aren't plain [A-Za-z0-9_].
+-- Today every caller passes static literals, but a future caller wiring user
+-- input into a procedure would otherwise enable identifier injection via the
+-- CONCAT + PREPARE pattern used below.
+DROP PROCEDURE IF EXISTS diadem_assert_ident //
+CREATE PROCEDURE diadem_assert_ident(IN ident VARCHAR(255))
+BEGIN
+	IF ident IS NULL OR ident NOT REGEXP '^[A-Za-z0-9_]+$' THEN
+		SIGNAL SQLSTATE '45000'
+			SET MESSAGE_TEXT = 'diadem migration: identifier rejected (must match [A-Za-z0-9_]+)';
+	END IF;
+END //
+
 DROP PROCEDURE IF EXISTS diadem_add_col //
 CREATE PROCEDURE diadem_add_col(IN tbl VARCHAR(64), IN col VARCHAR(64), IN coldef TEXT)
 BEGIN
+	CALL diadem_assert_ident(tbl);
+	CALL diadem_assert_ident(col);
 	IF NOT EXISTS (
 		SELECT 1 FROM information_schema.columns
 		WHERE table_schema = DATABASE() AND table_name = tbl AND column_name = col
@@ -26,6 +41,8 @@ END //
 DROP PROCEDURE IF EXISTS diadem_drop_col //
 CREATE PROCEDURE diadem_drop_col(IN tbl VARCHAR(64), IN col VARCHAR(64))
 BEGIN
+	CALL diadem_assert_ident(tbl);
+	CALL diadem_assert_ident(col);
 	IF EXISTS (
 		SELECT 1 FROM information_schema.columns
 		WHERE table_schema = DATABASE() AND table_name = tbl AND column_name = col
@@ -40,6 +57,8 @@ CREATE PROCEDURE diadem_add_idx(
 	IN tbl VARCHAR(64), IN idx VARCHAR(64), IN cols VARCHAR(255), IN is_unique BOOLEAN
 )
 BEGIN
+	CALL diadem_assert_ident(tbl);
+	CALL diadem_assert_ident(idx);
 	IF NOT EXISTS (
 		SELECT 1 FROM information_schema.statistics
 		WHERE table_schema = DATABASE() AND table_name = tbl AND index_name = idx
@@ -58,6 +77,11 @@ CREATE PROCEDURE diadem_add_fk(
 	IN local_col VARCHAR(64), IN ref_tbl VARCHAR(64), IN ref_col VARCHAR(64)
 )
 BEGIN
+	CALL diadem_assert_ident(tbl);
+	CALL diadem_assert_ident(fk_name);
+	CALL diadem_assert_ident(local_col);
+	CALL diadem_assert_ident(ref_tbl);
+	CALL diadem_assert_ident(ref_col);
 	IF NOT EXISTS (
 		SELECT 1 FROM information_schema.key_column_usage
 		WHERE table_schema = DATABASE() AND table_name = tbl AND column_name = local_col
@@ -81,6 +105,11 @@ CREATE PROCEDURE diadem_ensure_fk_cascade(
 )
 BEGIN
 	DECLARE existing_fk VARCHAR(64) DEFAULT NULL;
+	CALL diadem_assert_ident(tbl);
+	CALL diadem_assert_ident(ref_tbl);
+	CALL diadem_assert_ident(new_fk_name);
+	CALL diadem_assert_ident(local_col);
+	CALL diadem_assert_ident(ref_col);
 	SELECT constraint_name INTO existing_fk
 	FROM information_schema.referential_constraints
 	WHERE constraint_schema = DATABASE() AND table_name = tbl
@@ -231,3 +260,4 @@ DROP PROCEDURE diadem_drop_col;
 DROP PROCEDURE diadem_add_idx;
 DROP PROCEDURE diadem_add_fk;
 DROP PROCEDURE diadem_ensure_fk_cascade;
+DROP PROCEDURE diadem_assert_ident;
