@@ -1,11 +1,21 @@
 import type { RequestEvent } from "@sveltejs/kit";
-import { isAuthFeatureEnabled, signOut as signOutFromAuth } from "@/lib/server/auth/betterAuth";
+import {
+	getDiscordAccessToken,
+	isAuthFeatureEnabled,
+	revokeDiscordToken,
+	signOut as signOutFromAuth
+} from "@/lib/server/auth/betterAuth";
 import { getServerLogger } from "@/lib/server/logging";
 
 const authLogger = getServerLogger("auth");
 
 async function handleSignOut(event: RequestEvent) {
 	if (!isAuthFeatureEnabled()) return new Response(null, { status: 404 });
+
+	if (!event.locals.session) return new Response(null, { status: 204 });
+
+	const accessToken = await getDiscordAccessToken(event);
+	if (accessToken) await revokeDiscordToken(accessToken);
 
 	const didSignOut = await signOutFromAuth(event);
 	if (!didSignOut) {

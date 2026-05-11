@@ -1,7 +1,7 @@
 import { PERMISSION_UPDATE_INTERVAL } from "@/lib/constants";
 import { locales, serverAsyncLocalStorage } from "@/lib/paraglide/runtime";
 import { paraglideMiddleware } from "@/lib/paraglide/server";
-import { getOrCreateUserFromDiscordId } from "@/lib/server/auth/auth";
+import { getUserFromDiscordId } from "@/lib/server/auth/auth";
 import {
 	assertBetterAuthStartupReadiness,
 	auth,
@@ -15,7 +15,6 @@ import { getServerLogger } from "@/lib/server/logging";
 import { setConfig } from "@/lib/services/config/config";
 import { getClientConfig } from "@/lib/services/config/config.server";
 import { getDisallowedPaths } from "@/lib/utils/disallowedPaths";
-import type { Perms } from "@/lib/utils/features";
 import { setServerLoggerFactory } from "@/lib/utils/logger";
 import TTLCache from "@isaacs/ttlcache";
 import { building } from "$app/environment";
@@ -45,21 +44,37 @@ const paraglideHandle: Handle = ({ event, resolve }) =>
 		});
 	});
 
-const permissionCache: TTLCache<string, undefined> = new TTLCache({
+// Keyed by discordId. Stores the resolved User with up-to-date permissions.
+// TTL'd so permissions and user row both refresh together; a single in-flight
+// promise per discordId dedupes concurrent cold-cache requests.
+const userCache: TTLCache<string, User> = new TTLCache({
 	ttl: PERMISSION_UPDATE_INTERVAL * 1000
 });
+const userResolveInFlight = new Map<string, Promise<User>>();
 const authLogger = getServerLogger("auth");
-const permissionUpdateInFlight = new Map<string, Promise<Perms>>();
 
-function updatePermissionsLocked(user: User, accessToken: string, thisFetch: typeof fetch) {
-	let updatePromise = permissionUpdateInFlight.get(user.id);
-	if (!updatePromise) {
-		updatePromise = updatePermissions(user, accessToken, thisFetch).finally(() => {
-			permissionUpdateInFlight.delete(user.id);
-		});
-		permissionUpdateInFlight.set(user.id, updatePromise);
+async function resolveUserAndPerms(event: Parameters<Handle>[0]["event"], discordId: string) {
+	const cached = userCache.get(discordId);
+	if (cached) return cached;
+
+	let promise = userResolveInFlight.get(discordId);
+	if (!promise) {
+		promise = (async () => {
+			const user = await getUserFromDiscordId(discordId);
+			if (!user) {
+				// Better Auth's mapProfileToUser inserts the user row before the session
+				// becomes valid, so a session referencing a missing user means schema
+				// corruption or a bypassed insert path.
+				throw new Error(`No user row for authenticated discordId ${discordId}`);
+			}
+			const accessToken = await getDiscordAccessToken(event);
+			user.permissions = await updatePermissions(user, accessToken ?? "", event.fetch);
+			userCache.set(discordId, user);
+			return user;
+		})().finally(() => userResolveInFlight.delete(discordId));
+		userResolveInFlight.set(discordId, promise);
 	}
-	return updatePromise;
+	return promise;
 }
 
 const handleBetterAuth: Handle = async ({ event, resolve }) => {
@@ -88,11 +103,12 @@ const handleAuth: Handle = async ({ event, resolve }) => {
 		return resolve(event);
 	}
 
-	const user = await getOrCreateUserFromDiscordId(discordId);
-	if (!permissionCache.has(user.id)) {
-		const accessToken = await getDiscordAccessToken(event);
-		user.permissions = await updatePermissionsLocked(user, accessToken ?? "", event.fetch);
-		permissionCache.set(user.id, undefined);
+	let user: User;
+	try {
+		user = await resolveUserAndPerms(event, discordId);
+	} catch (error) {
+		authLogger.error(`Failed to resolve user for discordId ${discordId}: ${error}`);
+		return resolve(event);
 	}
 
 	event.locals.user = user;

@@ -6,7 +6,7 @@ import { getTableColumns, getTableName, sql } from "drizzle-orm";
 
 import { db } from "@/lib/server/db/internal";
 import { account, session, user, verification } from "@/lib/server/db/internal/schema";
-import { generateUserId } from "@/lib/server/auth/auth";
+import { generateAuthRecordId } from "@/lib/server/auth/auth";
 import { getServerConfig } from "@/lib/services/config/config.server";
 import { getLogger } from "@/lib/utils/logger";
 
@@ -49,14 +49,8 @@ if (!authSecret) authErrors.push("server.auth.secret (or BETTER_AUTH_SECRET env)
 if (!discordClientId) authErrors.push("server.auth.discord.clientId");
 if (!discordClientSecret) authErrors.push("server.auth.discord.clientSecret");
 
-if (authConfig.enabled && authErrors.length > 0) {
-	throw new Error(
-		`[AUTH_STARTUP_ERROR] Better Auth config is invalid:\n  - ${authErrors.join("\n  - ")}\n` +
-			"Set the values and restart, or set server.auth.enabled=false."
-	);
-}
-
 export const IS_BETTER_AUTH_ENABLED = Boolean(authConfig.enabled);
+const canConstructAuth = IS_BETTER_AUTH_ENABLED && authErrors.length === 0;
 
 function hasMysqlCode(error: unknown, code: string, errno: number): boolean {
 	if (!error || typeof error !== "object") return false;
@@ -119,14 +113,20 @@ async function assertBetterAuthSchemaReady() {
 
 let startupReadinessPromise: Promise<void> | null = null;
 export async function assertBetterAuthStartupReadiness() {
-	if (!IS_BETTER_AUTH_ENABLED) return;
+	if (!authConfig.enabled) return;
+	if (authErrors.length > 0) {
+		throw new Error(
+			`[AUTH_STARTUP_ERROR] Better Auth config is invalid:\n  - ${authErrors.join("\n  - ")}\n` +
+				"Set the values and restart, or set server.auth.enabled=false."
+		);
+	}
 	if (!startupReadinessPromise) {
 		startupReadinessPromise = assertBetterAuthSchemaReady();
 	}
 	await startupReadinessPromise;
 }
 
-export const auth = IS_BETTER_AUTH_ENABLED
+export const auth = canConstructAuth
 	? betterAuth({
 			secret: authSecret!,
 			baseURL: authBaseUrl!,
@@ -145,7 +145,7 @@ export const auth = IS_BETTER_AUTH_ENABLED
 			trustedOrigins: [authBaseUrl!],
 			advanced: {
 				database: {
-					generateId: () => generateUserId()
+					generateId: () => generateAuthRecordId()
 				}
 			},
 			session: {
@@ -273,6 +273,27 @@ export async function getAuthSession(event: RequestEvent): Promise<BetterAuthSes
 	} catch (error) {
 		log.warning(`Failed to read auth session: ${error}`);
 		return null;
+	}
+}
+
+export async function revokeDiscordToken(accessToken: string): Promise<boolean> {
+	if (!discordClientId || !discordClientSecret) return false;
+	try {
+		const body = new URLSearchParams({
+			token: accessToken,
+			token_type_hint: "access_token",
+			client_id: discordClientId,
+			client_secret: discordClientSecret
+		});
+		const response = await fetch("https://discord.com/api/oauth2/token/revoke", {
+			method: "POST",
+			headers: { "Content-Type": "application/x-www-form-urlencoded" },
+			body
+		});
+		return response.ok;
+	} catch (error) {
+		log.warning(`Failed to revoke Discord token: ${error}`);
+		return false;
 	}
 }
 

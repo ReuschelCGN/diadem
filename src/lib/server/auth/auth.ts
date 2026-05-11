@@ -27,7 +27,9 @@ function parsePermissions(rawPermissions: unknown): Perms {
 	}
 }
 
-export function generateUserId() {
+// Used by Better Auth's `advanced.database.generateId` for all auth-table rows
+// (user, session, account, verification) — not user IDs specifically.
+export function generateAuthRecordId() {
 	// ID with 120 bits of entropy, or about the same as UUID v4.
 	const bytes = crypto.getRandomValues(new Uint8Array(15));
 	return encodeBase32LowerCase(bytes);
@@ -40,57 +42,12 @@ function coerceUser(result: typeof table.user.$inferSelect): User {
 	};
 }
 
-function isDuplicateUserError(error: unknown) {
-	if (!error || typeof error !== "object") return false;
-
-	const mysqlError = error as { code?: string; errno?: number };
-	return mysqlError.code === "ER_DUP_ENTRY" || mysqlError.errno === 1062;
-}
-
 export async function getUserFromDiscordId(discordId: string) {
 	const [result] = await db.select().from(table.user).where(eq(table.user.discordId, discordId));
 
 	if (!result) return null;
 
 	return coerceUser(result);
-}
-
-export async function createUserFromDiscordId(discordId: string) {
-	const userId = generateUserId();
-	const now = new Date();
-	await db
-		.insert(table.user)
-		.values({
-			id: userId,
-			name: `discord-${discordId}`,
-			email: `${discordId}@discord.diadem.local`,
-			emailVerified: true,
-			discordId,
-			permissions: getDefaultPerms(),
-			userSettings: {},
-			createdAt: now,
-			updatedAt: now
-		});
-	return userId;
-}
-
-export async function getOrCreateUserFromDiscordId(discordId: string) {
-	let user = await getUserFromDiscordId(discordId);
-	if (user) return user;
-
-	try {
-		await createUserFromDiscordId(discordId);
-	} catch (error) {
-		if (!isDuplicateUserError(error)) {
-			throw error;
-		}
-	}
-
-	user = await getUserFromDiscordId(discordId);
-	if (!user) {
-		throw new Error(`failed to create user for Discord id ${discordId}`);
-	}
-	return user;
 }
 
 export async function setPermissions(userId: string, permissions: Perms) {
