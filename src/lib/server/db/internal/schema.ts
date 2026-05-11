@@ -101,4 +101,8 @@ export const verification = mysqlTable(
 	})
 );
 
+// `userSettings` stays `unknown` (from $inferSelect on a json column) because
+// its full type lives in `@/lib/services/userSettings.svelte.ts`, which pulls
+// in $app/environment and shouldn't leak into the schema module. Consumers
+// that need the structured type re-cast via the userSettings service.
 export type User = typeof user.$inferSelect & { permissions: Perms };
