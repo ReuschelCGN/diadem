@@ -17,6 +17,9 @@ export async function POST({ request, locals }) {
 
 	if (!scoutData.coords) return json(result(undefined, "No Coords"));
 
+	// Prefer the Discord display name (Better Auth-side); fall back to the
+	// raw discord_id (Diadem-side) so scout queue entries are at least
+	// attributable; sentinel only if both are unexpectedly missing.
 	const username =
 		"Diadem: " + (locals.authUser?.name || locals.user?.discordId || "<unknown user>");
 	const locations = scoutData.coords.map((c) => [c.lat, c.lon]);

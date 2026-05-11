@@ -1,7 +1,7 @@
 import { PERMISSION_UPDATE_INTERVAL } from "@/lib/constants";
 import { locales, serverAsyncLocalStorage } from "@/lib/paraglide/runtime";
 import { paraglideMiddleware } from "@/lib/paraglide/server";
-import { getUserFromDiscordId } from "@/lib/server/auth/auth";
+import { getUserFromDiscordId } from "@/lib/server/auth/userRecord";
 import {
 	assertBetterAuthStartupReadiness,
 	auth,
