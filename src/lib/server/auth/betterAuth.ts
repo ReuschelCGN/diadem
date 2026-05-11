@@ -7,7 +7,7 @@ import { getTableName, sql } from "drizzle-orm";
 
 import { db } from "@/lib/server/db/internal";
 import { account, session, user, verification } from "@/lib/server/db/internal/schema";
-import { generateAuthRecordId } from "@/lib/server/auth/auth";
+import { generateAuthRecordId } from "@/lib/server/auth/userRecord";
 import { getServerConfig } from "@/lib/services/config/config.server";
 import { getLogger } from "@/lib/utils/logger";
 
@@ -78,6 +78,8 @@ async function assertBetterAuthSchemaReady() {
 	}
 }
 
+// Memoized so concurrent boot paths (e.g. multiple SvelteKit init hooks
+// firing in a worker pool) share a single schema probe.
 let startupReadinessPromise: Promise<void> | null = null;
 export async function assertBetterAuthStartupReadiness() {
 	if (!authConfig.enabled) return;
@@ -158,9 +160,17 @@ export const auth = canConstructAuth
 	: null;
 
 type AuthInstance = NonNullable<typeof auth>;
+/** Better Auth's combined `{ session, user }` payload returned from getSession. */
 export type BetterAuthSession = AuthInstance["$Infer"]["Session"];
+/** Bare session row (id, expiry, ip, user agent). */
 export type BetterAuthSessionData = BetterAuthSession["session"];
+/** Bare auth-side user (name, email, image, plus our `discordId` additional field). */
 export type BetterAuthUserData = BetterAuthSession["user"];
+
+export const discordClientCredentials =
+	discordClientId && discordClientSecret
+		? { clientId: discordClientId, clientSecret: discordClientSecret }
+		: null;
 
 export function isAuthFeatureEnabled() {
 	return isFeatureEnabled;
@@ -170,82 +180,67 @@ export function isAuthRequiredEnabled() {
 	return isFeatureEnabled && !authConfig.optional;
 }
 
-export async function signInWithDiscord(
+type SignInSocialResult = { url?: string; redirect: boolean };
+
+// Generic wrapper: returns null on auth-disabled or on any thrown error from
+// Better Auth's server API. Logs at the requested level so callers don't each
+// re-derive the failure mode.
+async function callAuth<T>(
+	label: string,
+	level: "warning" | "error",
+	fn: (a: AuthInstance) => Promise<T>
+): Promise<T | null> {
+	if (!auth) return null;
+	try {
+		return await fn(auth);
+	} catch (error) {
+		log[level](`${label} failed: ${error}`);
+		return null;
+	}
+}
+
+export function signInWithDiscord(
 	event: RequestEvent,
 	options: { callbackURL: string; errorCallbackURL: string }
-) {
-	if (!auth) return null;
-	try {
-		return (await auth.api.signInSocial({
-			body: {
-				provider: "discord",
-				callbackURL: options.callbackURL,
-				newUserCallbackURL: options.callbackURL,
-				errorCallbackURL: options.errorCallbackURL,
-				disableRedirect: true
-			},
-			headers: event.request.headers
-		})) as { url?: string; redirect: boolean };
-	} catch (error) {
-		log.warning(`Sign-in with Discord failed: ${error}`);
-		return null;
-	}
+): Promise<SignInSocialResult | null> {
+	return callAuth(
+		"Sign-in with Discord",
+		"warning",
+		(a) =>
+			a.api.signInSocial({
+				body: {
+					provider: "discord",
+					callbackURL: options.callbackURL,
+					newUserCallbackURL: options.callbackURL,
+					errorCallbackURL: options.errorCallbackURL,
+					disableRedirect: true
+				},
+				headers: event.request.headers
+			}) as Promise<SignInSocialResult>
+	);
 }
 
-export async function signOut(event: RequestEvent) {
-	if (!auth) return false;
-	try {
-		await auth.api.signOut({ headers: event.request.headers });
-		return true;
-	} catch (error) {
-		log.warning(`Sign-out failed: ${error}`);
-		return false;
-	}
+export async function signOut(event: RequestEvent): Promise<boolean> {
+	const result = await callAuth("Sign-out", "warning", (a) =>
+		a.api.signOut({ headers: event.request.headers })
+	);
+	return result !== null;
 }
 
-export async function getAuthSession(event: RequestEvent): Promise<BetterAuthSession | null> {
-	if (!auth) return null;
-	try {
-		return await auth.api.getSession({ headers: event.request.headers });
-	} catch (error) {
-		log.warning(`Failed to read auth session: ${error}`);
-		return null;
-	}
-}
-
-export async function revokeDiscordToken(accessToken: string): Promise<boolean> {
-	if (!discordClientId || !discordClientSecret) return false;
-	try {
-		const body = new URLSearchParams({
-			token: accessToken,
-			token_type_hint: "access_token",
-			client_id: discordClientId,
-			client_secret: discordClientSecret
-		});
-		const response = await fetch("https://discord.com/api/oauth2/token/revoke", {
-			method: "POST",
-			headers: { "Content-Type": "application/x-www-form-urlencoded" },
-			body
-		});
-		return response.ok;
-	} catch (error) {
-		log.warning(`Failed to revoke Discord token: ${error}`);
-		return false;
-	}
+export function getAuthSession(event: RequestEvent): Promise<BetterAuthSession | null> {
+	// `error` level: a failure here silently logs every user out — needs to page
+	// rather than tail-log.
+	return callAuth("Read auth session", "error", (a) =>
+		a.api.getSession({ headers: event.request.headers })
+	);
 }
 
 export async function getDiscordAccessToken(event: RequestEvent): Promise<string | null> {
-	if (!auth) return null;
-	try {
-		const result = await auth.api.getAccessToken({
+	const result = await callAuth("Fetch Discord access token", "warning", (a) =>
+		a.api.getAccessToken({
 			headers: event.request.headers,
-			body: {
-				providerId: "discord"
-			}
-		});
-		return result.accessToken || null;
-	} catch (error) {
-		log.warning(`Failed to fetch Discord access token from Better Auth: ${error}`);
-		return null;
-	}
+			body: { providerId: "discord" }
+		})
+	);
+	return result?.accessToken ?? null;
 }
