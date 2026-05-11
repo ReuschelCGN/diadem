@@ -23,7 +23,6 @@
 	} from "@/lib/mapObjects/currentSelectedState.svelte";
 
 	import { currentTimestamp } from "@/lib/utils/currentTimestamp";
-	import Metadata from "@/components/utils/Metadata.svelte";
 	import {
 		hasFortActiveLure,
 		isIncidentContest,
@@ -40,14 +39,14 @@
 		shouldDisplayIncident,
 		shouldDisplayLure
 	} from "@/lib/features/filterLogic/pokestop";
+	import { useMetadata } from "@/lib/ui/metadata.svelte";
 
 	let data: PokestopData = $derived(
 		(getMapObjects()[getCurrentSelectedMapId()] as PokestopData) ??
 			(getCurrentSelectedData() as PokestopData)
 	);
+	useMetadata(() => ({ title: data ? (data.name ?? m.pogo_pokestop()) : undefined }));
 </script>
-
-<Metadata title={data.name ?? m.pogo_pokestop()} />
 
 {#snippet lureSection()}
 	{#if shouldDisplayLure(data)}

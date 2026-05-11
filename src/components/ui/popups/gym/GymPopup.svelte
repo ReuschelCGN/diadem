@@ -19,7 +19,6 @@
 	} from "@/lib/mapObjects/currentSelectedState.svelte";
 	import { timestampToLocalTime } from "@/lib/utils/timestampToLocalTime";
 	import { currentTimestamp } from "@/lib/utils/currentTimestamp";
-	import Metadata from "@/components/utils/Metadata.svelte";
 	import {
 		getRaidPokemon,
 		GYM_SLOTS,
@@ -28,15 +27,15 @@
 		isRaidHatched
 	} from "@/lib/utils/gymUtils";
 	import { shouldDisplayRaid } from "@/lib/features/filterLogic/gym";
+	import { useMetadata } from "@/lib/ui/metadata.svelte";
 
 	let data: GymData = $derived(
 		(getMapObjects()[getCurrentSelectedMapId()] as GymData) ?? (getCurrentSelectedData() as GymData)
 	);
+	useMetadata(() => ({ title: data ? (data.name ?? m.pogo_gym()) : undefined }));
 	let defenders: GymDefender[] = $derived(JSON.parse(data.defenders ?? "[]"));
 	let rsvps: Rsvp[] = $derived(JSON.parse(data.rsvps ?? "[]"));
 </script>
-
-<Metadata title={data.name ?? m.pogo_gym()} />
 
 {#snippet raidDisplay(expanded: boolean)}
 	{#if shouldDisplayRaid(data)}

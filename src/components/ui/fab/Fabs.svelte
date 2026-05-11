@@ -15,10 +15,12 @@
 
 	let {
 		map,
-		showSearch = true
+		showSearch = true,
+		allowFollow = false
 	}: {
 		map: maplibre.Map | undefined;
 		showSearch?: boolean;
+		allowFollow?: boolean;
 	} = $props();
 
 	let isSearchAllowed = $derived(
@@ -71,5 +73,5 @@
 		</BaseFab>
 	{/if}
 
-	<LocateFab {map} />
+	<LocateFab {map} {allowFollow} />
 </div>

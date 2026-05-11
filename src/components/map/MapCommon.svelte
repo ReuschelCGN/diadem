@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { MapLibre } from "svelte-maplibre";
-	import { getUserSettings, updateUserSettings } from "@/lib/services/userSettings.svelte.js";
-	import { type Snippet } from "svelte";
+	import { getUserSettings } from "@/lib/services/userSettings.svelte.js";
+	import { onDestroy, type Snippet } from "svelte";
 	import { handleRotatePitchDisable } from "@/lib/map/map.svelte";
 	import { onMapMove, onMapStyleDataLoading } from "@/lib/map/events";
 	import maplibre from "maplibre-gl";
@@ -9,6 +9,10 @@
 	import { getMapStyle, mapStyleFromId } from "@/lib/utils/mapStyle";
 	import { getConfig } from "@/lib/services/config/config";
 	import type { Coords } from "@/lib/utils/coordinates";
+	import { closeMenu } from "@/lib/ui/menus.svelte";
+	import { clearActiveSearchFilter } from "@/lib/features/activeSearch.svelte.js";
+	import { setCurrentSelectedData } from "@/lib/mapObjects/currentSelectedState.svelte";
+	import { resetLocate } from "@/lib/map/geolocate.svelte";
 
 	let {
 		onload = undefined,
@@ -29,10 +33,17 @@
 
 		map.on("styledataloading", onMapStyleDataLoading);
 		map.on("move", onMapMove); // needed for compass fab
-		handleRotatePitchDisable();
+		handleRotatePitchDisable(map);
 
 		onload && onload(map);
 	}
+
+	onDestroy(() => {
+		closeMenu();
+		clearActiveSearchFilter();
+		setCurrentSelectedData(null);
+		resetLocate()
+	});
 </script>
 
 <MapLibre

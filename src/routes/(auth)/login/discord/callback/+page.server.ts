@@ -1,14 +1,14 @@
-import type { PageServerLoad } from "./$types";
-import { getDiscordAuth } from "@/lib/server/auth/discord";
-import type { OAuth2Tokens } from "arctic";
-import { getUserInfo } from "@/lib/server/auth/discordDetails";
 import {
 	createUserFromDiscordId,
 	getUserFromDiscordId,
 	makeNewSession
 } from "@/lib/server/auth/auth";
+import { getDiscordAuth } from "@/lib/server/auth/discord";
+import { getUserInfo } from "@/lib/server/auth/discordDetails";
 import { getClientConfig, isAuthRequired } from "@/lib/services/config/config.server";
 import { getMapPath } from "@/lib/utils/getMapPath";
+import type { OAuth2Tokens } from "arctic";
+import type { PageServerLoad } from "./$types";
 
 export const load: PageServerLoad = async (event) => {
 	const discord = getDiscordAuth();

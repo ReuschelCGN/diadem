@@ -1,10 +1,11 @@
-import { featureCollection } from "@turf/turf";
-import { getKojiGeofences, type KojiFeature } from "@/lib/features/koji";
-import { hasLoadedFeature, LoadedFeature } from "@/lib/services/initialLoad.svelte";
-import type { Feature, FeatureCollection, Polygon } from "geojson";
 import { goto } from "$app/navigation";
-import maplibre from "maplibre-gl";
+import { getKojiGeofences, type KojiFeature } from "@/lib/features/koji";
 import { CoverageMapLayerId } from "@/lib/map/layers";
+import { hasLoadedFeature, LoadedFeature } from "@/lib/services/initialLoad.svelte";
+import { Menu, openMenu, setJustChangedMenus } from "@/lib/ui/menus.svelte";
+import { featureCollection } from "@turf/turf";
+import type { Feature, FeatureCollection, Polygon } from "geojson";
+import maplibre from "maplibre-gl";
 
 type CoverageMapAreaFeature = Feature<Polygon, CoverageMapAreaProperties>;
 export type CoverageMapAreaProperties = {
@@ -38,6 +39,7 @@ export function coverageMapClickHandler(event: maplibre.MapMouseEvent) {
 
 export function openCoverageMap() {
 	invokedFromMap = true;
+	setJustChangedMenus();
 	goto("/coverage").then();
 }
 

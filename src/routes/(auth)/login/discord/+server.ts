@@ -1,9 +1,9 @@
-import { generateCodeVerifier, generateState } from "arctic";
 import { getDiscordAuth } from "@/lib/server/auth/discord";
+import { generateCodeVerifier, generateState } from "arctic";
 
-import type { RequestEvent } from "@sveltejs/kit";
 import { getClientConfig } from "@/lib/services/config/config.server";
 import { getMapPath } from "@/lib/utils/getMapPath";
+import type { RequestEvent } from "@sveltejs/kit";
 
 const SCOPES = ["identify", "guilds.members.read"];
 

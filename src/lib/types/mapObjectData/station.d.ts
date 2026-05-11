@@ -22,6 +22,8 @@ export type StationData = {
 	battle_pokemon_bread_mode?: number;
 	battle_pokemon_move_1?: number;
 	battle_pokemon_move_2?: number;
+	battle_pokemon_stamina?: number;
+	battle_pokemon_cp_multiplier?: number;
 	updated: number;
 	battle_start?: number;
 	battle_end?: number;

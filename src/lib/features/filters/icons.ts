@@ -1,16 +1,15 @@
 import {
+	getIconGymDirect,
 	getIconInvasion,
 	getIconItem,
 	getIconLeague,
 	getIconPokemon,
-	getIconRaidEgg,
-	getIconStation,
-	getIconType,
-	getIconTeam,
 	getIconPokestopDirect,
-	getIconGymDirect,
+	getIconRaidEgg,
 	getIconReward,
-	getIconPokestop
+	getIconStation,
+	getIconTeam,
+	getIconType
 } from "@/lib/services/uicons.svelte";
 import { RewardType } from "@/lib/utils/pokestopUtils";
 

@@ -1,18 +1,19 @@
-import { UICONS } from "uicons.js";
-import { getUserSettings } from "@/lib/services/userSettings.svelte.js";
 import { getConfig } from "@/lib/services/config/config";
 import type { UiconSet } from "@/lib/services/config/configTypes";
+import { getUserSettings } from "@/lib/services/userSettings.svelte.js";
+import type { GymData } from "@/lib/types/mapObjectData/gym";
 import type { PokestopData } from "@/lib/types/mapObjectData/pokestop";
 import type { StationData } from "@/lib/types/mapObjectData/station";
-import type { GymData } from "@/lib/types/mapObjectData/gym";
+import { UICONS } from "uicons.js";
 
-import { currentTimestamp } from "@/lib/utils/currentTimestamp";
-import { RewardType } from "@/lib/utils/pokestopUtils";
-import { GYM_SLOTS, isFortOutdated } from "@/lib/utils/gymUtils";
-import { type MapData, MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
-import type { TappableData } from "@/lib/types/mapObjectData/tappable";
-import { isMaxBattleActive } from "@/lib/utils/stationUtils";
 import { shouldDisplayIncident, shouldDisplayLure } from "@/lib/features/filterLogic/pokestop";
+import { MapObjectType, type MapData } from "@/lib/mapObjects/mapObjectTypes";
+import type { TappableData } from "@/lib/types/mapObjectData/tappable";
+import { currentTimestamp } from "@/lib/utils/currentTimestamp";
+import { GYM_SLOTS, isFortOutdated } from "@/lib/utils/gymUtils";
+import { getLeagueCp, LeagueCp, type League } from "@/lib/utils/pokemonUtils";
+import { RewardType } from "@/lib/utils/pokestopUtils";
+import { isMaxBattleActive } from "@/lib/utils/stationUtils";
 
 export const DEFAULT_UICONS = "DEFAULT";
 
@@ -31,8 +32,16 @@ export async function initIconSet(id: string, url: string, thisFetch: typeof fet
 		console.error("Failed to load uicon set: " + id);
 		return;
 	}
-	const indexFile = await data.json();
-	newSet.init(indexFile);
+
+	const raw = await data.text();
+
+	try {
+		const indexFile = JSON.parse(raw);
+		newSet.init(indexFile);
+	} catch (e) {
+		console.error(raw);
+		console.error("Error while parsing uicon index " + id, e);
+	}
 }
 
 export async function initAllIconSets(thisFetch: typeof fetch = fetch) {
@@ -241,15 +250,11 @@ export function getIconContest() {
 	return iconSets[DEFAULT_UICONS].misc("showcase");
 }
 
-export enum League {
-	LITTLE = 500,
-	GREAT = 1500,
-	ULTRA = 2500,
-	MASTER = 9000
-}
-
 export function getIconLeague(league: League) {
-	return iconSets[DEFAULT_UICONS].misc(league) ?? iconSets[DEFAULT_UICONS].misc(League.GREAT);
+	return (
+		iconSets[DEFAULT_UICONS].misc(getLeagueCp(league)) ??
+		iconSets[DEFAULT_UICONS].misc(LeagueCp.GREAT)
+	);
 }
 
 export function getIconTeam(teamId: number) {

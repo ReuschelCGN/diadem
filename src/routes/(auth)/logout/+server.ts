@@ -1,8 +1,7 @@
-import { generateCodeVerifier, generateState } from "arctic";
 import { getDiscordAuth } from "@/lib/server/auth/discord";
 
-import type { RequestEvent } from "@sveltejs/kit";
 import { deleteSessionTokenCookie, invalidateSession } from "@/lib/server/auth/auth";
+import type { RequestEvent } from "@sveltejs/kit";
 
 const SCOPES = ["identify", "guilds.members.read"];
 

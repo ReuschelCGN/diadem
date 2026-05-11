@@ -1,15 +1,6 @@
-import type { Coords } from "@/lib/utils/coordinates";
-import { mCharacter, mItem, mPokemon, mRaid } from "@/lib/services/ingameLocale";
-import microfuzz, {
-	fuzzyMatch,
-	type FuzzyResult,
-	type FuzzySearcher,
-	type HighlightRanges
-} from "@nozbe/microfuzz";
-import { getKojiGeofences, type KojiFeature } from "@/lib/features/koji";
-import type { Attachment } from "svelte/attachments";
 import { browser } from "$app/environment";
-import { getAllLureModuleIds, getAllPokemon } from "@/lib/services/masterfile";
+import { type AddressData, searchAddress } from "@/lib/features/geocoding";
+import { getKojiGeofences, type KojiFeature } from "@/lib/features/koji";
 import {
 	getActiveCharacters,
 	getActiveContests,
@@ -19,18 +10,27 @@ import {
 	getActiveRaids,
 	getSpawnablePokemon
 } from "@/lib/features/masterStats.svelte";
-import type { ContestFocus, QuestReward } from "@/lib/types/mapObjectData/pokestop";
-import { getContestText, getRewardText, RewardType } from "@/lib/utils/pokestopUtils";
-import { m } from "@/lib/paraglide/messages";
-import { type AddressData, searchAddress } from "@/lib/features/geocoding";
-import { isSupportedFeature } from "@/lib/services/supportedFeatures";
-import type { BBox } from "geojson";
-import { getFixedBounds } from "@/lib/mapObjects/mapBounds";
 import { getMap } from "@/lib/map/map.svelte";
-import { openModal } from "@/lib/ui/modal.svelte";
+import { getFixedBounds } from "@/lib/mapObjects/mapBounds";
+import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
+import { m } from "@/lib/paraglide/messages";
+import { mCharacter, mItem, mPokemon, mRaid } from "@/lib/services/ingameLocale";
+import { getAllLureModuleIds } from "@/lib/services/masterfile";
+import { isSupportedFeature } from "@/lib/services/supportedFeatures";
 import { hasFeatureAnywhere } from "@/lib/services/user/checkPerm";
 import { getUserDetails } from "@/lib/services/user/userDetails.svelte";
-import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
+import type { ContestFocus, QuestReward } from "@/lib/types/mapObjectData/pokestop";
+import { openModal } from "@/lib/ui/modal.svelte";
+import type { Coords } from "@/lib/utils/coordinates";
+import { getContestText, getRewardText, RewardType } from "@/lib/utils/pokestopUtils";
+import microfuzz, {
+	fuzzyMatch,
+	type FuzzyResult,
+	type FuzzySearcher,
+	type HighlightRanges
+} from "@nozbe/microfuzz";
+import type { BBox, Geometry } from "geojson";
+import type { Attachment } from "svelte/attachments";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const createFuzzySearch: typeof microfuzz = (microfuzz as any)?.default ?? microfuzz;
@@ -78,6 +78,7 @@ export type AddressSearchEntry = SearchEntry & {
 	type: SearchableType.ADDRESS;
 	point: [number, number];
 	bbox: undefined | BBox;
+	geometry: undefined | Geometry;
 };
 
 export type PokestopSearchEntry = SearchEntry & {
@@ -178,6 +179,7 @@ let currentSearchQuery = $state("");
 let searchResults: FuzzyResult<AnySearchEntry>[] = $state([]);
 let isSearchingAddress: boolean = $state(false);
 let searchedLocation: Coords | undefined = $state(undefined);
+let searchedGeomtry: Geometry | undefined = $state(undefined);
 
 let fortData: { lat: string; lon: string; data: RawFortSearchEntry[] } = {
 	lat: "",
@@ -219,10 +221,19 @@ export function setSearchedLocation(location: Coords) {
 
 export function resetSearchedLocation() {
 	searchedLocation = undefined;
+	searchedGeomtry = undefined;
 }
 
 export function getSearchedLocation() {
 	return searchedLocation;
+}
+
+export function setSearchedGeometry(geometry: Geometry) {
+	searchedGeomtry = geometry;
+}
+
+export function getSearchedGeomtry() {
+	return searchedGeomtry;
 }
 
 export function openSearchModal() {
@@ -456,6 +467,7 @@ export function addAddressSearchResults(data: AddressData[], query: string) {
 			icon: "MapPin",
 			point: address.center,
 			bbox: address.bbox,
+			geometry: address.geometry,
 			type: SearchableType.ADDRESS
 		} as AddressSearchEntry;
 
@@ -520,4 +532,25 @@ export function highlightSearchMatches(match: HighlightRanges | null | undefined
 
 		return () => ranges.forEach((r) => highlight.delete(r));
 	};
+}
+
+export async function backgroundGeometryLookup(osmId: string, coords: Coords) {
+	try {
+		const result = await fetch("/api/search/geometry/" + osmId);
+		if (!result.ok) {
+			setSearchedLocation(coords);
+			return;
+		}
+		const geometry = (await result.json()) as Geometry;
+		if (geometry.type) {
+			if (geometry.type === "Point") {
+				setSearchedLocation(coords);
+			} else {
+				setSearchedGeometry(geometry);
+				return;
+			}
+		}
+	} catch (e) {}
+
+	setSearchedLocation(coords);
 }
