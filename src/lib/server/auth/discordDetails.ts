@@ -5,10 +5,16 @@ type DiscordUserData = {
 	avatar: string;
 };
 
-export type DiscordGuildData = {
+type DiscordGuildMember = {
 	roles?: string[];
 	user?: { id: string };
 };
+
+/** Three explicit outcomes from a Discord guild-member lookup. */
+export type GuildMembership =
+	| { ok: true; member: true; roles: string[] }
+	| { ok: true; member: false }
+	| { ok: false; status: number };
 
 export type DiscordUser = {
 	id: string;
@@ -51,23 +57,31 @@ export async function getUserInfoResult(accessToken: string): Promise<DiscordUse
 	};
 }
 
-export async function getGuildMemberInfo(guildId: string, accessToken: string) {
+export async function getGuildMemberInfo(
+	guildId: string,
+	accessToken: string
+): Promise<GuildMembership> {
 	const response = await fetch(
 		`${endpoint}/guilds/${guildId}/member`,
 		getFetchOptions(accessToken)
 	);
-	if (response.status === 404) {
-		return { roles: [] } as DiscordGuildData;
-	}
-	if (!response.ok) {
-		return undefined;
-	}
-	const guildMember: DiscordGuildData = await response.json();
-	return guildMember;
+	if (response.status === 404) return { ok: true, member: false };
+	if (!response.ok) return { ok: false, status: response.status };
+
+	const data = (await response.json()) as DiscordGuildMember;
+	// Discord returns 200 with a member payload only when the user is in the guild.
+	// `data.user` should always be present here, but guard so the type narrows cleanly.
+	if (!data.user) return { ok: true, member: false };
+	return { ok: true, member: true, roles: data.roles ?? [] };
 }
 
-export async function isGuildMember(guildId: string, accessToken: string) {
-	const guildMember = await getGuildMemberInfo(guildId, accessToken);
-	if (!guildMember) return;
-	return !!guildMember.user;
+// `undefined` means "we couldn't determine membership"; callers that need a
+// definitive answer should branch on it (see ProfileCard's `=== false` check).
+export async function isGuildMember(
+	guildId: string,
+	accessToken: string
+): Promise<boolean | undefined> {
+	const m = await getGuildMemberInfo(guildId, accessToken);
+	if (!m.ok) return undefined;
+	return m.member;
 }
