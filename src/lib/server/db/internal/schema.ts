@@ -36,7 +36,7 @@ export const session = mysqlTable(
 		id: varchar("id", { length: 255 }).primaryKey(),
 		userId: varchar("user_id", { length: 255 })
 			.notNull()
-			.references(() => user.id),
+			.references(() => user.id, { onDelete: "cascade" }),
 		expiresAt: datetime("expires_at").notNull(),
 		token: varchar("token", { length: 255 }).notNull(),
 		ipAddress: text("ip_address"),
@@ -61,7 +61,7 @@ export const account = mysqlTable(
 		providerId: varchar("provider_id", { length: 255 }).notNull(),
 		userId: varchar("user_id", { length: 255 })
 			.notNull()
-			.references(() => user.id),
+			.references(() => user.id, { onDelete: "cascade" }),
 		accessToken: text("access_token"),
 		refreshToken: text("refresh_token"),
 		idToken: text("id_token"),

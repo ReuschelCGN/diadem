@@ -240,7 +240,24 @@ EXECUTE stmt;
 DEALLOCATE PREPARE stmt;
 
 -- Old sessions are incompatible with Better Auth cookies/tokens.
-DELETE FROM `session`;
+-- Guard on the legacy `discord_token` column so re-running this script
+-- after the first migration does not destroy live Better Auth sessions.
+SET @stmt = (
+	SELECT IF(
+		EXISTS(
+			SELECT 1
+			FROM information_schema.columns
+			WHERE table_schema = @db_name
+				AND table_name = 'session'
+				AND column_name = 'discord_token'
+		),
+		'DELETE FROM `session`',
+		'SELECT 1'
+	)
+);
+PREPARE stmt FROM @stmt;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
 
 SET @stmt = (
 	SELECT IF(
@@ -373,7 +390,7 @@ CREATE TABLE IF NOT EXISTS `account` (
 	UNIQUE KEY `account_provider_account_unique` (`provider_id`, `account_id`),
 	KEY `account_user_id_idx` (`user_id`),
 	CONSTRAINT `account_user_id_user_id_fk`
-		FOREIGN KEY (`user_id`) REFERENCES `user` (`id`)
+		FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS `verification` (
@@ -436,7 +453,7 @@ SET @stmt = (
 				AND referenced_column_name = 'id'
 		),
 		'SELECT 1',
-		'ALTER TABLE `account` ADD CONSTRAINT `account_user_id_user_id_fk` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`)'
+		'ALTER TABLE `account` ADD CONSTRAINT `account_user_id_user_id_fk` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE CASCADE'
 	)
 );
 PREPARE stmt FROM @stmt;
@@ -472,6 +489,64 @@ SET @stmt = (
 		'SELECT 1',
 		'ALTER TABLE `verification` ADD INDEX `verification_expires_at_idx` (`expires_at`)'
 	)
+);
+PREPARE stmt FROM @stmt;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+-- Ensure session.user_id and account.user_id FKs use ON DELETE CASCADE.
+-- Existing FKs on main lacked the cascade rule; this drops and re-adds them
+-- when needed. Idempotent: skips if already CASCADE.
+
+-- session FK
+SET @fk_name = (
+	SELECT `constraint_name`
+	FROM information_schema.referential_constraints
+	WHERE constraint_schema = @db_name
+		AND table_name = 'session'
+		AND referenced_table_name = 'user'
+		AND delete_rule != 'CASCADE'
+	LIMIT 1
+);
+SET @stmt = IF(
+	@fk_name IS NOT NULL,
+	CONCAT('ALTER TABLE `session` DROP FOREIGN KEY `', @fk_name, '`'),
+	'SELECT 1'
+);
+PREPARE stmt FROM @stmt;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+SET @stmt = IF(
+	@fk_name IS NOT NULL,
+	'ALTER TABLE `session` ADD CONSTRAINT `session_user_id_user_id_fk` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE CASCADE',
+	'SELECT 1'
+);
+PREPARE stmt FROM @stmt;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+-- account FK
+SET @fk_name = (
+	SELECT `constraint_name`
+	FROM information_schema.referential_constraints
+	WHERE constraint_schema = @db_name
+		AND table_name = 'account'
+		AND referenced_table_name = 'user'
+		AND delete_rule != 'CASCADE'
+	LIMIT 1
+);
+SET @stmt = IF(
+	@fk_name IS NOT NULL,
+	CONCAT('ALTER TABLE `account` DROP FOREIGN KEY `', @fk_name, '`'),
+	'SELECT 1'
+);
+PREPARE stmt FROM @stmt;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+SET @stmt = IF(
+	@fk_name IS NOT NULL,
+	'ALTER TABLE `account` ADD CONSTRAINT `account_user_id_user_id_fk` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE CASCADE',
+	'SELECT 1'
 );
 PREPARE stmt FROM @stmt;
 EXECUTE stmt;
