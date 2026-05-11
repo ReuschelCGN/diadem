@@ -4,7 +4,7 @@ WORKDIR /app
 
 FROM base AS deps
 
-COPY package.json pnpm-lock.yaml ./
+COPY package.json ./
 COPY patches ./patches/
 RUN pnpm install
 
