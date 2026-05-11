@@ -25,9 +25,10 @@ export async function GET(event: RequestEvent): Promise<Response> {
 	const successCallbackURL = new URL("/login/discord/callback", callbackBaseUrl);
 	successCallbackURL.searchParams.set("redir", redirectPath);
 
+	// Better Auth appends its own `error=<code>` to the configured URL on failure,
+	// so we only pre-set the redirect target and let it own the error param.
 	const errorCallbackURL = new URL("/login/discord/callback", callbackBaseUrl);
 	errorCallbackURL.searchParams.set("redir", redirectPath);
-	errorCallbackURL.searchParams.set("error", "1");
 
 	const response = await signInWithDiscord(event, {
 		callbackURL: successCallbackURL.toString(),

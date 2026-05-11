@@ -21,7 +21,7 @@ export const load: PageServerLoad = async (event) => {
 		name: ""
 	};
 
-	if (event.url.searchParams.get("error") === "1") {
+	if (event.url.searchParams.has("error")) {
 		response.error = "Discord Login failed";
 		return response;
 	}
@@ -31,6 +31,7 @@ export const load: PageServerLoad = async (event) => {
 		return response;
 	}
 
-	response.name = event.locals.authUser.name || event.locals.authUser.email || "";
+	// Don't fall through to email: it's the synthetic `<discord_id>@discord.diadem.local`.
+	response.name = event.locals.authUser.name || "";
 	return response;
 };
