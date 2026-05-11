@@ -39,8 +39,8 @@ function handleRule(rule: ConfigRule, perms: Perms, geofences: KojiFeatures | un
 					(f) => f.properties.name.toLowerCase() === ruleArea.toLowerCase()
 				);
 				if (!kojiFeature) {
-					console.error(
-						`You configured area ${ruleArea} in your config permissions, but there's no Koji area with that name. Permissions for this area are ignored`
+					log.error(
+						`Configured area "${ruleArea}" has no matching Koji area; ignoring its permissions.`
 					);
 					continue;
 				}
@@ -92,9 +92,7 @@ export async function updatePermissions(
 
 	const geofences = await getGeofences(thisFetch);
 
-	const permissions: Perms = JSON.parse(
-		JSON.stringify(await getEveryonePerms(thisFetch, geofences))
-	);
+	const permissions: Perms = structuredClone(await getEveryonePerms(thisFetch, geofences));
 
 	if (permConfig && authConfig.enabled) {
 		for (const rule of permConfig) {

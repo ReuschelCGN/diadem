@@ -6,48 +6,25 @@ import * as table from "@/lib/server/db/internal/schema";
 import type { User } from "@/lib/server/db/internal/schema";
 import type { Perms } from "@/lib/utils/features";
 
-function getDefaultPerms(): Perms {
-	return { everywhere: [], areas: [] };
-}
-
-function parsePermissions(rawPermissions: unknown): Perms {
-	try {
-		const parsed = typeof rawPermissions === "string" ? JSON.parse(rawPermissions) : rawPermissions;
-		if (!parsed || typeof parsed !== "object") {
-			return getDefaultPerms();
-		}
-
-		const perms = parsed as Partial<Perms>;
-		return {
-			everywhere: Array.isArray(perms.everywhere) ? perms.everywhere : [],
-			areas: Array.isArray(perms.areas) ? perms.areas : []
-		};
-	} catch {
-		return getDefaultPerms();
-	}
+function coercePerms(raw: unknown): Perms {
+	const p = (raw ?? {}) as Partial<Perms>;
+	return {
+		everywhere: Array.isArray(p.everywhere) ? p.everywhere : [],
+		areas: Array.isArray(p.areas) ? p.areas : []
+	};
 }
 
 // Used by Better Auth's `advanced.database.generateId` for all auth-table rows
 // (user, session, account, verification) — not user IDs specifically.
 export function generateAuthRecordId() {
-	// ID with 120 bits of entropy, or about the same as UUID v4.
 	const bytes = crypto.getRandomValues(new Uint8Array(15));
 	return encodeBase32LowerCase(bytes);
 }
 
-function coerceUser(result: typeof table.user.$inferSelect): User {
-	return {
-		...result,
-		permissions: parsePermissions(result.permissions)
-	};
-}
-
 export async function getUserFromDiscordId(discordId: string) {
-	const [result] = await db.select().from(table.user).where(eq(table.user.discordId, discordId));
-
-	if (!result) return null;
-
-	return coerceUser(result);
+	const [row] = await db.select().from(table.user).where(eq(table.user.discordId, discordId));
+	if (!row) return null;
+	return { ...row, permissions: coercePerms(row.permissions) } as User;
 }
 
 export async function setPermissions(userId: string, permissions: Perms) {

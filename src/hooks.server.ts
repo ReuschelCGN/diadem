@@ -93,21 +93,13 @@ const handleAuth: Handle = async ({ event, resolve }) => {
 	}
 
 	const authSession = await getAuthSession(event);
-	if (!authSession?.session || !authSession.user) {
-		return resolve(event);
-	}
-
-	const discordId = authSession.user.discordId;
-	if (!discordId) {
-		authLogger.warning("Authenticated user has no discordId in Better Auth session");
-		return resolve(event);
-	}
+	if (!authSession) return resolve(event);
 
 	let user: User;
 	try {
-		user = await resolveUserAndPerms(event, discordId);
+		user = await resolveUserAndPerms(event, authSession.user.discordId);
 	} catch (error) {
-		authLogger.error(`Failed to resolve user for discordId ${discordId}: ${error}`);
+		authLogger.error(`Failed to resolve user for ${authSession.user.id}: ${error}`);
 		return resolve(event);
 	}
 
