@@ -14,16 +14,20 @@ import type { Perms } from "@/lib/utils/features";
 export const user = mysqlTable(
 	"user",
 	{
+		// Better Auth-owned columns:
 		id: varchar("id", { length: 255 }).primaryKey(),
 		name: varchar("name", { length: 255 }).notNull(),
 		email: varchar("email", { length: 255 }).notNull(),
 		emailVerified: boolean("email_verified").notNull(),
 		image: text("image"),
+		createdAt: datetime("created_at").notNull(),
+		updatedAt: datetime("updated_at").notNull(),
+		// Diadem-owned columns (also mirrored via Better Auth additionalFields).
+		// permissions/userSettings are nullable because Better Auth's adapter
+		// inserts user rows without them; reads coerce via coercePerms.
 		discordId: varchar("discord_id", { length: 255 }).notNull().unique(),
 		permissions: json("permissions"),
-		userSettings: json("user_settings"),
-		createdAt: datetime("created_at").notNull(),
-		updatedAt: datetime("updated_at").notNull()
+		userSettings: json("user_settings")
 	},
 	(table) => ({
 		emailUnique: uniqueIndex("user_email_unique").on(table.email)

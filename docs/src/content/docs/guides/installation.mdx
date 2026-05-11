@@ -45,7 +45,17 @@ This guide walks through the baseline install for a Diadem instance.
 		pnpm run db:push
 		```
 
-		This initializes Diadem tables (users/sessions) in `server.internalDb`.
+		This initializes Diadem's internal tables (`user`, `session`, `account`, `verification`)
+		in `server.internalDb`. The `account` and `verification` tables are required by
+		[Better Auth](https://better-auth.com/), which Diadem uses for the Discord OAuth flow.
+
+		**Upgrading from a pre-Better-Auth install?** Run the bundled migration instead:
+
+		```bash
+		mysql -u <user> -p <database> < migrations/001_better_auth.sql
+		```
+
+		The migration is idempotent and preserves existing user rows.
 
 	5. Run
 

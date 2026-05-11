@@ -405,8 +405,6 @@ CREATE TABLE IF NOT EXISTS `verification` (
 	KEY `verification_expires_at_idx` (`expires_at`)
 );
 
-ALTER TABLE `verification` MODIFY COLUMN `value` TEXT NOT NULL;
-
 SET @stmt = (
 	SELECT IF(
 		EXISTS(

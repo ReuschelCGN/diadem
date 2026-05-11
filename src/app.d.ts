@@ -9,8 +9,11 @@ declare global {
 	namespace App {
 		interface Locals {
 			paraglide: ParaglideLocals<AvailableLanguageTag>;
+			/** Diadem-side user row (permissions, userSettings). Null when unauthenticated. */
 			user: User | null;
+			/** Better Auth session row (id, expiry, ip). Null when unauthenticated. */
 			session: BetterAuthSessionData | null;
+			/** Better Auth user row (name, email, image, discordId). Null when unauthenticated. */
 			authUser: BetterAuthUserData | null;
 			perms: Perms;
 		}

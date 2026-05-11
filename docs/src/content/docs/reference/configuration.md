@@ -236,7 +236,8 @@ password = ""
 ```
 
 - `server.db`: external Golbat DB used for data queries (user needs SELECT permissions)
-- `server.internalDb`: internal Diadem DB used for users/sessions (user needs ALL permissions)
+- `server.internalDb`: internal Diadem DB used for Better Auth tables
+  (`user`, `session`, `account`, `verification`) — user needs ALL permissions
 
 ## `client.general`
 

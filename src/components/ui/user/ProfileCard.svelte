@@ -41,6 +41,9 @@
 				</span>
 			</p>
 			<div class="flex justify-end flex-1">
+				<!-- Strict `=== false` so we don't show the join button when the guild lookup
+					 failed (`undefined`) or hasn't returned yet — only when we've confirmed
+					 the user is not a member. -->
 				{#if getUserDetails().isGuildMember === false}
 					<Button tag="a" href={getConfig().discord.serverLink} class="mr-2 basis-full">
 						{m.join_server()}
