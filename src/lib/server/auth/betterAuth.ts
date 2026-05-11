@@ -1,6 +1,7 @@
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
-import { parseSetCookieHeader } from "better-auth/cookies";
+import { sveltekitCookies } from "better-auth/svelte-kit";
+import { getRequestEvent } from "$app/server";
 import type { RequestEvent } from "@sveltejs/kit";
 import { getTableColumns, getTableName, sql } from "drizzle-orm";
 
@@ -179,7 +180,12 @@ export const auth = canConstructAuth
 						image: profile.image_url || undefined
 					})
 				}
-			}
+			},
+			// `sveltekitCookies` must be the last plugin so it wraps the cookie-setting
+			// flow of all other plugins. Uses SvelteKit's getRequestEvent() to call
+			// event.cookies.set() automatically when Better Auth sets a cookie from a
+			// server-side auth.api.* call.
+			plugins: [sveltekitCookies(getRequestEvent)]
 		})
 	: null;
 
@@ -200,34 +206,13 @@ export function getAuthBaseUrl() {
 	return authBaseUrl;
 }
 
-function applyAuthCookies(event: RequestEvent, headers: Headers) {
-	const setCookieHeader = headers.get("set-cookie");
-	if (!setCookieHeader) return;
-
-	for (const [name, { value, ...options }] of parseSetCookieHeader(setCookieHeader)) {
-		try {
-			event.cookies.set(name, value, {
-				sameSite: options.samesite,
-				path: options.path || "/",
-				expires: options.expires,
-				secure: options.secure,
-				httpOnly: options.httponly,
-				domain: options.domain,
-				maxAge: options["max-age"]
-			});
-		} catch (error) {
-			log.warning(`Failed to set auth cookie ${name}: ${error}`);
-		}
-	}
-}
-
 export async function signInWithDiscord(
 	event: RequestEvent,
 	options: { callbackURL: string; errorCallbackURL: string }
 ) {
 	if (!auth) return null;
 	try {
-		const result = await auth.api.signInSocial({
+		return (await auth.api.signInSocial({
 			body: {
 				provider: "discord",
 				callbackURL: options.callbackURL,
@@ -235,11 +220,8 @@ export async function signInWithDiscord(
 				errorCallbackURL: options.errorCallbackURL,
 				disableRedirect: true
 			},
-			headers: event.request.headers,
-			returnHeaders: true
-		});
-		applyAuthCookies(event, result.headers);
-		return result.response as { url?: string; redirect: boolean };
+			headers: event.request.headers
+		})) as { url?: string; redirect: boolean };
 	} catch (error) {
 		log.warning(`Sign-in with Discord failed: ${error}`);
 		return null;
@@ -249,11 +231,7 @@ export async function signInWithDiscord(
 export async function signOut(event: RequestEvent) {
 	if (!auth) return false;
 	try {
-		const result = await auth.api.signOut({
-			headers: event.request.headers,
-			returnHeaders: true
-		});
-		applyAuthCookies(event, result.headers);
+		await auth.api.signOut({ headers: event.request.headers });
 		return true;
 	} catch (error) {
 		log.warning(`Sign-out failed: ${error}`);
@@ -264,12 +242,7 @@ export async function signOut(event: RequestEvent) {
 export async function getAuthSession(event: RequestEvent): Promise<BetterAuthSession | null> {
 	if (!auth) return null;
 	try {
-		const result = await auth.api.getSession({
-			headers: event.request.headers,
-			returnHeaders: true
-		});
-		applyAuthCookies(event, result.headers);
-		return result.response;
+		return await auth.api.getSession({ headers: event.request.headers });
 	} catch (error) {
 		log.warning(`Failed to read auth session: ${error}`);
 		return null;
@@ -304,11 +277,9 @@ export async function getDiscordAccessToken(event: RequestEvent): Promise<string
 			headers: event.request.headers,
 			body: {
 				providerId: "discord"
-			},
-			returnHeaders: true
+			}
 		});
-		applyAuthCookies(event, result.headers);
-		return result.response.accessToken || null;
+		return result.accessToken || null;
 	} catch (error) {
 		log.warning(`Failed to fetch Discord access token from Better Auth: ${error}`);
 		return null;
