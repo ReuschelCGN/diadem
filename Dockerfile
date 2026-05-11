@@ -6,6 +6,7 @@ FROM base AS deps
 
 COPY package.json ./
 COPY patches ./patches/
+RUN pnpm approve-builds
 RUN pnpm install
 
 FROM base AS builder
