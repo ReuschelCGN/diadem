@@ -2,36 +2,22 @@ import type { PageServerLoad } from "./$types";
 import { getClientConfig } from "@/lib/services/config/config.server";
 import { getMapPath } from "@/lib/utils/getMapPath";
 import { isAuthRequiredEnabled } from "@/lib/server/auth/betterAuth";
-
-function sanitizeRedirectPath(redirectPath: string | null | undefined, fallback: string) {
-	if (!redirectPath) return fallback;
-	if (!redirectPath.startsWith("/") || redirectPath.startsWith("//")) return fallback;
-	return redirectPath;
-}
+import { sanitizeRedirectPath } from "@/lib/utils/sanitizeRedirectPath";
 
 export const load: PageServerLoad = async (event) => {
-	const redirectLink = sanitizeRedirectPath(
+	const redir = sanitizeRedirectPath(
 		event.url.searchParams.get("redir"),
 		isAuthRequiredEnabled() ? "/" : getMapPath(getClientConfig())
 	);
 
-	const response: { error: string | undefined; redir: string; name: string } = {
-		error: undefined,
-		redir: redirectLink,
-		name: ""
-	};
-
 	if (event.url.searchParams.has("error")) {
-		response.error = "Discord Login failed";
-		return response;
+		return { error: "Discord login failed", redir, name: "" };
 	}
 
-	if (!event.locals.user || !event.locals.authUser) {
-		response.error = "Discord Login failed";
-		return response;
+	if (!event.locals.authUser) {
+		return { error: "Discord login completed but the session was not set", redir, name: "" };
 	}
 
 	// Don't fall through to email: it's the synthetic `<discord_id>@discord.diadem.local`.
-	response.name = event.locals.authUser.name || "";
-	return response;
+	return { error: undefined, redir, name: event.locals.authUser.name || "" };
 };
