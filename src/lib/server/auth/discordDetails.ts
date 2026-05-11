@@ -1,3 +1,8 @@
+import { discordClientCredentials } from "@/lib/server/auth/betterAuth";
+import { getLogger } from "@/lib/utils/logger";
+
+const log = getLogger("discord");
+
 type DiscordUserData = {
 	id: string;
 	username: string;
@@ -84,4 +89,24 @@ export async function isGuildMember(
 	const m = await getGuildMemberInfo(guildId, accessToken);
 	if (!m.ok) return undefined;
 	return m.member;
+}
+
+export async function revokeDiscordToken(accessToken: string): Promise<boolean> {
+	if (!discordClientCredentials) return false;
+	try {
+		const response = await fetch("https://discord.com/api/oauth2/token/revoke", {
+			method: "POST",
+			headers: { "Content-Type": "application/x-www-form-urlencoded" },
+			body: new URLSearchParams({
+				token: accessToken,
+				token_type_hint: "access_token",
+				client_id: discordClientCredentials.clientId,
+				client_secret: discordClientCredentials.clientSecret
+			})
+		});
+		return response.ok;
+	} catch (error) {
+		log.warning(`Failed to revoke Discord token: ${error}`);
+		return false;
+	}
 }
