@@ -1,21 +1,21 @@
-import { replaceState } from "$app/navigation";
-import { page } from "$app/state";
-import { setCurrentScoutCenter } from "@/lib/features/scout.svelte";
-import { MapObjectLayerId } from "@/lib/map/layers";
-import { getMap } from "@/lib/map/map.svelte";
-import type { MapObjectFeature } from "@/lib/map/render/featureTypes";
+import { getConfig } from "@/lib/services/config/config";
+import type { MapMouseEvent } from "maplibre-gl";
+import { getMapObjects } from "@/lib/mapObjects/mapObjectsState.svelte.js";
 import {
 	getCurrentSelectedData,
 	setCurrentSelectedData
 } from "@/lib/mapObjects/currentSelectedState.svelte";
-import { getMapObjects } from "@/lib/mapObjects/mapObjectsState.svelte.js";
-import type { MapData } from "@/lib/mapObjects/mapObjectTypes";
 import { updateAllMapObjects } from "@/lib/mapObjects/updateMapObject";
-import { getConfig } from "@/lib/services/config/config";
-import { closeMenu, getOpenedMenu, Menu } from "@/lib/ui/menus.svelte";
-import { Coords } from "@/lib/utils/coordinates";
 import { getMapPath } from "@/lib/utils/getMapPath";
-import type { MapMouseEvent } from "maplibre-gl";
+import type { MapData } from "@/lib/mapObjects/mapObjectTypes";
+import { getMap } from "@/lib/map/map.svelte";
+import { CoverageMapLayerId, MapObjectLayerId } from "@/lib/map/layers";
+import { closeMenu, getOpenedMenu, Menu } from "@/lib/ui/menus.svelte";
+import { setCurrentScoutCenter } from "@/lib/features/scout.svelte";
+import { Coords } from "@/lib/utils/coordinates";
+import type { MapObjectFeature } from "@/lib/map/render/featureTypes";
+import { page } from "$app/state";
+import { replaceState } from "$app/navigation";
 
 export function closePopup() {
 	setCurrentSelectedData(null);

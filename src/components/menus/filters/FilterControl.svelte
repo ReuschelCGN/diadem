@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { ChevronUp, Eye, EyeClosed, FunnelPlus } from "lucide-svelte";
+	import { ChevronDown, ChevronRight, Eye, EyeClosed, FunnelPlus } from "lucide-svelte";
 	import type { AnyFilter, FilterCategory } from "@/lib/features/filters/filters";
 	import Switch from "@/components/ui/input/Switch.svelte";
 	import Button from "@/components/ui/input/Button.svelte";
@@ -124,10 +124,10 @@
 						{title}
 					</p>
 					{#if isExpandable}
-						<ChevronUp
+						<ChevronRight
 							size="16"
 							class="transition-[rotate] mt-px"
-							style="rotate: {expanded ? '180deg' : '0deg'}"
+							style="rotate: {expanded ? '90deg' : '0deg'}"
 						/>
 					{/if}
 				</div>

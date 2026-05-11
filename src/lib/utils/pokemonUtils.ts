@@ -1,12 +1,12 @@
 import { POKEMON_MIN_RANK } from "@/lib/constants";
-import { getActiveSearch } from "@/lib/features/activeSearch.svelte";
-import type { FilterPokemon } from "@/lib/features/filters/filters";
-import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
-import * as m from "@/lib/paraglide/messages";
-import { getMasterPokemon } from "@/lib/services/masterfile";
-import { getUserSettings } from "@/lib/services/userSettings.svelte";
 import type { PokemonData } from "@/lib/types/mapObjectData/pokemon";
+import * as m from "@/lib/paraglide/messages";
+import { getUserSettings } from "@/lib/services/userSettings.svelte";
 import type { MasterPokemon } from "@/lib/types/masterfile";
+import { getMasterPokemon } from "@/lib/services/masterfile";
+import type { FilterPokemon } from "@/lib/features/filters/filters";
+import { getActiveSearch } from "@/lib/features/activeSearch.svelte";
+import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 
 export enum League {
 	LITTLE = "little",

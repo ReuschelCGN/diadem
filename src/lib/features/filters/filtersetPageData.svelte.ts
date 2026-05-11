@@ -1,16 +1,18 @@
-import type { AnyFilter, FilterCategory } from "@/lib/features/filters/filters";
+import { closeModal, type ModalType, openModal } from "@/lib/ui/modal.svelte";
 import type { AnyFilterset, BaseFilterset } from "@/lib/features/filters/filtersets";
-import { generateFilterDetails } from "@/lib/features/filters/filtersetUtils.svelte";
-import { deleteAllFeaturesOfType } from "@/lib/map/featuresGen.svelte";
-import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
-import { updateAllMapObjects } from "@/lib/mapObjects/updateMapObject";
+import type { AnyFilter, FilterCategory } from "@/lib/features/filters/filters";
 import {
 	getUserSettings,
 	updateUserSettings,
 	type UserSettings
 } from "@/lib/services/userSettings.svelte";
-import { openModal } from "@/lib/ui/modal.svelte";
+import { updateAllMapObjects } from "@/lib/mapObjects/updateMapObject";
+import { FiltersetPokemonSchema } from "@/lib/features/filters/filtersetSchemas";
 import { getId } from "@/lib/utils/uuid";
+import * as m from "@/lib/paraglide/messages";
+import { deleteAllFeaturesOfType } from "@/lib/map/featuresGen.svelte";
+import { generateFilterDetails } from "@/lib/features/filters/filtersetUtils.svelte";
+import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 
 type DataGeneric<M extends keyof UserSettings["filters"]> = {
 	majorCategory: M;

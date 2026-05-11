@@ -57,13 +57,14 @@ export type DbCreds = {
 type Auth = {
 	enabled: boolean;
 	optional: boolean;
+	secret?: string;
+	baseUrl?: string;
 	discord?: AuthDiscord;
 };
 
 type AuthDiscord = {
 	clientId: string;
 	clientSecret: string;
-	redirectUri: string;
 };
 
 type ClientDiscord = {
@@ -131,6 +132,7 @@ export type ClientConfig = {
 		showToolsMenu: boolean;
 		coverageMap: boolean;
 		scout: boolean;
+		customTools?: boolean;
 	};
 };
 
@@ -156,7 +158,6 @@ export type ServerConfig = {
 	nominatim?: {
 		url: string;
 		basicAuth?: string;
-		userAgent?: string;
 	};
 	pelias?: {
 		url: string;
@@ -166,7 +167,6 @@ export type ServerConfig = {
 	photon?: {
 		url: string;
 		basicAuth?: string;
-		hasGeometries?: boolean;
 	};
 	log: Log;
 	internalDb: DbCreds;

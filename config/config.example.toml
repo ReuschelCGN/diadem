@@ -25,7 +25,6 @@ projectName = "reactmap"
 
 #[server.photon]
 #url = "https://photon.komoot.io/"  # You can use their public api, but consider self-hosting; it's pretty easy
-#hasGeometries = false  # Requires Photon to be started with -full-geometries
 
 #[server.pelias]
 #url = "https://api.geocode.earth/"
@@ -34,16 +33,16 @@ projectName = "reactmap"
 #[server.nominatim]
 #url = "http://127.0.0.1:500"
 #basicAuth = ""
-#userAgent = "Diadem / Contact: name@email.com"
 
 [server.auth]
 enabled = true
 optional = true
+secret = ""   # Required when enabled. Random 32+ chars (or set BETTER_AUTH_SECRET env)
+baseUrl = ""  # Required when enabled. Public app URL, e.g. "https://map.co"
 
 [server.auth.discord]
 clientId = ""
 clientSecret = ""
-redirectUri = "https://map.co/login/discord/callback"
 
 [client.discord]
 serverLink = "https://discord.com/invite/VGgsQN2hYG"
@@ -183,6 +182,7 @@ showToolsMenu = true
 
 coverageMap = true
 scout = true
+customTools = false  # If enabled, renders config/Tools.svelte at the bottom of the drawer
 
 # Map Positions for various maps in the UI
 [client.mapPositions]
@@ -284,4 +284,3 @@ url = "https://raw.githubusercontent.com/jms412/PkmnShuffleMap/master/UICONS_Hal
 
 base = { scale = 0.25 }
 pokemon = { scale = 0.4 }
-

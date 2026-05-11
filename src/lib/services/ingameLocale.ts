@@ -1,10 +1,10 @@
 import * as m from "@/lib/paraglide/messages";
 import { getLocale } from "@/lib/paraglide/runtime";
+import { formatNumber } from "@/lib/utils/numberFormat";
+import { INVASION_CHARACTER_LEADERS, INVASION_CHARACTER_NOTYPES } from "@/lib/utils/pokestopUtils";
 import { getMasterPokemon } from "@/lib/services/masterfile";
 import { RaidLevel } from "@/lib/utils/gymUtils";
-import { formatNumber } from "@/lib/utils/numberFormat";
 import { League } from "@/lib/utils/pokemonUtils";
-import { INVASION_CHARACTER_LEADERS, INVASION_CHARACTER_NOTYPES } from "@/lib/utils/pokestopUtils";
 
 export const prefixes = {
 	pokemon: "poke_",

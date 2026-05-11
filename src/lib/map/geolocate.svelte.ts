@@ -1,29 +1,12 @@
-import { getMap } from "@/lib/map/map.svelte";
 import * as m from "@/lib/paraglide/messages";
 import { openToast } from "@/lib/ui/toasts.svelte.js";
-import { round } from "@/lib/utils/numberFormat";
-import { distance } from "@turf/turf";
-import maplibre from "maplibre-gl";
-
-type Location = {
-	lat: number;
-	lng: number;
-	heading: number | undefined;
-};
+import maplibre, { type LngLatLike } from "maplibre-gl";
+import { tick } from "svelte";
 
 let geolocationEnabled: boolean = $state(false);
 let isFetchingLocation: boolean = $state(false);
-let isLocateFollowing: boolean = $state(false);
-let currentLocation: Location | undefined = $state(undefined);
-let watchId: number | undefined = undefined;
-let animationFrame: number | undefined = undefined;
-let shouldUpdateLocation = false;
-let shouldUpdateCamera = false;
-
-const minZoom = 14.5;
-const maxZoom = 17.5;
-const locationAnimationDuration = 1000;
-const minLocationUpdateDistanceMeters = 2;
+let animateLocationMarker: boolean = $state(false);
+let currentLocation: undefined | LngLatLike = $state(undefined);
 
 export function getIsGeolocationEnabled() {
 	return geolocationEnabled;
@@ -37,102 +20,17 @@ export function getCurrentLocation() {
 	return currentLocation;
 }
 
-export function getIsLocateFollowing() {
-	return isLocateFollowing;
+export function getAnimateLocationMarker() {
+	return animateLocationMarker;
 }
 
-export function setIsLocateFollowing(state: boolean) {
-	isLocateFollowing = state;
+export function setAnimateLocationMarker(state: boolean) {
+	animateLocationMarker = state;
 }
 
-export function resetLocate() {
-	getMap()?.stop();
-	isLocateFollowing = false;
-	shouldUpdateLocation = false;
-	shouldUpdateCamera = false;
-
-	if (watchId !== undefined) {
-		navigator.geolocation.clearWatch(watchId);
-	}
-
-	if (animationFrame !== undefined) {
-		window.cancelAnimationFrame(animationFrame);
-		animationFrame = undefined;
-	}
-
-	isFetchingLocation = false;
-	currentLocation = undefined;
-	watchId = undefined;
-}
-
-function animateLocation(location: Location, map: maplibre.Map | undefined) {
-	if (animationFrame !== undefined) {
-		window.cancelAnimationFrame(animationFrame);
-	}
-
-	if (!currentLocation) currentLocation = location;
-
-	const startLocation = currentLocation;
-	const startTime = performance.now();
-	if (isLocateFollowing && map && shouldUpdateCamera) {
-		// map.once("dragstart", () => map.stop())
-		map.panTo([location.lng, location.lat], {
-			duration: locationAnimationDuration
-		});
-	}
-
-	function animateFrame(now: number) {
-		const progress = Math.min((now - startTime) / locationAnimationDuration, 1);
-		const easedProgress = 1 - Math.pow(1 - progress, 3);
-
-		currentLocation = {
-			lng: startLocation.lng + (location.lng - startLocation.lng) * easedProgress,
-			lat: startLocation.lat + (location.lat - startLocation.lat) * easedProgress,
-			heading: location.heading
-		};
-
-		if (progress < 1) {
-			animationFrame = window.requestAnimationFrame(animateFrame);
-		} else {
-			animationFrame = undefined;
-		}
-	}
-
-	animationFrame = window.requestAnimationFrame(animateFrame);
-}
-
-function getContinuousHeading(heading: number) {
-	if (currentLocation?.heading === undefined) return heading;
-
-	const normalizedHeading = heading % 360;
-	const currentNormalizedHeading = currentLocation.heading % 360;
-	const delta = ((normalizedHeading - currentNormalizedHeading + 540) % 360) - 180;
-
-	return currentLocation.heading + delta;
-}
-
-function flyToLocation(map: maplibre.Map, location: Location) {
-	let zoom = map.getZoom();
-	if (zoom < minZoom - 1) {
-		zoom = minZoom;
-	} else if (zoom > maxZoom) {
-		zoom = maxZoom;
-	}
-
-	map.once("moveend", (e: { data?: string }) => {
-		if (e.data === "locate") {
-			shouldUpdateCamera = true;
-		}
-	});
-	map.flyTo(
-		{
-			center: [location.lng, location.lat],
-			zoom,
-			speed: 1.6,
-			curve: 1
-		},
-		{ data: "locate" }
-	);
+async function getGeolocationPermissionsState() {
+	const permissions = await window.navigator.permissions.query({ name: "geolocation" });
+	return permissions.state;
 }
 
 function handleGeolocationError(e: GeolocationPositionError) {
@@ -157,7 +55,7 @@ export async function updateGeolocationEnabled(showResult: boolean = false) {
 		if (!geolocationOk) errorReason = m.locate_error_support();
 	} else {
 		try {
-			const permsState = (await window.navigator.permissions.query({ name: "geolocation" })).state;
+			const permsState = await getGeolocationPermissionsState();
 			geolocationOk = permsState !== "denied";
 			if (!geolocationOk) errorReason = m.locate_error_perms();
 		} catch {
@@ -288,4 +186,40 @@ export function updateLocation(map: maplibre.Map | undefined, allowFollow: boole
 			}
 		);
 	}
+=======
+export function updateLocation(map: maplibre.Map | undefined) {
+	isFetchingLocation = true;
+	navigator?.geolocation?.getCurrentPosition(
+		(s) => {
+			isFetchingLocation = false;
+
+			if (!map) return;
+
+			currentLocation = {
+				lng: s.coords.longitude,
+				lat: s.coords.latitude
+			};
+			map.flyTo({
+				center: [s.coords.longitude, s.coords.latitude],
+				zoom: 14.5
+			});
+			tick().then(() => (animateLocationMarker = true));
+		},
+		(e) => {
+			if (e.code === 1) {
+				openToast(m.locate_error_perms());
+			} else if (e.code === 2) {
+				openToast(m.locate_error_timeout());
+			} else {
+				openToast(m.locate_error_unknown());
+			}
+
+			geolocationEnabled = false;
+			isFetchingLocation = false;
+			currentLocation = undefined;
+		},
+		{
+			enableHighAccuracy: true
+		}
+	);
 }

@@ -70,20 +70,7 @@ by setting a `lucideIcon` property in Koji.
 
 ## Reverse Geocoding
 
-Diadem supports different geocoding providers for address search. 
-
-Out of all options, Photon is the best fit and can be used across your mapping stack. [Find how to set it up here](/guides/photon).
-
-### Geometry
-
-When searching for a place, Diadem can show the resulting geometry on the map. These are not supported by all providers.
-- Photon
-    - Option 1: Run Photon with `-full-geometries` and set `hasGeometries` to true 
-(requires ~600 GB for a planet import, [more details here](https://github.com/komoot/photon/pull/823))
-    - Option 2: Configure Nominatim. When a user select a search result, geometries are fetched from Nominatim 
-(jumping is instant, displaying the result may take a little)
-- Pelias: Not supported
-- Nominatim: Supported
+Diadem supports different geocoding providers for address search. It's recommended to use Photon.
 
 ### `server.photon`
 
@@ -91,10 +78,7 @@ When searching for a place, Diadem can show the resulting geometry on the map. T
 [server.photon]
 url = "https://photon.komoot.io/"
 # basicAuth = "user:pass"
-#hasGeometries = false
 ```
-
-- `hasGeomtries`: If you run Photon with `-full-geometries`, set to true
 
 ### `server.pelias`
 
@@ -109,12 +93,9 @@ url = "https://api.geocode.earth/"
 
 ```toml
 [server.nominatim]
-url = "https://nominatim.openstreetmap.org/"
+url = "http://127.0.0.1:5000/"
 # basicAuth = "user:pass"
-#userAgent = "Diadem / Contact: name@email.com"
 ```
-
-- `userAgent`: Set this to something unique if you're using public nominatim
 
 ## `server.auth`
 
@@ -122,22 +103,25 @@ url = "https://nominatim.openstreetmap.org/"
 [server.auth]
 enabled = true
 optional = true
+secret = ""
+baseUrl = ""
 ```
 
 - `enabled`: Enables authentication
 - `optional`: If `true`, show a login prompt in the menu. If `false`, lock the app behind a login prompt.
+- `secret`: Required when enabled. Random 32+ chars used to sign/encrypt auth cookies and OAuth tokens. Can also be set via the `BETTER_AUTH_SECRET` or `AUTH_SECRET` env var.
+- `baseUrl`: Required when enabled. Public app URL (scheme + host only), e.g. `https://map.example.com`.
 
 ```toml
 [server.auth.discord]
 clientId = ""
 clientSecret = ""
-redirectUri = "https://map.example.com/login/discord/callback"
 ```
 
 Currently, only Discord auth is supported.
 
 Get your client ID and secret by setting up an application in the [Discord Developer Portal](https://discord.com/developers/applications)
-and enabling OAuth2. Make sure to set up a redirect that matches the value in `redirectUri` and points to your domain.
+and enabling OAuth2. The callback URL is `<baseUrl>/api/auth/callback/discord` — register this exact URL in the Discord OAuth app's redirect list.
 
 ## `client.discord`
 
@@ -285,9 +269,12 @@ or [SwiftTileserverCache](https://github.com/123FLO321/SwiftTileserverCache).
 showToolsMenu = true
 coverageMap = true
 scout = true
+customTools = false
 ```
 
 Enables/disables the different tools. `showToolsMenu` disables the Tools menu altogether.
+`customTools` renders `src/components/custom/Tools.svelte` at the bottom of the drawer —
+see [Extending Diadem](/guides/extending/#custom-tools-drawer-entries).
 
 ## `client.mapPositions`
 

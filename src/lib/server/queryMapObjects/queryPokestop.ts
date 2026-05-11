@@ -1,18 +1,18 @@
+import { DbMapObjectQuery } from "@/lib/server/queryMapObjects/MapObjectQuery";
+import type { PokestopData } from "@/lib/types/mapObjectData/pokestop";
+import type { FilterPokestop } from "@/lib/features/filters/filters";
+import { MapObjectType, type MinMapObject } from "@/lib/mapObjects/mapObjectTypes";
+import { requestLimits } from "@/lib/server/api/rateLimit";
+import { queryJoined } from "@/lib/server/db/external/internalQuery";
+import { getNormalizedForm } from "@/lib/utils/pokemonUtils";
+import { currentTimestamp } from "@/lib/utils/currentTimestamp";
+import type { PermittedPolygon } from "@/lib/services/user/checkPerm";
 import {
 	shouldDisplayIncident,
 	shouldDisplayLure,
 	shouldDisplayQuest
 } from "@/lib/features/filterLogic/pokestop";
-import type { FilterPokestop } from "@/lib/features/filters/filters";
-import { MapObjectType, type MinMapObject } from "@/lib/mapObjects/mapObjectTypes";
-import { requestLimits } from "@/lib/server/api/rateLimit";
-import { queryJoined } from "@/lib/server/db/external/internalQuery";
-import { DbMapObjectQuery } from "@/lib/server/queryMapObjects/MapObjectQuery";
-import type { PermittedPolygon } from "@/lib/services/user/checkPerm";
-import type { PokestopData } from "@/lib/types/mapObjectData/pokestop";
-import { currentTimestamp } from "@/lib/utils/currentTimestamp";
-import { getNormalizedForm } from "@/lib/utils/pokemonUtils";
-import { parseQuestReward } from "@/lib/utils/pokestopUtils";
+import { hasFortActiveLure, parseQuestReward } from "@/lib/utils/pokestopUtils";
 
 const FIELDS_POKESTOP = [
 	"pokestop.id",

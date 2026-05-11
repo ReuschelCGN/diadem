@@ -2,6 +2,9 @@
 /// <reference lib="esnext" />
 /// <reference lib="webworker" />
 
+import { self } from "./self";
+import { updateAllMapObjects } from "../mapObjects/updateMapObject";
+
 // export function handleUpdateMapObjects() {
 // 	self.addEventListener('message', e => {
 // 		const data = e.data

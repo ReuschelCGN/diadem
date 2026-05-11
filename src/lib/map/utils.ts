@@ -1,5 +1,5 @@
-import { getMap } from "@/lib/map/map.svelte";
 import { closePopup } from "@/lib/mapObjects/interact";
+import { getMap } from "@/lib/map/map.svelte";
 import type { Coords } from "@/lib/utils/coordinates";
 
 export function isWebglSupported() {

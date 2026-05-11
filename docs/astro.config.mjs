@@ -1,8 +1,8 @@
 // @ts-check
-import starlight from "@astrojs/starlight";
 import { defineConfig } from "astro/config";
-import starlightContextualMenu from "starlight-contextual-menu";
+import starlight from "@astrojs/starlight";
 import starlightThemeFlexoki from "starlight-theme-flexoki";
+import starlightContextualMenu from "starlight-contextual-menu";
 
 // https://astro.build/config
 export default defineConfig({

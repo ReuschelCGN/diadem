@@ -1,12 +1,12 @@
+import { error, json } from "@sveltejs/kit";
+import { getLogger } from "@/lib/utils/logger";
 import type { Bounds } from "@/lib/mapObjects/mapBounds";
-import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
-import { buildSpatialFilter } from "@/lib/server/api/spatialFilter";
-import { hasFeatureAnywhereServer } from "@/lib/server/auth/checkIfAuthed";
 import { query } from "@/lib/server/db/external/internalQuery";
 import type { RawFortSearchEntry } from "@/lib/services/search.svelte";
-import { checkFeatureInBounds } from "@/lib/services/user/checkPerm";
-import { getLogger } from "@/lib/utils/logger";
-import { error, json } from "@sveltejs/kit";
+import { hasFeatureAnywhereServer } from "@/lib/server/auth/checkIfAuthed";
+import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
+import { checkFeatureInBounds, type PermittedBounds } from "@/lib/services/user/checkPerm";
+import { buildSpatialFilter } from "@/lib/server/api/spatialFilter";
 
 const log = getLogger("fortsearch");
 

@@ -1,6 +1,8 @@
 import type { MinMax, Pokemon, QuestReward } from "@/lib/features/filters/filtersets";
-import * as m from "@/lib/paraglide/messages";
 import { mItem, mPokemon, mQuest, mRaid } from "@/lib/services/ingameLocale";
+import * as m from "@/lib/paraglide/messages";
+import { getGenderLabel } from "@/lib/utils/pokemonUtils";
+import { getRewardText } from "@/lib/utils/pokestopUtils";
 
 export function makeAttributeRangeLabel(
 	value: MinMax | undefined = undefined,

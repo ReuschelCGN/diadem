@@ -1,5 +1,5 @@
-import type { IconProps } from "lucide-svelte";
 import { SvelteComponentTyped } from "svelte";
+import type { IconProps } from "lucide-svelte";
 
 type Events = { [evt: string]: CustomEvent<any> };
 type Slots = { default: {} };
