@@ -1,4 +1,4 @@
-# Diadem
+# Diadem 
 
 🌠 Next-gen map frontend for Pokémon GO
 
