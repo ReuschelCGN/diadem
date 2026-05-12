@@ -7,8 +7,6 @@ FROM base AS deps
 COPY package.json pnpm-lock.yaml ./
 COPY patches ./patches/
 RUN pnpm install --frozen-lockfile
-RUN pnpm add patch-package
-RUN npx patch-package
 
 FROM base AS builder
 WORKDIR /app
