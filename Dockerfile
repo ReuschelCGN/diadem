@@ -7,6 +7,7 @@ FROM base AS deps
 COPY package.json pnpm-lock.yaml ./
 COPY patches ./patches/
 RUN pnpm install --frozen-lockfile
+RUN patches/drizzle-kit@0.30.5.patch
 
 FROM base AS builder
 WORKDIR /app
