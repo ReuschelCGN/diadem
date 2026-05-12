@@ -2,7 +2,6 @@ import { type KojiFeatures } from "@/lib/features/koji";
 import { fetchKojiGeofences } from "@/lib/server/api/kojiApi";
 import { setPermissions } from "@/lib/server/auth/userRecord";
 import { type GuildMembership, getGuildMemberInfo } from "@/lib/server/auth/discordDetails";
-import { type User } from "@/lib/server/db/internal/schema";
 import { getServerConfig } from "@/lib/services/config/config.server";
 import type { Permissions as ConfigRule } from "@/lib/services/config/configTypes";
 import type { FeaturesKey, PermArea, Perms } from "@/lib/utils/features";
@@ -10,10 +9,7 @@ import { getLogger } from "@/lib/utils/logger";
 
 const log = getLogger("permissions");
 
-export type PermissionUser = {
-	id: string;
-	permissions: unknown;
-};
+export type PermissionUser = { id: string };
 
 // The everyone-only rule set is process-lifetime memoized; a config change
 // requires a restart. Holds the resolved Perms object so callers can structuredClone.
