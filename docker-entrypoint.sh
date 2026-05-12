@@ -7,10 +7,10 @@ if [ "${SKIP_DB_PUSH:-}" = "true" ]; then
     echo "Skipping database push (SKIP_DB_PUSH=true)"
 elif [ "${FORCE_DB_PUSH:-}" = "true" ]; then
     echo "Running database push (forced)..."
-    npx drizzle-kit push --force
+    npx drizzle-kit push --force --config /app/drizzle.config.ts
 else
     echo "Running database push..."
-    npx drizzle-kit push
+    npx drizzle-kit push --config /app/drizzle.config.ts
 fi
 
 echo "Starting Diadem..."
