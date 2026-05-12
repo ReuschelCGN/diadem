@@ -12,7 +12,10 @@ services:
       - NODE_ENV=production
       - HOST=0.0.0.0
       - PORT=3900
+#      - SKIP_DB_PUSH=true
+#      - FORCE_DB_PUSH=true
     volumes:
+#      - ./favicon.png:/app/build/client/favicon.png
       # Required: Mount your config file (both paths needed for runtime and db:push)
       - ./config/config.toml:/app/build/server/config.toml:ro
       - ./config/config.toml:/app/src/lib/server/config.toml:ro
