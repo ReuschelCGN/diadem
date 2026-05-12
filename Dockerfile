@@ -29,6 +29,7 @@ COPY --from=deps --chown=diadem:diadem /app/node_modules ./node_modules
 COPY --from=builder --chown=diadem:diadem /app/drizzle.config.ts ./
 COPY --from=builder --chown=diadem:diadem /app/src/lib/server/db ./src/lib/server/db
 COPY --from=builder --chown=diadem:diadem /app/src/lib/services ./src/lib/services
+COPY --from=builder --chown=diadem:diadem /app/patches/bin.cjs ./node_modules/.pnpm/drizzle-kit@0.30.5/node_modules/drizzle-kit/bin.cjs
 
 # Create config.toml mount point (actual config mounted at runtime)
 RUN touch ./src/lib/server/config.toml && chown diadem:diadem ./src/lib/server/config.toml
