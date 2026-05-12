@@ -83,8 +83,9 @@ Tests must always be passing. Run `pnpm test` after making changes to verify. No
 
 ### Database
 
-- **Internal DB** (Drizzle): users + sessions tables in `src/lib/server/db/internal/schema.ts`
+- **Internal DB** (Drizzle): `user`, `session`, `account`, `verification` tables in `src/lib/server/db/internal/schema.ts` (the last three are Better Auth's core schema)
 - **External DB** (raw queries): Golbat scanner data via `src/lib/server/db/external/`
+- **Migrations**: fresh installs use `pnpm run db:push`; production upgrades use the numbered SQL files in `migrations/` (e.g. `001_better_auth.sql`), which are idempotent and safe to re-run
 
 ### Documentation
 

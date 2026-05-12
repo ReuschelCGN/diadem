@@ -3,7 +3,7 @@ import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { sveltekitCookies } from "better-auth/svelte-kit";
 import { getRequestEvent } from "$app/server";
 import type { RequestEvent } from "@sveltejs/kit";
-import { getTableName, sql } from "drizzle-orm";
+import { getTableColumns, getTableName, sql } from "drizzle-orm";
 
 import { db } from "@/lib/server/db/internal";
 import { account, session, user, verification } from "@/lib/server/db/internal/schema";
@@ -62,8 +62,14 @@ async function assertBetterAuthSchemaReady() {
 	const missing: string[] = [];
 	for (const t of authTables) {
 		const tableName = getTableName(t);
+		// Enumerate every column the adapter expects. `LIMIT 0` avoids reading rows;
+		// MySQL still validates the column list, so a missing column trips
+		// ER_BAD_FIELD_ERROR. Catches half-applied migrations that a `SELECT 1` misses.
+		const cols = Object.values(getTableColumns(t))
+			.map((c) => `\`${c.name}\``)
+			.join(", ");
 		try {
-			await db.execute(sql.raw(`SELECT 1 FROM \`${tableName}\` LIMIT 1`));
+			await db.execute(sql.raw(`SELECT ${cols} FROM \`${tableName}\` LIMIT 0`));
 		} catch (error) {
 			const e = error as { code?: string; errno?: number };
 			if (isMissingTableError(e) || isMissingColumnError(e)) missing.push(tableName);
@@ -72,7 +78,8 @@ async function assertBetterAuthSchemaReady() {
 	}
 	if (missing.length > 0) {
 		throw new Error(
-			`[AUTH_STARTUP_ERROR] Better Auth schema is incomplete. Missing tables: ${missing.join(", ")}. ` +
+			`[AUTH_STARTUP_ERROR] Better Auth schema is incomplete. ` +
+				`Missing tables or columns in: ${missing.join(", ")}. ` +
 				"Run your DB migration before starting the app."
 		);
 	}
@@ -115,7 +122,11 @@ export const auth = canConstructAuth
 			advanced: {
 				database: {
 					generateId: () => generateAuthRecordId()
-				}
+				},
+				// Force `Secure` on session cookies in production regardless of the
+				// baseURL scheme — otherwise a misconfigured http baseUrl in prod
+				// silently produces non-Secure cookies.
+				useSecureCookies: process.env.NODE_ENV === "production"
 			},
 			session: {
 				expiresIn: SESSION_TTL_SECONDS,
@@ -221,6 +232,9 @@ export function signInWithDiscord(
 }
 
 export async function signOut(event: RequestEvent): Promise<boolean> {
+	// Idempotent: auth disabled means "already signed out" — distinguishes the
+	// auth-off case from a real Better Auth failure.
+	if (!auth) return true;
 	const result = await callAuth("Sign-out", "warning", (a) =>
 		a.api.signOut({ headers: event.request.headers })
 	);

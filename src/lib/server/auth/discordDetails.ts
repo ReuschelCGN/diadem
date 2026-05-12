@@ -104,9 +104,14 @@ export async function revokeDiscordToken(accessToken: string): Promise<boolean> 
 				client_secret: discordClientCredentials.clientSecret
 			})
 		});
+		if (!response.ok) {
+			// Token outlives the session at Discord (up to its natural expiry, ~7 days).
+			// Worth paging — a recurring failure here means revocation is silently broken.
+			log.error(`Discord token revoke returned ${response.status}`);
+		}
 		return response.ok;
 	} catch (error) {
-		log.warning(`Failed to revoke Discord token: ${error}`);
+		log.error(`Failed to revoke Discord token: ${error}`);
 		return false;
 	}
 }
